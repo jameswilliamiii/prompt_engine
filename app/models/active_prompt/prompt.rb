@@ -2,7 +2,7 @@ module ActivePrompt
   class Prompt < ApplicationRecord
     self.table_name = "active_prompt_prompts"
     
-    validates :name, presence: true
+    validates :name, presence: true, uniqueness: { scope: :status }
     validates :content, presence: true
     
     enum :status, {
