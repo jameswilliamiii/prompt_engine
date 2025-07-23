@@ -18,7 +18,6 @@ module ActivePrompt
         @prompt = ActivePrompt::Prompt.new(prompt_params)
         
         if @prompt.save
-          @prompt.sync_parameters!
           redirect_to prompt_path(@prompt), notice: 'Prompt was successfully created.'
         else
           render :new, status: :unprocessable_entity
@@ -30,7 +29,6 @@ module ActivePrompt
       
       def update
         if @prompt.update(prompt_params)
-          @prompt.sync_parameters!
           redirect_to prompt_path(@prompt), notice: 'Prompt was successfully updated.'
         else
           render :edit, status: :unprocessable_entity
@@ -49,7 +47,8 @@ module ActivePrompt
       end
       
       def prompt_params
-        params.require(:prompt).permit(:name, :description, :content, :system_message, :model, :temperature, :max_tokens, :status)
+        params.require(:prompt).permit(:name, :description, :content, :system_message, :model, :temperature, :max_tokens, :status,
+          parameters_attributes: [:id, :name, :description, :parameter_type, :required, :default_value, :_destroy])
       end
   end
 end

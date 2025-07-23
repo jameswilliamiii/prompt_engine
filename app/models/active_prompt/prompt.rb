@@ -14,6 +14,8 @@ module ActivePrompt
     validates :name, presence: true, uniqueness: { scope: :status }
     validates :content, presence: true
     
+    accepts_nested_attributes_for :parameters, allow_destroy: true
+    
     enum :status, {
       draft: 'draft',
       active: 'active',
@@ -25,6 +27,7 @@ module ActivePrompt
 
     after_create :create_initial_version
     after_update :create_version_if_changed
+    before_save :clean_orphaned_parameters
 
     VERSIONED_ATTRIBUTES = %w[content system_message model temperature max_tokens metadata].freeze
 
@@ -146,6 +149,16 @@ module ActivePrompt
         metadata: metadata,
         change_description: "Updated: #{(saved_changes.keys & VERSIONED_ATTRIBUTES).join(', ')}"
       )
+    end
+    
+    def clean_orphaned_parameters
+      return unless content_changed?
+      
+      # Mark parameters for destruction if their names are not in the content
+      detected_vars = detect_variables
+      parameters.each do |param|
+        param.mark_for_destruction unless detected_vars.include?(param.name)
+      end
     end
   end
 end

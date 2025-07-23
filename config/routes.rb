@@ -16,12 +16,6 @@ ActivePrompt::Engine.routes.draw do
         get :compare
       end
     end
-    
-    resources :parameters do
-      collection do
-        post :sync
-      end
-    end
   end
   
   resources :templates do

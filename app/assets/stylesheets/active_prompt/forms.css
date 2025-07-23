@@ -164,3 +164,10 @@
   color: var(--color-gray-500);
   cursor: not-allowed;
 }
+
+/* Small Variants */
+.form__input--small,
+.form__select--small {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+}

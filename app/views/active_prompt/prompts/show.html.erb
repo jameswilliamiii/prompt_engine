@@ -6,7 +6,6 @@
     <% end %>
   </div>
   <div class="btn-group">
-    <%= link_to "Parameters", prompt_parameters_path(@prompt), class: "btn btn--secondary btn--medium" %>
     <%= link_to "Version History", prompt_versions_path(@prompt), class: "btn btn--secondary btn--medium" %>
     <%= link_to "Edit", edit_prompt_path(@prompt), class: "btn btn--primary btn--medium" %>
     <%= button_to "Delete", prompt_path(@prompt), method: :delete,
@@ -59,6 +58,35 @@
     </div>
   </div>
 
+  <% if @prompt.parameters.any? %>
+    <div class="card mb-lg">
+      <div class="card__header">
+        <h3 class="card__title">Parameters</h3>
+      </div>
+      <div class="card__body">
+        <div class="parameters-table">
+          <% @prompt.parameters.ordered.each do |parameter| %>
+            <div class="parameter-row">
+              <div class="parameter-name"><%= parameter.name %></div>
+              <div class="parameter-details">
+                <span class="parameter-type"><%= parameter.parameter_type %></span>
+                <span class="parameter-required <%= parameter.required? ? 'required' : 'optional' %>">
+                  <%= parameter.required? ? 'Required' : 'Optional' %>
+                </span>
+                <% if parameter.default_value.present? %>
+                  <span class="parameter-default">Default: <%= parameter.default_value %></span>
+                <% end %>
+              </div>
+              <% if parameter.description.present? %>
+                <div class="parameter-description"><%= parameter.description %></div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <div class="card mb-lg">
     <div class="card__header">
       <h3 class="card__title">Usage Example</h3>
@@ -67,11 +95,9 @@
       <p class="text-muted mb-md">Use this prompt in your Rails application:</p>
       <pre class="code-example"># In your controller or model
 result = ActivePrompt.render(:<%= @prompt.name %><% 
-  # Extract variables from content using regex
-  variables = @prompt.content.to_s.scan(/\{\{(\w+)\}\}/).flatten.uniq
-  if variables.any?
-%>, variables: {<% variables.each_with_index do |var, index| %>
-  <%= var %>: "value<%= index + 1 %>",<% end %>
+  if @prompt.parameters.any?
+%>, variables: {<% @prompt.parameters.ordered.each_with_index do |param, index| %>
+  <%= param.name %>: <%= param.example_value.presence || "\"value#{index + 1}\"" %>,<% end %>
 }<% else %> # No variables needed<% end %>)
 
 # Access the rendered content
@@ -177,5 +203,65 @@ response = OpenAI::Client.new.chat(
   
   .mb-md {
     margin-bottom: var(--spacing-md);
+  }
+  
+  .parameters-table {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .parameter-row {
+    padding: var(--spacing-md);
+    background-color: var(--color-gray-50);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-gray-200);
+  }
+  
+  .parameter-name {
+    font-family: monospace;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .parameter-details {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .parameter-type {
+    background-color: var(--color-gray-200);
+    color: var(--color-gray-700);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+  }
+  
+  .parameter-required {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+  }
+  
+  .parameter-required.required {
+    color: var(--color-warning);
+  }
+  
+  .parameter-required.optional {
+    color: var(--color-gray-600);
+  }
+  
+  .parameter-default {
+    font-size: var(--font-size-xs);
+    color: var(--color-gray-600);
+  }
+  
+  .parameter-description {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-600);
+    margin-top: var(--spacing-xs);
   }
 </style>

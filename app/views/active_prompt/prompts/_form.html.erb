@@ -36,11 +36,22 @@
         placeholder: "The main prompt content that will be sent to the AI",
         data: { action: "input->variable-detector#detectVariables" } %>
     <div class="form__help">The main prompt template. Use {{variable_name}} syntax for variables.</div>
-    <div id="detected-variables" class="detected-variables" style="display: none;">
-      <h4>Detected Variables:</h4>
-      <div id="variables-list"></div>
-      <p class="form__help">These variables will be automatically created as parameters when you save.</p>
+  </div>
+
+  <div id="parameters-section" class="parameters-section" style="display: none;">
+    <h3 class="form__section-title">Parameters</h3>
+    <div class="form__help mb-md">Configure the parameters detected in your prompt:</div>
+    
+    <div id="parameters-list" class="parameters-list">
+      <!-- Parameters will be dynamically inserted here -->
     </div>
+    
+    <%= form.fields_for :parameters do |parameter_form| %>
+      <div class="parameter-fields" style="display: none;">
+        <%= parameter_form.hidden_field :id %>
+        <%= parameter_form.hidden_field :_destroy %>
+      </div>
+    <% end %>
   </div>
 
   <div class="form__inline">
@@ -112,39 +123,88 @@
     padding-left: var(--spacing-lg);
   }
   
-  .detected-variables {
-    background-color: var(--color-blue-50);
-    border: 1px solid var(--color-blue-200);
+  .parameters-section {
+    background-color: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+  }
+  
+  .form__section-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-gray-900);
+  }
+  
+  .parameters-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .parameter-item {
+    background-color: white;
+    border: 1px solid var(--color-gray-200);
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
-    margin-top: var(--spacing-sm);
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 2fr 100px;
+    gap: var(--spacing-md);
+    align-items: start;
   }
   
-  .detected-variables h4 {
-    font-size: var(--font-size-sm);
-    font-weight: 600;
+  .parameter-field {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .parameter-field label {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    color: var(--color-gray-600);
     margin-bottom: var(--spacing-xs);
-    color: var(--color-blue-900);
   }
   
-  .variable-tag {
-    display: inline-block;
-    background-color: var(--color-blue-100);
-    color: var(--color-blue-800);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--radius-sm);
+  .parameter-field input,
+  .parameter-field select {
     font-size: var(--font-size-sm);
+  }
+  
+  .parameter-name {
     font-family: monospace;
-    margin-right: var(--spacing-xs);
-    margin-bottom: var(--spacing-xs);
+    font-weight: 600;
+    color: var(--color-gray-900);
+  }
+  
+  .parameter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin-top: 20px;
+  }
+  
+  .mb-md {
+    margin-bottom: var(--spacing-md);
   }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const contentField = document.querySelector('[data-action="input->variable-detector#detectVariables"]');
-  const detectedVariablesDiv = document.getElementById('detected-variables');
-  const variablesList = document.getElementById('variables-list');
+  const parametersSection = document.getElementById('parameters-section');
+  const parametersList = document.getElementById('parameters-list');
+  
+  // Store existing parameters data (for edit form)
+  const existingParameters = <%= raw((prompt.persisted? ? prompt.parameters : []).map { |p| {
+    name: p.name,
+    description: p.description,
+    parameter_type: p.parameter_type,
+    required: p.required,
+    default_value: p.default_value,
+    id: p.id
+  }}.to_json) %>;
   
   function detectVariables() {
     const content = contentField.value;
@@ -153,13 +213,91 @@ document.addEventListener('DOMContentLoaded', function() {
     const uniqueVariables = [...new Set(matches.map(match => match[1]))];
     
     if (uniqueVariables.length > 0) {
-      detectedVariablesDiv.style.display = 'block';
-      variablesList.innerHTML = uniqueVariables.map(variable => 
-        `<span class="variable-tag">${variable}</span>`
-      ).join('');
+      parametersSection.style.display = 'block';
+      updateParametersDisplay(uniqueVariables);
     } else {
-      detectedVariablesDiv.style.display = 'none';
+      parametersSection.style.display = 'none';
     }
+  }
+  
+  function updateParametersDisplay(variables) {
+    parametersList.innerHTML = '';
+    
+    // Add fields for parameters that should be kept
+    variables.forEach((variable, index) => {
+      const existingParam = existingParameters.find(p => p.name === variable);
+      const parameterItem = createParameterItem(variable, index, existingParam);
+      parametersList.appendChild(parameterItem);
+    });
+    
+    // Add hidden fields to destroy parameters that are no longer in content
+    let destroyIndex = variables.length;
+    existingParameters.forEach(param => {
+      if (!variables.includes(param.name)) {
+        const destroyField = document.createElement('div');
+        destroyField.style.display = 'none';
+        destroyField.innerHTML = `
+          <input type="hidden" name="prompt[parameters_attributes][${destroyIndex}][id]" value="${param.id}">
+          <input type="hidden" name="prompt[parameters_attributes][${destroyIndex}][_destroy]" value="1">
+        `;
+        parametersList.appendChild(destroyField);
+        destroyIndex++;
+      }
+    });
+  }
+  
+  function createParameterItem(variableName, index, existingData) {
+    const div = document.createElement('div');
+    div.className = 'parameter-item';
+    div.innerHTML = `
+      <div class="parameter-field">
+        <label>Name</label>
+        <span class="parameter-name">${variableName}</span>
+        <input type="hidden" name="prompt[parameters_attributes][${index}][name]" value="${variableName}">
+        ${existingData ? `<input type="hidden" name="prompt[parameters_attributes][${index}][id]" value="${existingData.id}">` : ''}
+      </div>
+      
+      <div class="parameter-field">
+        <label>Type</label>
+        <select name="prompt[parameters_attributes][${index}][parameter_type]" class="form__select form__select--small">
+          <option value="string" ${existingData?.parameter_type === 'string' ? 'selected' : ''}>String</option>
+          <option value="number" ${existingData?.parameter_type === 'number' ? 'selected' : ''}>Number</option>
+          <option value="boolean" ${existingData?.parameter_type === 'boolean' ? 'selected' : ''}>Boolean</option>
+          <option value="array" ${existingData?.parameter_type === 'array' ? 'selected' : ''}>Array</option>
+          <option value="object" ${existingData?.parameter_type === 'object' ? 'selected' : ''}>Object</option>
+        </select>
+      </div>
+      
+      <div class="parameter-field">
+        <label>Required</label>
+        <div class="parameter-checkbox">
+          <input type="hidden" name="prompt[parameters_attributes][${index}][required]" value="0">
+          <input type="checkbox" 
+                 name="prompt[parameters_attributes][${index}][required]" 
+                 value="1"
+                 ${existingData?.required !== false ? 'checked' : ''}>
+        </div>
+      </div>
+      
+      <div class="parameter-field">
+        <label>Default Value</label>
+        <input type="text" 
+               name="prompt[parameters_attributes][${index}][default_value]" 
+               class="form__input form__input--small"
+               placeholder="Optional"
+               value="${existingData?.default_value || ''}">
+      </div>
+      
+      <div class="parameter-field">
+        <label>Description</label>
+        <input type="text" 
+               name="prompt[parameters_attributes][${index}][description]" 
+               class="form__input form__input--small"
+               placeholder="Optional"
+               value="${existingData?.description || ''}">
+      </div>
+    `;
+    return div;
   }
   
   if (contentField) {
