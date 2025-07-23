@@ -18,6 +18,7 @@ module ActivePrompt
         @prompt = ActivePrompt::Prompt.new(prompt_params)
         
         if @prompt.save
+          @prompt.sync_parameters!
           redirect_to prompt_path(@prompt), notice: 'Prompt was successfully created.'
         else
           render :new, status: :unprocessable_entity
@@ -29,6 +30,7 @@ module ActivePrompt
       
       def update
         if @prompt.update(prompt_params)
+          @prompt.sync_parameters!
           redirect_to prompt_path(@prompt), notice: 'Prompt was successfully updated.'
         else
           render :edit, status: :unprocessable_entity

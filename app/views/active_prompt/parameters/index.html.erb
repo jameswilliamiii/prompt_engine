@@ -1,0 +1,92 @@
+<div class="header">
+  <h1 class="header__title">Parameters for <%= @prompt.name %></h1>
+  <div class="header__actions">
+    <%= link_to "Back to Prompt", prompt_path(@prompt), class: "button button--secondary" %>
+    <%= link_to "New Parameter", new_prompt_parameter_path(@prompt), class: "button button--primary" %>
+    <% if @detected_variables.any? %>
+      <%= button_to "Sync with Content", sync_prompt_parameters_path(@prompt), 
+          method: :post, 
+          class: "button button--secondary",
+          data: { 
+            confirm: "This will add new parameters and remove obsolete ones. Continue?" 
+          } %>
+    <% end %>
+  </div>
+</div>
+
+<% if @detected_variables.any? %>
+  <div class="card card--info">
+    <h3>Detected Variables in Prompt Content</h3>
+    <p>
+      Found <%= pluralize(@detected_variables.size, 'variable') %>: 
+      <strong><%= @detected_variables.join(', ') %></strong>
+    </p>
+    <% missing_vars = @detected_variables - @parameters.pluck(:name) %>
+    <% extra_params = @parameters.pluck(:name) - @detected_variables %>
+    
+    <% if missing_vars.any? %>
+      <p class="text-warning">
+        Missing parameters: <%= missing_vars.join(', ') %>
+      </p>
+    <% end %>
+    
+    <% if extra_params.any? %>
+      <p class="text-warning">
+        Unused parameters: <%= extra_params.join(', ') %>
+      </p>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @parameters.any? %>
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Position</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @parameters.each do |parameter| %>
+          <tr>
+            <td><%= parameter.position || '-' %></td>
+            <td class="font-mono"><%= parameter.name %></td>
+            <td><%= parameter.parameter_type %></td>
+            <td>
+              <span class="badge <%= parameter.required? ? 'badge--warning' : 'badge--success' %>">
+                <%= parameter.required? ? 'Required' : 'Optional' %>
+              </span>
+            </td>
+            <td class="font-mono">
+              <%= parameter.default_value.presence || '-' %>
+            </td>
+            <td><%= parameter.description.presence || '-' %></td>
+            <td class="table__actions">
+              <%= link_to "Edit", edit_prompt_parameter_path(@prompt, parameter), 
+                  class: "button button--small" %>
+              <%= button_to "Delete", prompt_parameter_path(@prompt, parameter), 
+                  method: :delete,
+                  class: "button button--small button--danger",
+                  data: { confirm: "Are you sure?" } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state">
+    <p>No parameters defined yet.</p>
+    <% if @detected_variables.any? %>
+      <p>Click "Sync with Content" to automatically create parameters from detected variables.</p>
+    <% else %>
+      <p>Add variables to your prompt content using {{variable_name}} syntax.</p>
+    <% end %>
+  </div>
+<% end %>

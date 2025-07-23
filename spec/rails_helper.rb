@@ -15,6 +15,8 @@ require 'factory_bot_rails'
 require 'capybara/rails'
 require 'capybara/rspec'
 require 'selenium-webdriver'
+require 'rails-controller-testing'
+Rails::Controller::Testing.install
 
 # Configure migration paths for the engine
 ENGINE_ROOT = File.join(File.dirname(__FILE__), '../')

@@ -33,8 +33,14 @@
   <div class="form__group">
     <%= form.label :content, "Prompt Content", class: "form__label form__label--required" %>
     <%= form.text_area :content, class: "form__textarea", rows: 6, required: true,
-        placeholder: "The main prompt content that will be sent to the AI" %>
-    <div class="form__help">The main prompt template</div>
+        placeholder: "The main prompt content that will be sent to the AI",
+        data: { action: "input->variable-detector#detectVariables" } %>
+    <div class="form__help">The main prompt template. Use {{variable_name}} syntax for variables.</div>
+    <div id="detected-variables" class="detected-variables" style="display: none;">
+      <h4>Detected Variables:</h4>
+      <div id="variables-list"></div>
+      <p class="form__help">These variables will be automatically created as parameters when you save.</p>
+    </div>
   </div>
 
   <div class="form__inline">
@@ -105,4 +111,61 @@
     margin: 0;
     padding-left: var(--spacing-lg);
   }
+  
+  .detected-variables {
+    background-color: var(--color-blue-50);
+    border: 1px solid var(--color-blue-200);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-sm);
+  }
+  
+  .detected-variables h4 {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+    color: var(--color-blue-900);
+  }
+  
+  .variable-tag {
+    display: inline-block;
+    background-color: var(--color-blue-100);
+    color: var(--color-blue-800);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    font-family: monospace;
+    margin-right: var(--spacing-xs);
+    margin-bottom: var(--spacing-xs);
+  }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const contentField = document.querySelector('[data-action="input->variable-detector#detectVariables"]');
+  const detectedVariablesDiv = document.getElementById('detected-variables');
+  const variablesList = document.getElementById('variables-list');
+  
+  function detectVariables() {
+    const content = contentField.value;
+    const variablePattern = /\{\{([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*)\}\}/g;
+    const matches = [...content.matchAll(variablePattern)];
+    const uniqueVariables = [...new Set(matches.map(match => match[1]))];
+    
+    if (uniqueVariables.length > 0) {
+      detectedVariablesDiv.style.display = 'block';
+      variablesList.innerHTML = uniqueVariables.map(variable => 
+        `<span class="variable-tag">${variable}</span>`
+      ).join('');
+    } else {
+      detectedVariablesDiv.style.display = 'none';
+    }
+  }
+  
+  if (contentField) {
+    contentField.addEventListener('input', detectVariables);
+    // Detect variables on page load
+    detectVariables();
+  }
+});
+</script>

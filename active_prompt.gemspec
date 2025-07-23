@@ -27,4 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "sqlite3", "~> 2.0"
   spec.add_development_dependency "capybara", "~> 3.40"
   spec.add_development_dependency "selenium-webdriver", "~> 4.20"
+  spec.add_development_dependency "rails-controller-testing", "~> 1.0"
 end

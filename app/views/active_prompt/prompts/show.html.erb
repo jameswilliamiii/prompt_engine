@@ -6,6 +6,7 @@
     <% end %>
   </div>
   <div class="btn-group">
+    <%= link_to "Parameters", prompt_parameters_path(@prompt), class: "btn btn--secondary btn--medium" %>
     <%= link_to "Version History", prompt_versions_path(@prompt), class: "btn btn--secondary btn--medium" %>
     <%= link_to "Edit", edit_prompt_path(@prompt), class: "btn btn--primary btn--medium" %>
     <%= button_to "Delete", prompt_path(@prompt), method: :delete,
