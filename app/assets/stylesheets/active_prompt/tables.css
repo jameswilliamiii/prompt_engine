@@ -13,11 +13,6 @@
   font-size: var(--font-size-sm);
 }
 
-/* Table Header */
-.table__header {
-  background-color: var(--color-gray-50);
-  border-bottom: 1px solid var(--color-gray-200);
-}
 
 .table__row {
   border-bottom: 1px solid var(--color-gray-100);
@@ -92,12 +87,6 @@
   color: var(--color-gray-500);
 }
 
-.table__empty-icon {
-  width: 48px;
-  height: 48px;
-  margin: 0 auto var(--spacing-md);
-  opacity: 0.3;
-}
 
 .table__empty-title {
   font-size: var(--font-size-lg);

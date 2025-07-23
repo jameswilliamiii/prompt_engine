@@ -7,10 +7,6 @@
   overflow: hidden;
 }
 
-.card--bordered {
-  box-shadow: none;
-}
-
 .card--shadowed {
   box-shadow: var(--shadow-md);
   border: none;
@@ -30,11 +26,6 @@
   margin: 0;
 }
 
-.card__subtitle {
-  font-size: var(--font-size-sm);
-  color: var(--color-gray-600);
-  margin-top: var(--spacing-xs);
-}
 
 /* Card Body */
 .card__body {
@@ -45,12 +36,6 @@
   padding: var(--spacing-md);
 }
 
-/* Card Footer */
-.card__footer {
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-top: 1px solid var(--color-gray-200);
-  background-color: var(--color-gray-50);
-}
 
 /* Card Sections */
 .card__section {
