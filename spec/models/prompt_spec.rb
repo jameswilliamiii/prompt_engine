@@ -44,6 +44,176 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
       expect(prompt.status).to eq('draft')
     end
   end
+
+  describe 'associations' do
+    it 'has many versions' do
+      prompt = ActivePrompt::Prompt.new
+      association = prompt.class.reflect_on_association(:versions)
+      expect(association.macro).to eq(:has_many)
+      expect(association.options[:class_name]).to eq('ActivePrompt::PromptVersion')
+      expect(association.options[:dependent]).to eq(:destroy)
+    end
+  end
+
+  describe 'version control' do
+    let(:prompt) { create(:prompt) }
+
+    describe 'creating versions on save' do
+      it 'creates initial version on create' do
+        expect {
+          prompt = ActivePrompt::Prompt.create!(
+            name: 'Test Prompt',
+            content: 'Initial content',
+            system_message: 'Initial system message',
+            model: 'gpt-4',
+            temperature: 0.7,
+            max_tokens: 1000
+          )
+        }.to change { ActivePrompt::PromptVersion.count }.by(1)
+        
+        version = prompt.versions.first
+        expect(version.version_number).to eq(1)
+        expect(version.content).to eq('Initial content')
+        expect(version.system_message).to eq('Initial system message')
+        expect(version.change_description).to eq('Initial version')
+      end
+
+      it 'creates new version on update when content changes' do
+        prompt.update!(content: 'Updated content')
+        
+        expect(prompt.versions.count).to eq(2)
+        latest_version = prompt.versions.latest.first
+        expect(latest_version.version_number).to eq(2)
+        expect(latest_version.content).to eq('Updated content')
+      end
+
+      it 'creates new version when system_message changes' do
+        prompt.update!(system_message: 'Updated system message')
+        
+        expect(prompt.versions.count).to eq(2)
+        latest_version = prompt.versions.latest.first
+        expect(latest_version.system_message).to eq('Updated system message')
+      end
+
+      it 'creates new version when model changes' do
+        prompt.update!(model: 'gpt-3.5-turbo')
+        
+        expect(prompt.versions.count).to eq(2)
+        latest_version = prompt.versions.latest.first
+        expect(latest_version.model).to eq('gpt-3.5-turbo')
+      end
+
+      it 'creates new version when temperature changes' do
+        prompt.update!(temperature: 0.9)
+        
+        expect(prompt.versions.count).to eq(2)
+        latest_version = prompt.versions.latest.first
+        expect(latest_version.temperature).to eq(0.9)
+      end
+
+      it 'creates new version when max_tokens changes' do
+        prompt.update!(max_tokens: 2000)
+        
+        expect(prompt.versions.count).to eq(2)
+        latest_version = prompt.versions.latest.first
+        expect(latest_version.max_tokens).to eq(2000)
+      end
+
+      it 'does not create version when only non-versioned fields change' do
+        prompt.update!(name: 'New Name', description: 'New Description')
+        
+        expect(prompt.versions.count).to eq(1)
+      end
+
+      it 'does not create version when no changes are made' do
+        prompt.save!
+        
+        expect(prompt.versions.count).to eq(1)
+      end
+    end
+
+    describe '#current_version' do
+      it 'returns the latest version' do
+        prompt.update!(content: 'Version 2')
+        prompt.update!(content: 'Version 3')
+        
+        current = prompt.current_version
+        expect(current.version_number).to eq(3)
+        expect(current.content).to eq('Version 3')
+      end
+    end
+
+    describe '#version_count' do
+      it 'returns the number of versions' do
+        expect(prompt.version_count).to eq(1)
+        
+        prompt.update!(content: 'Version 2')
+        expect(prompt.version_count).to eq(2)
+        
+        prompt.update!(content: 'Version 3')
+        expect(prompt.version_count).to eq(3)
+      end
+
+      it 'uses counter cache when available' do
+        # This test assumes we'll add a counter cache column
+        # For now, it just tests the method exists
+        expect(prompt).to respond_to(:version_count)
+      end
+    end
+
+    describe '#restore_version!' do
+      let!(:version1) { prompt.versions.first }
+      let!(:version2) { prompt.update!(content: 'Version 2 content'); prompt.current_version }
+      let!(:version3) { prompt.update!(content: 'Version 3 content'); prompt.current_version }
+
+      it 'restores prompt to a specific version' do
+        prompt.restore_version!(version1.version_number)
+        
+        expect(prompt.content).to eq(version1.content)
+        expect(prompt.system_message).to eq(version1.system_message)
+        expect(prompt.versions.count).to eq(4) # Original 3 + 1 restoration
+      end
+
+      it 'raises error for non-existent version' do
+        expect {
+          prompt.restore_version!(999)
+        }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+
+    describe '#version_at' do
+      let!(:version1) { prompt.versions.first }
+      let!(:version2) { prompt.update!(content: 'Version 2'); prompt.current_version }
+
+      it 'returns the version with specified number' do
+        version = prompt.version_at(1)
+        expect(version).to eq(version1)
+        
+        version = prompt.version_at(2)
+        expect(version).to eq(version2)
+      end
+
+      it 'returns nil for non-existent version' do
+        expect(prompt.version_at(999)).to be_nil
+      end
+    end
+
+    describe '#versioned_attributes_changed?' do
+      it 'returns true when versioned attributes change' do
+        prompt.content = 'New content'
+        expect(prompt.versioned_attributes_changed?).to be true
+      end
+
+      it 'returns false when only non-versioned attributes change' do
+        prompt.name = 'New name'
+        expect(prompt.versioned_attributes_changed?).to be false
+      end
+
+      it 'returns false when no attributes change' do
+        expect(prompt.versioned_attributes_changed?).to be false
+      end
+    end
+  end
   
   describe 'usage in Rails models' do
     # Create a test model that uses prompts

@@ -10,7 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_23_161909) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_23_184757) do
+  create_table "active_prompt_prompt_versions", force: :cascade do |t|
+    t.integer "prompt_id", null: false
+    t.integer "version_number", null: false
+    t.text "content", null: false
+    t.text "system_message"
+    t.string "model"
+    t.float "temperature"
+    t.integer "max_tokens"
+    t.json "metadata"
+    t.string "created_by"
+    t.text "change_description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["prompt_id", "version_number"], name: "index_prompt_versions_on_prompt_and_version", unique: true
+    t.index ["prompt_id"], name: "index_active_prompt_prompt_versions_on_prompt_id"
+    t.index ["version_number"], name: "index_active_prompt_prompt_versions_on_version_number"
+  end
+
   create_table "active_prompt_prompts", force: :cascade do |t|
     t.string "name"
     t.text "description"
@@ -23,5 +41,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_23_161909) do
     t.json "metadata"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "versions_count", default: 0, null: false
   end
+
+  add_foreign_key "active_prompt_prompt_versions", "active_prompt_prompts", column: "prompt_id"
 end
