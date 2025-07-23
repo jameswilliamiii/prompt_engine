@@ -25,4 +25,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "vcr", "~> 6.3"
   spec.add_development_dependency "webmock", "~> 3.23"
   spec.add_development_dependency "sqlite3", "~> 2.0"
+  spec.add_development_dependency "capybara", "~> 3.40"
+  spec.add_development_dependency "selenium-webdriver", "~> 4.20"
 end

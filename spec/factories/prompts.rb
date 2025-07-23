@@ -1,13 +1,13 @@
 FactoryBot.define do
-  factory :prompt do
-    name { "MyString" }
-    description { "MyText" }
-    content { "MyText" }
-    system_message { "MyText" }
-    model { "MyString" }
-    temperature { 1.5 }
-    max_tokens { 1 }
-    status { "MyString" }
-    metadata { "" }
+  factory :prompt, class: 'ActivePrompt::Prompt' do
+    sequence(:name) { |n| "Test Prompt #{n}" }
+    description { "A test prompt for RSpec" }
+    content { "Tell me about {{topic}}" }
+    system_message { "You are a helpful assistant." }
+    model { "gpt-4" }
+    temperature { 0.7 }
+    max_tokens { 1000 }
+    status { "draft" }
+    metadata { {} }
   end
 end
