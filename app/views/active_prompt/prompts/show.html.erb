@@ -58,6 +58,44 @@
     </div>
   </div>
 
+  <div class="card mb-lg">
+    <div class="card__header">
+      <h3 class="card__title">Usage Example</h3>
+    </div>
+    <div class="card__body">
+      <p class="text-muted mb-md">Use this prompt in your Rails application:</p>
+      <pre class="code-example"># In your controller or model
+result = ActivePrompt.render(:<%= @prompt.name %><% 
+  # Extract variables from content using regex
+  variables = @prompt.content.to_s.scan(/\{\{(\w+)\}\}/).flatten.uniq
+  if variables.any?
+%>, variables: {<% variables.each_with_index do |var, index| %>
+  <%= var %>: "value<%= index + 1 %>",<% end %>
+}<% else %> # No variables needed<% end %>)
+
+# Access the rendered content
+rendered_content = result[:content]
+
+# Access other prompt settings
+model = result[:model]              # => "<%= @prompt.model || "gpt-4" %>"
+temperature = result[:temperature]  # => <%= @prompt.temperature || "0.7" %>
+max_tokens = result[:max_tokens]    # => <%= @prompt.max_tokens || "1000" %>
+
+# Use with your AI service
+response = OpenAI::Client.new.chat(
+  parameters: {
+    model: model,
+    messages: [
+      { role: "system", content: result[:system_message] },
+      { role: "user", content: rendered_content }
+    ],
+    temperature: temperature,
+    max_tokens: max_tokens
+  }
+)</pre>
+    </div>
+  </div>
+
   <% if @prompt.system_message.present? %>
     <div class="card mb-lg">
       <div class="card__header">
@@ -111,7 +149,8 @@
     color: var(--color-gray-900);
   }
   
-  .prompt-content {
+  .prompt-content,
+  .code-example {
     background-color: var(--color-gray-50);
     border: 1px solid var(--color-gray-200);
     border-radius: var(--radius-md);
@@ -123,5 +162,19 @@
     word-wrap: break-word;
     margin: 0;
     color: var(--color-gray-800);
+  }
+  
+  .code-example {
+    background-color: var(--color-gray-900);
+    color: var(--color-gray-100);
+    border-color: var(--color-gray-700);
+  }
+  
+  .text-muted {
+    color: var(--color-gray-600);
+  }
+  
+  .mb-md {
+    margin-bottom: var(--spacing-md);
   }
 </style>
