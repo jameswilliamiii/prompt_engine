@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_23_203838) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_23_225354) do
   create_table "active_prompt_parameters", force: :cascade do |t|
     t.integer "prompt_id", null: false
     t.string "name", null: false

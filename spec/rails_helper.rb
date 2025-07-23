@@ -36,15 +36,8 @@ Dir[File.join(ENGINE_ROOT, "spec/support/**/*.rb")].sort.each { |f| require f }
 # Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
 # Checks for pending migrations and applies them before tests are run.
-# For Rails engines, we use the standard maintain_test_schema! approach
-begin
-  ActiveRecord::Migration.maintain_test_schema!
-rescue ActiveRecord::PendingMigrationError => e
-  puts e.to_s.strip
-  puts "Running pending migrations..."
-  system("cd #{File.join(ENGINE_ROOT, "spec/dummy")} && RAILS_ENV=test bundle exec rails db:migrate")
-  retry
-end
+# For Rails engines, we skip the automatic check and rely on our setup task
+# If you see migration errors, run: bundle exec rake setup
 
 RSpec.configure do |config|
   # Include FactoryBot methods
