@@ -1,29 +1,24 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
-require 'spec_helper'
-ENV['RAILS_ENV'] ||= 'test'
+require "spec_helper"
+ENV["RAILS_ENV"] ||= "test"
 
 # Load the dummy app environment
-require File.expand_path('../dummy/config/environment', __FILE__)
+require File.expand_path("../dummy/config/environment", __FILE__)
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
-# Uncomment the line below in case you have `--require rails_helper` in the `.rspec` file
-# that will avoid rails generators crashing because migrations haven't been run yet
-# return unless Rails.env.test?
-require 'rspec/rails'
+
+require "rspec/rails"
 # Add additional requires below this line. Rails is not loaded until this point!
-require 'factory_bot_rails'
-require 'capybara/rails'
-require 'capybara/rspec'
-require 'selenium-webdriver'
-require 'rails-controller-testing'
+require "factory_bot_rails"
+require "capybara/rails"
+require "capybara/rspec"
+require "selenium-webdriver"
+require "rails-controller-testing"
 Rails::Controller::Testing.install
 
-# Configure migration paths for the engine
-ENGINE_ROOT = File.join(File.dirname(__FILE__), '../')
-Dir[File.join(ENGINE_ROOT, 'spec/support/**/*.rb')].sort.each { |f| require f }
-
-# Set up migration paths - use only engine migrations for testing
-ActiveRecord::Migrator.migrations_paths = [File.join(ENGINE_ROOT, 'db/migrate')]
+# Load support files
+ENGINE_ROOT = File.join(File.dirname(__FILE__), "../")
+Dir[File.join(ENGINE_ROOT, "spec/support/**/*.rb")].sort.each { |f| require f }
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
@@ -41,20 +36,23 @@ ActiveRecord::Migrator.migrations_paths = [File.join(ENGINE_ROOT, 'db/migrate')]
 # Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
 # Checks for pending migrations and applies them before tests are run.
-# If you are not using ActiveRecord, you can remove these lines.
-# Note: For Rails engines, we comment out maintain_test_schema! and manually manage the schema
-# begin
-#   ActiveRecord::Migration.maintain_test_schema!
-# rescue ActiveRecord::PendingMigrationError => e
-#   abort e.to_s.strip
-# end
+# For Rails engines, we use the standard maintain_test_schema! approach
+begin
+  ActiveRecord::Migration.maintain_test_schema!
+rescue ActiveRecord::PendingMigrationError => e
+  puts e.to_s.strip
+  puts "Running pending migrations..."
+  system("cd #{File.join(ENGINE_ROOT, "spec/dummy")} && RAILS_ENV=test bundle exec rails db:migrate")
+  retry
+end
+
 RSpec.configure do |config|
   # Include FactoryBot methods
   config.include FactoryBot::Syntax::Methods if defined?(FactoryBot)
-  
+
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_paths = [
-    Rails.root.join('spec/fixtures')
+    Rails.root.join("spec/fixtures")
   ]
 
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
@@ -91,17 +89,17 @@ end
 # Configure Capybara for system tests
 Capybara.configure do |config|
   config.default_driver = :rack_test
-  config.server = :puma, { Silent: true }
-  config.app_host = 'http://localhost:3000'
+  config.server = :puma, {Silent: true}
+  config.app_host = "http://localhost:3000"
 end
 
 # Optional: Configure Selenium for Chrome (when ChromeDriver is updated)
 Capybara.register_driver :selenium_chrome_headless do |app|
   options = Selenium::WebDriver::Chrome::Options.new
-  options.add_argument('--headless=new')
-  options.add_argument('--disable-gpu')
-  options.add_argument('--no-sandbox')
-  options.add_argument('--disable-dev-shm-usage')
-  
+  options.add_argument("--headless=new")
+  options.add_argument("--disable-gpu")
+  options.add_argument("--no-sandbox")
+  options.add_argument("--disable-dev-shm-usage")
+
   Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
 end

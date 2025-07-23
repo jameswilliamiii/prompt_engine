@@ -1,3 +1,4 @@
+# This migration comes from active_prompt (originally 20250723184757)
 class CreateActivePromptVersions < ActiveRecord::Migration[8.0]
   def change
     create_table :active_prompt_prompt_versions do |t|
