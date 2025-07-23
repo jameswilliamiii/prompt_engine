@@ -1,5 +1,7 @@
 module ActivePrompt
   class VersionsController < ApplicationController
+    layout "active_prompt/admin"
+    
     before_action :set_prompt
     before_action :set_version, only: [:show, :restore]
     before_action :set_compare_versions, only: [:compare]
