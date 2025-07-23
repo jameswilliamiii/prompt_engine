@@ -1,0 +1,108 @@
+<%= form_with(model: prompt, local: true, html: { class: "form" }) do |form| %>
+  <% if prompt.errors.any? %>
+    <div class="form__errors">
+      <h3 class="text-danger">Please fix the following errors:</h3>
+      <ul>
+        <% prompt.errors.full_messages.each do |message| %>
+          <li class="text-danger text-sm"><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form__group">
+    <%= form.label :name, class: "form__label form__label--required" %>
+    <%= form.text_field :name, class: "form__input", required: true, 
+        placeholder: "e.g., Customer Support Response" %>
+    <div class="form__help">A descriptive name for this prompt</div>
+  </div>
+
+  <div class="form__group">
+    <%= form.label :description, class: "form__label" %>
+    <%= form.text_area :description, class: "form__textarea", rows: 2,
+        placeholder: "Brief description of what this prompt does" %>
+  </div>
+
+  <div class="form__group">
+    <%= form.label :system_message, "System Message", class: "form__label" %>
+    <%= form.text_area :system_message, class: "form__textarea", rows: 4,
+        placeholder: "Instructions for the AI system (optional)" %>
+    <div class="form__help">Sets the behavior and context for the AI</div>
+  </div>
+
+  <div class="form__group">
+    <%= form.label :content, "Prompt Content", class: "form__label form__label--required" %>
+    <%= form.text_area :content, class: "form__textarea", rows: 6, required: true,
+        placeholder: "The main prompt content that will be sent to the AI" %>
+    <div class="form__help">The main prompt template</div>
+  </div>
+
+  <div class="form__inline">
+    <div class="form__group">
+      <%= form.label :model, "AI Model", class: "form__label" %>
+      <%= form.select :model, 
+          options_for_select([
+            ["GPT-4", "gpt-4"],
+            ["GPT-4 Turbo", "gpt-4-turbo-preview"],
+            ["GPT-3.5 Turbo", "gpt-3.5-turbo"],
+            ["Claude 3 Opus", "claude-3-opus"],
+            ["Claude 3 Sonnet", "claude-3-sonnet"],
+            ["Claude 3 Haiku", "claude-3-haiku"]
+          ], prompt.model),
+          { include_blank: "Select a model" },
+          class: "form__select" %>
+    </div>
+
+    <div class="form__group">
+      <%= form.label :temperature, class: "form__label" %>
+      <%= form.number_field :temperature, class: "form__input", 
+          step: 0.1, min: 0, max: 2, placeholder: "0.7" %>
+      <div class="form__help">0-2 (default: 0.7)</div>
+    </div>
+
+    <div class="form__group">
+      <%= form.label :max_tokens, "Max Tokens", class: "form__label" %>
+      <%= form.number_field :max_tokens, class: "form__input", 
+          min: 1, placeholder: "500" %>
+      <div class="form__help">Maximum response length</div>
+    </div>
+  </div>
+
+  <div class="form__group">
+    <%= form.label :status, class: "form__label" %>
+    <%= form.select :status, 
+        options_for_select([
+          ["Draft", "draft"],
+          ["Active", "active"],
+          ["Archived", "archived"]
+        ], prompt.status),
+        {},
+        class: "form__select" %>
+  </div>
+
+  <div class="form__actions">
+    <%= link_to "Cancel", prompts_path, class: "btn btn--secondary btn--medium" %>
+    <%= form.submit prompt.new_record? ? "Create Prompt" : "Update Prompt", 
+        class: "btn btn--primary btn--medium" %>
+  </div>
+<% end %>
+
+<style>
+  .form__errors {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .form__errors h3 {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .form__errors ul {
+    margin: 0;
+    padding-left: var(--spacing-lg);
+  }
+</style>
