@@ -55,12 +55,12 @@ Set up the ActivePrompt Rails engine with proper structure, configuration, and a
 - [x] Generate Prompt model with basic attributes
 - [x] Add validations
 - [x] Create initial migration
-- [ ] Write basic model specs
+- [x] Write basic model specs
 
 ### 10. Add Development Scripts (Priority: Low)
 - [ ] Create bin/setup script for easy development setup
-- [ ] Add rake tasks for common development tasks
-- [ ] Document setup process in README
+- [x] Add rake tasks for common development tasks
+- [x] Document setup process in README
 
 ### 11. Verify Local Development Setup (Priority: High)
 - [x] Start dummy app with `rails s` from spec/dummy

@@ -114,19 +114,19 @@ prompts with a modern UI using CSS3 and BEM methodology.
 
 ### 15. Write Controller Tests (Priority: High)
 
-- [ ] Test index action
-- [ ] Test new/create actions
-- [ ] Test edit/update actions
-- [ ] Test show action
-- [ ] Test destroy action
+- [x] Test index action
+- [x] Test new/create actions
+- [x] Test edit/update actions
+- [x] Test show action
+- [x] Test destroy action
 
 ### 16. Add System Tests (Priority: Medium)
 
-- [ ] Test creating a new prompt
-- [ ] Test editing an existing prompt
-- [ ] Test deleting a prompt
-- [ ] Test navigation between pages
-- [ ] Test form validations
+- [x] Test creating a new prompt
+- [x] Test editing an existing prompt
+- [x] Test deleting a prompt
+- [x] Test navigation between pages
+- [x] Test form validations
 
 ## Success Criteria
 
