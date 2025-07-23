@@ -5,6 +5,8 @@ module ActivePrompt
     has_many :versions, -> { order(version_number: :desc) }, 
              class_name: 'ActivePrompt::PromptVersion',
              dependent: :destroy
+    
+    attr_accessor :change_summary
 
     validates :name, presence: true, uniqueness: { scope: :status }
     validates :content, presence: true
@@ -41,6 +43,7 @@ module ActivePrompt
     end
 
     def versioned_attributes_changed?
+      # This method is for checking if versioned attributes have changed before save
       (changed & VERSIONED_ATTRIBUTES).any?
     end
 
@@ -59,7 +62,8 @@ module ActivePrompt
     end
 
     def create_version_if_changed
-      return unless versioned_attributes_changed?
+      # Check saved_changes in the after_update callback
+      return unless (saved_changes.keys & VERSIONED_ATTRIBUTES).any?
 
       versions.create!(
         content: content,
@@ -68,7 +72,7 @@ module ActivePrompt
         temperature: temperature,
         max_tokens: max_tokens,
         metadata: metadata,
-        change_description: "Updated: #{(changed & VERSIONED_ATTRIBUTES).join(', ')}"
+        change_description: "Updated: #{(saved_changes.keys & VERSIONED_ATTRIBUTES).join(', ')}"
       )
     end
   end

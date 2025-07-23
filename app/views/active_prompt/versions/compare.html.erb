@@ -1,0 +1,82 @@
+<% content_for :page_title, "Compare Versions" %>
+<% content_for :page_subtitle, @prompt.name %>
+
+<div class="page-header">
+  <div class="page-header__content">
+    <h1 class="page-header__title">Compare Versions</h1>
+    <p class="page-header__subtitle">
+      Version <%= @version_a.version_number %> → Version <%= @version_b.version_number %>
+    </p>
+  </div>
+  <div class="page-header__actions">
+    <%= link_to "Back to History", prompt_versions_path(@prompt), class: "button button--secondary" %>
+    <%= link_to "Back to Prompt", @prompt, class: "button button--secondary" %>
+  </div>
+</div>
+
+<div class="version-compare">
+  <div class="version-compare__header">
+    <div class="version-compare__version version-compare__version--old">
+      <h3>Version <%= @version_a.version_number %></h3>
+      <p class="text-muted"><%= @version_a.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+    </div>
+    <div class="version-compare__arrow">→</div>
+    <div class="version-compare__version version-compare__version--new">
+      <h3>Version <%= @version_b.version_number %></h3>
+      <p class="text-muted"><%= @version_b.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+    </div>
+  </div>
+
+  <% @changes.each do |field, change| %>
+    <% if change[:changed] %>
+      <div class="card version-compare__section">
+        <div class="card__header">
+          <h2 class="card__title"><%= field.to_s.humanize %></h2>
+        </div>
+        <div class="card__content">
+          <div class="version-compare__diff">
+            <div class="version-compare__diff-side version-compare__diff-side--old">
+              <div class="version-compare__diff-label">Old Value</div>
+              <% if field == :content || field == :system_message %>
+                <pre class="version-compare__diff-content version-compare__diff-content--old"><%= change[:old].presence || "(empty)" %></pre>
+              <% else %>
+                <div class="version-compare__diff-value version-compare__diff-value--old">
+                  <%= change[:old].presence || "(not set)" %>
+                </div>
+              <% end %>
+            </div>
+            
+            <div class="version-compare__diff-side version-compare__diff-side--new">
+              <div class="version-compare__diff-label">New Value</div>
+              <% if field == :content || field == :system_message %>
+                <pre class="version-compare__diff-content version-compare__diff-content--new"><%= change[:new].presence || "(empty)" %></pre>
+              <% else %>
+                <div class="version-compare__diff-value version-compare__diff-value--new">
+                  <%= change[:new].presence || "(not set)" %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+  
+  <div class="card">
+    <div class="card__header">
+      <h2 class="card__title">Change Description</h2>
+    </div>
+    <div class="card__content">
+      <div class="version-compare__summary">
+        <div class="version-compare__summary-item">
+          <strong>Version <%= @version_a.version_number %> Summary:</strong>
+          <%= @version_a.change_description.presence || content_tag(:em, "No summary provided", class: "text-muted") %>
+        </div>
+        <div class="version-compare__summary-item">
+          <strong>Version <%= @version_b.version_number %> Summary:</strong>
+          <%= @version_b.change_description.presence || content_tag(:em, "No summary provided", class: "text-muted") %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

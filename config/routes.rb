@@ -9,6 +9,13 @@ ActivePrompt::Engine.routes.draw do
     collection do
       get :search
     end
+    
+    resources :versions, only: [:index, :show] do
+      member do
+        post :restore
+        get :compare
+      end
+    end
   end
   
   resources :templates do

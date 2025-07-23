@@ -1,0 +1,97 @@
+<% content_for :page_title, "Version #{@version.version_number}" %>
+<% content_for :page_subtitle, @prompt.name %>
+
+<div class="page-header">
+  <div class="page-header__content">
+    <h1 class="page-header__title">Version <%= @version.version_number %></h1>
+    <p class="page-header__subtitle"><%= @prompt.name %></p>
+  </div>
+  <div class="page-header__actions">
+    <%= link_to "Back to History", prompt_versions_path(@prompt), class: "button button--secondary" %>
+    <%= link_to "Back to Prompt", @prompt, class: "button button--secondary" %>
+    <% unless @version.version_number == @prompt.versions.maximum(:version_number) %>
+      <%= button_to "Restore This Version", restore_prompt_version_path(@prompt, @version), 
+          method: :post, 
+          class: "button button--primary",
+          data: { turbo_confirm: "Are you sure you want to restore this version?" } %>
+    <% end %>
+  </div>
+</div>
+
+<div class="version-details">
+  <div class="card">
+    <div class="card__header">
+      <h2 class="card__title">Version Information</h2>
+    </div>
+    <div class="card__content">
+      <dl class="metadata-list">
+        <div class="metadata-list__item">
+          <dt class="metadata-list__label">Version Number</dt>
+          <dd class="metadata-list__value"><%= @version.version_number %></dd>
+        </div>
+        
+        <div class="metadata-list__item">
+          <dt class="metadata-list__label">Created At</dt>
+          <dd class="metadata-list__value"><%= @version.created_at.strftime("%B %d, %Y at %I:%M %p") %></dd>
+        </div>
+        
+        <div class="metadata-list__item">
+          <dt class="metadata-list__label">Change Description</dt>
+          <dd class="metadata-list__value">
+            <%= @version.change_description.presence || content_tag(:em, "No summary provided", class: "text-muted") %>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__header">
+      <h2 class="card__title">Prompt Content</h2>
+    </div>
+    <div class="card__content">
+      <% if @version.content.present? %>
+        <pre class="prompt-content"><%= @version.content %></pre>
+      <% else %>
+        <p class="text-muted">No content provided</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__header">
+      <h2 class="card__title">System Message</h2>
+    </div>
+    <div class="card__content">
+      <% if @version.system_message.present? %>
+        <pre class="prompt-content"><%= @version.system_message %></pre>
+      <% else %>
+        <p class="text-muted">No system message provided</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__header">
+      <h2 class="card__title">Model Settings</h2>
+    </div>
+    <div class="card__content">
+      <dl class="metadata-list">
+        <div class="metadata-list__item">
+          <dt class="metadata-list__label">Model</dt>
+          <dd class="metadata-list__value"><%= @version.model %></dd>
+        </div>
+        
+        <div class="metadata-list__item">
+          <dt class="metadata-list__label">Temperature</dt>
+          <dd class="metadata-list__value"><%= @version.temperature %></dd>
+        </div>
+        
+        <div class="metadata-list__item">
+          <dt class="metadata-list__label">Max Tokens</dt>
+          <dd class="metadata-list__value"><%= @version.max_tokens || "Default" %></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>

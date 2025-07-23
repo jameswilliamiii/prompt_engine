@@ -60,8 +60,9 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
 
     describe 'creating versions on save' do
       it 'creates initial version on create' do
+        new_prompt = nil
         expect {
-          prompt = ActivePrompt::Prompt.create!(
+          new_prompt = ActivePrompt::Prompt.create!(
             name: 'Test Prompt',
             content: 'Initial content',
             system_message: 'Initial system message',
@@ -71,7 +72,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
           )
         }.to change { ActivePrompt::PromptVersion.count }.by(1)
         
-        version = prompt.versions.first
+        version = new_prompt.versions.first
         expect(version.version_number).to eq(1)
         expect(version.content).to eq('Initial content')
         expect(version.system_message).to eq('Initial system message')
