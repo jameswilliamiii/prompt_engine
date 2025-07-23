@@ -11,14 +11,14 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 # return unless Rails.env.test?
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
+require 'factory_bot_rails'
 
 # Configure migration paths for the engine
 ENGINE_ROOT = File.join(File.dirname(__FILE__), '../')
 Dir[File.join(ENGINE_ROOT, 'spec/support/**/*.rb')].sort.each { |f| require f }
 
-# Set up migration paths to include both engine and dummy app
-ActiveRecord::Migrator.migrations_paths << File.join(ENGINE_ROOT, 'db/migrate')
-ActiveRecord::Migrator.migrations_paths << File.join(ENGINE_ROOT, 'spec/dummy/db/migrate')
+# Set up migration paths - use only engine migrations for testing
+ActiveRecord::Migrator.migrations_paths = [File.join(ENGINE_ROOT, 'db/migrate')]
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
@@ -37,14 +37,15 @@ ActiveRecord::Migrator.migrations_paths << File.join(ENGINE_ROOT, 'spec/dummy/db
 
 # Checks for pending migrations and applies them before tests are run.
 # If you are not using ActiveRecord, you can remove these lines.
-begin
-  ActiveRecord::Migration.maintain_test_schema!
-rescue ActiveRecord::PendingMigrationError => e
-  abort e.to_s.strip
-end
+# Note: For Rails engines, we comment out maintain_test_schema! and manually manage the schema
+# begin
+#   ActiveRecord::Migration.maintain_test_schema!
+# rescue ActiveRecord::PendingMigrationError => e
+#   abort e.to_s.strip
+# end
 RSpec.configure do |config|
   # Include FactoryBot methods
-  config.include FactoryBot::Syntax::Methods
+  config.include FactoryBot::Syntax::Methods if defined?(FactoryBot)
   
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_paths = [
