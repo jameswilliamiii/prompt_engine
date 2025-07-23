@@ -1,0 +1,133 @@
+/* Table Components */
+.table-container {
+  background-color: white;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+/* Table Header */
+.table__header {
+  background-color: var(--color-gray-50);
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.table__row {
+  border-bottom: 1px solid var(--color-gray-100);
+  transition: background-color var(--transition-fast);
+}
+
+.table__row:last-child {
+  border-bottom: none;
+}
+
+.table__row:hover {
+  background-color: var(--color-gray-50);
+}
+
+/* Table Cells */
+.table__cell {
+  padding: var(--spacing-md);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.table__cell--header {
+  font-weight: 600;
+  color: var(--color-gray-700);
+  white-space: nowrap;
+}
+
+.table__cell--center {
+  text-align: center;
+}
+
+.table__cell--right {
+  text-align: right;
+}
+
+.table__cell--actions {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* Table Status Badge */
+.table__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  text-transform: capitalize;
+}
+
+.table__badge--draft {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-700);
+}
+
+.table__badge--active {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.table__badge--archived {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* Empty State */
+.table__empty {
+  padding: var(--spacing-3xl) var(--spacing-xl);
+  text-align: center;
+  color: var(--color-gray-500);
+}
+
+.table__empty-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto var(--spacing-md);
+  opacity: 0.3;
+}
+
+.table__empty-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-gray-700);
+  margin-bottom: var(--spacing-sm);
+}
+
+.table__empty-text {
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  .table-container {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  
+  .table {
+    font-size: var(--font-size-xs);
+  }
+  
+  .table__cell {
+    padding: var(--spacing-sm);
+  }
+  
+  .table__cell--hide-mobile {
+    display: none;
+  }
+}

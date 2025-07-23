@@ -1,0 +1,166 @@
+/* Form Components */
+.form {
+  max-width: 100%;
+}
+
+/* Form Group */
+.form__group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form__group:last-child {
+  margin-bottom: 0;
+}
+
+/* Form Label */
+.form__label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-gray-700);
+  margin-bottom: var(--spacing-xs);
+}
+
+.form__label--required::after {
+  content: " *";
+  color: var(--color-danger);
+}
+
+/* Form Input Base */
+.form__input,
+.form__textarea,
+.form__select {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-gray-900);
+  background-color: white;
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.form__input:focus,
+.form__textarea:focus,
+.form__select:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form__input::placeholder,
+.form__textarea::placeholder {
+  color: var(--color-gray-400);
+}
+
+/* Textarea Specific */
+.form__textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Select Specific */
+.form__select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right var(--spacing-sm) center;
+  background-repeat: no-repeat;
+  background-size: 20px;
+  padding-right: var(--spacing-xl);
+}
+
+/* Form Help Text */
+.form__help {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  margin-top: var(--spacing-xs);
+}
+
+/* Form Error States */
+.form__group--error .form__input,
+.form__group--error .form__textarea,
+.form__group--error .form__select {
+  border-color: var(--color-danger);
+}
+
+.form__group--error .form__input:focus,
+.form__group--error .form__textarea:focus,
+.form__group--error .form__select:focus {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form__error {
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  margin-top: var(--spacing-xs);
+}
+
+/* Form Actions */
+.form__actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.form__actions--right {
+  justify-content: flex-end;
+}
+
+/* Inline Form Elements */
+.form__inline {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: flex-start;
+}
+
+.form__inline .form__group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* Checkbox and Radio */
+.form__checkbox,
+.form__radio {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.form__checkbox input[type="checkbox"],
+.form__radio input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.form__radio input[type="radio"] {
+  border-radius: 50%;
+}
+
+.form__checkbox label,
+.form__radio label {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-700);
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+/* Disabled State */
+.form__input:disabled,
+.form__textarea:disabled,
+.form__select:disabled {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-500);
+  cursor: not-allowed;
+}

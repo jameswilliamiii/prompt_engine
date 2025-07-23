@@ -1,0 +1,152 @@
+/* CSS Variables - Color Palette */
+:root {
+  /* Neutral Grays */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  
+  /* Primary Colors */
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+  
+  /* Semantic Colors */
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  --color-success: #10b981;
+  --color-success-hover: #059669;
+  --color-warning: #f59e0b;
+  --color-warning-hover: #d97706;
+  
+  /* Typography */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4rem;     /* 64px */
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;    /* 4px */
+  --radius-md: 0.375rem;   /* 6px */
+  --radius-lg: 0.5rem;     /* 8px */
+  --radius-xl: 0.75rem;    /* 12px */
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Layout */
+  --sidebar-width: 240px;
+  --header-height: 64px;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
+}
+
+/* CSS Reset / Normalize */
+.active-prompt-admin * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.active-prompt-admin {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--color-gray-900);
+  background-color: var(--color-gray-50);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography Base Styles */
+.active-prompt-admin h1,
+.active-prompt-admin h2,
+.active-prompt-admin h3,
+.active-prompt-admin h4,
+.active-prompt-admin h5,
+.active-prompt-admin h6 {
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+  color: var(--color-gray-900);
+}
+
+.active-prompt-admin h1 {
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--spacing-lg);
+}
+
+.active-prompt-admin h2 {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--spacing-md);
+}
+
+.active-prompt-admin h3 {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-md);
+}
+
+.active-prompt-admin p {
+  margin-bottom: var(--spacing-md);
+}
+
+.active-prompt-admin a {
+  color: var(--color-primary-600);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.active-prompt-admin a:hover {
+  color: var(--color-primary-700);
+  text-decoration: underline;
+}
+
+/* Utility Classes */
+.active-prompt-admin .text-sm { font-size: var(--font-size-sm); }
+.active-prompt-admin .text-xs { font-size: var(--font-size-xs); }
+.active-prompt-admin .text-lg { font-size: var(--font-size-lg); }
+.active-prompt-admin .text-muted { color: var(--color-gray-600); }
+.active-prompt-admin .text-danger { color: var(--color-danger); }
+.active-prompt-admin .text-success { color: var(--color-success); }
+
+.active-prompt-admin .mt-sm { margin-top: var(--spacing-sm); }
+.active-prompt-admin .mt-md { margin-top: var(--spacing-md); }
+.active-prompt-admin .mt-lg { margin-top: var(--spacing-lg); }
+.active-prompt-admin .mb-sm { margin-bottom: var(--spacing-sm); }
+.active-prompt-admin .mb-md { margin-bottom: var(--spacing-md); }
+.active-prompt-admin .mb-lg { margin-bottom: var(--spacing-lg); }

@@ -1,0 +1,42 @@
+/* Specific overrides to ensure proper styling */
+
+/* Sidebar link overrides */
+.admin-sidebar a.admin-nav__link,
+.admin-sidebar a.admin-nav__link:link,
+.admin-sidebar a.admin-nav__link:visited {
+  color: var(--color-gray-300);
+  text-decoration: none;
+}
+
+.admin-sidebar a.admin-nav__link:hover {
+  color: white;
+  text-decoration: none;
+}
+
+.admin-sidebar a.admin-nav__link--active,
+.admin-sidebar a.admin-nav__link--active:link,
+.admin-sidebar a.admin-nav__link--active:visited {
+  color: white;
+}
+
+.admin-sidebar a.admin-nav__link--disabled,
+.admin-sidebar a.admin-nav__link--disabled:hover {
+  color: var(--color-gray-500);
+}
+
+/* Button text color overrides */
+a.btn--primary,
+button.btn--primary,
+input.btn--primary,
+a.btn--primary:link,
+a.btn--primary:visited {
+  color: white !important;
+}
+
+a.btn--danger,
+button.btn--danger,
+input.btn--danger,
+a.btn--danger:link,
+a.btn--danger:visited {
+  color: white !important;
+}

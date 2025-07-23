@@ -1,0 +1,49 @@
+/* Admin Layout Structure */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-gray-50);
+}
+
+/* Sidebar Container */
+.admin-layout__sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--color-gray-900);
+  color: var(--color-gray-100);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+/* Main Content Area */
+.admin-layout__main {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  background-color: var(--color-gray-50);
+}
+
+.admin-main {
+  padding: var(--spacing-xl);
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+  .admin-layout__sidebar {
+    transform: translateX(-100%);
+    transition: transform var(--transition-base);
+  }
+  
+  .admin-layout__sidebar--open {
+    transform: translateX(0);
+  }
+  
+  .admin-layout__main {
+    margin-left: 0;
+  }
+}
