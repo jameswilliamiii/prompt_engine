@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+# Run integration tests from the dummy app context
+
+require 'pathname'
+require 'fileutils'
+
+APP_ROOT = Pathname.new File.expand_path('..', __dir__)
+
+Dir.chdir(File.join(APP_ROOT, 'spec/dummy')) do
+  # Run migrations if needed
+  system('RAILS_ENV=test bin/rails db:migrate')
+  
+  # Run the test
+  system('bundle exec rspec spec/models/prompt_spec.rb')
+end
