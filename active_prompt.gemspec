@@ -1,14 +1,14 @@
 require_relative "lib/active_prompt/version"
 
 Gem::Specification.new do |spec|
-  spec.name        = "active_prompt"
-  spec.version     = ActivePrompt::VERSION
-  spec.authors     = [ "Avi Flombaum" ]
-  spec.email       = [ "4515+aviflombaum@users.noreply.github.com" ]
-  spec.homepage    = "https://github.com/aviflombaum/active_prompt"
-  spec.summary     = "Rails mountable engine for AI prompt management"
+  spec.name = "active_prompt"
+  spec.version = ActivePrompt::VERSION
+  spec.authors = ["Avi Flombaum"]
+  spec.email = ["4515+aviflombaum@users.noreply.github.com"]
+  spec.homepage = "https://github.com/aviflombaum/active_prompt"
+  spec.summary = "Rails mountable engine for AI prompt management"
   spec.description = "ActivePrompt is a Rails mountable engine that provides a simple interface for managing AI prompts, templates, and responses within Rails applications."
-  spec.license     = "MIT"
+  spec.license = "MIT"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/aviflombaum/active_prompt"
@@ -28,5 +28,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "sqlite3", "~> 2.0"
   spec.add_development_dependency "capybara", "~> 3.40"
   spec.add_development_dependency "selenium-webdriver", "~> 4.20"
-  spec.add_development_dependency "rails-controller-testing", "~> 1.0"
+  spec.add_development_dependency "simplecov"
 end
