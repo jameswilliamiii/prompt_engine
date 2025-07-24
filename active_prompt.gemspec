@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_dependency "rails", ">= 8.0.2"
+  spec.add_dependency "ruby_llm", "~> 1.3"
 
   spec.add_development_dependency "rspec-rails", "~> 7.0"
   spec.add_development_dependency "factory_bot_rails", "~> 6.4"

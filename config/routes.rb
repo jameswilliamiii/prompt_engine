@@ -5,6 +5,8 @@ ActivePrompt::Engine.routes.draw do
     member do
       post :test
       post :duplicate
+      get :playground, to: "playground#show"
+      post :playground, to: "playground#execute"
     end
     collection do
       get :search

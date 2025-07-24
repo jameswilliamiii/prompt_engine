@@ -1,0 +1,58 @@
+<div class="admin-header">
+  <div>
+    <h1>Test Results: <%= @prompt.name %></h1>
+    <p class="text-muted">Prompt execution completed</p>
+  </div>
+</div>
+
+<% if @error.present? %>
+  <div class="card mb-lg">
+    <div class="card__header">
+      <h3 class="card__title text-danger">Error</h3>
+    </div>
+    <div class="card__body">
+      <p class="text-danger"><%= @error %></p>
+    </div>
+  </div>
+<% else %>
+  <div class="card mb-lg">
+    <div class="card__header">
+      <h3 class="card__title">Rendered Prompt</h3>
+    </div>
+    <div class="card__body">
+      <pre class="prompt-content"><%= @rendered_prompt %></pre>
+    </div>
+  </div>
+
+  <div class="card mb-lg">
+    <div class="card__header">
+      <h3 class="card__title">AI Response</h3>
+    </div>
+    <div class="card__body">
+      <pre class="prompt-content"><%= @response %></pre>
+    </div>
+  </div>
+
+  <div class="card mb-lg">
+    <div class="card__header">
+      <h3 class="card__title">Execution Details</h3>
+    </div>
+    <div class="card__body">
+      <div class="detail-grid">
+        <div class="detail-item">
+          <label class="detail-label">Execution Time</label>
+          <div class="detail-value"><%= @execution_time %> seconds</div>
+        </div>
+        <div class="detail-item">
+          <label class="detail-label">Tokens Used</label>
+          <div class="detail-value"><%= @token_count %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<div class="form__actions">
+  <%= link_to "Try Again", playground_prompt_path(@prompt), class: "btn btn--primary btn--medium" %>
+  <%= link_to "Back to Prompt", prompt_path(@prompt), class: "btn btn--secondary btn--medium" %>
+</div>
