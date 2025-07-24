@@ -8,6 +8,13 @@ module ActivePrompt
       end
       
       def show
+        # Get recent test runs for this prompt across all versions
+        @recent_test_runs = ActivePrompt::PlaygroundRunResult
+          .joins(:prompt_version)
+          .where(active_prompt_prompt_versions: { prompt_id: @prompt.id })
+          .recent
+          .limit(5)
+          .includes(:prompt_version)
       end
       
       def new

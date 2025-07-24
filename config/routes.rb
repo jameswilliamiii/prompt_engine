@@ -1,6 +1,6 @@
 ActivePrompt::Engine.routes.draw do
   root to: "prompts#index"
-  
+
   resources :prompts do
     member do
       post :test
@@ -11,7 +11,7 @@ ActivePrompt::Engine.routes.draw do
     collection do
       get :search
     end
-    
+
     resources :versions, only: [:index, :show] do
       member do
         post :restore
@@ -19,20 +19,12 @@ ActivePrompt::Engine.routes.draw do
       end
       resources :playground_run_results, only: [:index]
     end
-    
+
     resources :playground_run_results, only: [:index]
   end
-  
-  resources :playground_run_results, only: [:show]
-  
-  resources :templates do
-    member do
-      post :preview
-    end
-  end
-  
-  resources :responses, only: [:index, :show, :destroy]
-  
+
+  resources :playground_run_results, only: [:index, :show]
+
   # API endpoints for integration
   namespace :api do
     namespace :v1 do

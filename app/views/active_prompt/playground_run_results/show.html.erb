@@ -1,112 +1,123 @@
-<div class="page-header">
-  <h1 class="page-header__title">
-    Test Run Details
-    <span class="page-header__subtitle"><%= @playground_run_result.created_at.strftime("%B %d, %Y at %I:%M %p") %></span>
-  </h1>
+<div class="admin-header">
+  <div>
+    <h1>Test Run Details</h1>
+    <p class="text-muted"><%= @playground_run_result.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+  </div>
   
-  <div class="page-header__actions">
-    <%= link_to "Back to Test Runs", prompt_playground_run_results_path(@playground_run_result.prompt_version.prompt), class: "btn btn--secondary" %>
-    <%= link_to "View Prompt", prompt_path(@playground_run_result.prompt_version.prompt), class: "btn btn--secondary" %>
+  <div class="btn-group">
+    <%= link_to "Back to Test Runs", prompt_playground_run_results_path(@playground_run_result.prompt_version.prompt), class: "btn btn--secondary btn--medium" %>
+    <%= link_to "View Prompt", prompt_path(@playground_run_result.prompt_version.prompt), class: "btn btn--secondary btn--medium" %>
   </div>
 </div>
 
-<div class="content-grid">
-  <div class="card">
+<div class="prompt-details">
+  <div class="card mb-lg">
     <div class="card__header">
-      <h2 class="card__title">Run Information</h2>
+      <h3 class="card__title">Run Information</h3>
     </div>
-    <div class="card__content">
-      <dl class="details-list">
-        <div class="details-list__item">
-          <dt>Prompt</dt>
-          <dd><%= link_to @playground_run_result.prompt_version.prompt.name, prompt_path(@playground_run_result.prompt_version.prompt) %></dd>
+    <div class="card__body">
+      <div class="detail-grid">
+        <div class="detail-item">
+          <label class="detail-label">Prompt</label>
+          <div class="detail-value">
+            <%= link_to @playground_run_result.prompt_version.prompt.name, prompt_path(@playground_run_result.prompt_version.prompt), class: "link" %>
+          </div>
         </div>
-        <div class="details-list__item">
-          <dt>Version</dt>
-          <dd><%= link_to "v#{@playground_run_result.prompt_version.version_number}", prompt_version_path(@playground_run_result.prompt_version.prompt, @playground_run_result.prompt_version) %></dd>
+        
+        <div class="detail-item">
+          <label class="detail-label">Version</label>
+          <div class="detail-value">
+            <%= link_to "Version #{@playground_run_result.prompt_version.version_number}", prompt_version_path(@playground_run_result.prompt_version.prompt, @playground_run_result.prompt_version), class: "link" %>
+          </div>
         </div>
-        <div class="details-list__item">
-          <dt>Provider</dt>
-          <dd><span class="badge"><%= @playground_run_result.provider %></span></dd>
+        
+        <div class="detail-item">
+          <label class="detail-label">Provider</label>
+          <div class="detail-value">
+            <span class="table__badge table__badge--info"><%= @playground_run_result.provider %></span>
+          </div>
         </div>
-        <div class="details-list__item">
-          <dt>Model</dt>
-          <dd><%= @playground_run_result.model %></dd>
+        
+        <div class="detail-item">
+          <label class="detail-label">Model</label>
+          <div class="detail-value"><%= @playground_run_result.model %></div>
         </div>
-        <div class="details-list__item">
-          <dt>Execution Time</dt>
-          <dd><%= @playground_run_result.execution_time %>s</dd>
+        
+        <div class="detail-item">
+          <label class="detail-label">Execution Time</label>
+          <div class="detail-value"><%= @playground_run_result.execution_time %>s</div>
         </div>
-        <div class="details-list__item">
-          <dt>Token Count</dt>
-          <dd><%= @playground_run_result.token_count || "Not available" %></dd>
+        
+        <div class="detail-item">
+          <label class="detail-label">Token Count</label>
+          <div class="detail-value"><%= @playground_run_result.token_count || "Not available" %></div>
         </div>
+        
         <% if @playground_run_result.temperature.present? %>
-          <div class="details-list__item">
-            <dt>Temperature</dt>
-            <dd><%= @playground_run_result.temperature %></dd>
+          <div class="detail-item">
+            <label class="detail-label">Temperature</label>
+            <div class="detail-value"><%= @playground_run_result.temperature %></div>
           </div>
         <% end %>
+        
         <% if @playground_run_result.max_tokens.present? %>
-          <div class="details-list__item">
-            <dt>Max Tokens</dt>
-            <dd><%= @playground_run_result.max_tokens %></dd>
+          <div class="detail-item">
+            <label class="detail-label">Max Tokens</label>
+            <div class="detail-value"><%= @playground_run_result.max_tokens %></div>
           </div>
         <% end %>
-      </dl>
+      </div>
     </div>
   </div>
 
   <% if @playground_run_result.parameters.present? && @playground_run_result.parameters.any? %>
-    <div class="card">
+    <div class="card mb-lg">
       <div class="card__header">
-        <h2 class="card__title">Parameters Used</h2>
+        <h3 class="card__title">Parameters Used</h3>
       </div>
-      <div class="card__content">
-        <dl class="details-list">
+      <div class="card__body">
+        <div class="parameters-table">
           <% @playground_run_result.parameters.each do |key, value| %>
-            <div class="details-list__item">
-              <dt><%= key %></dt>
-              <dd><%= value %></dd>
+            <div class="parameter-row">
+              <div class="parameter-name"><%= key %></div>
+              <div class="parameter-value"><%= value %></div>
             </div>
           <% end %>
-        </dl>
+        </div>
       </div>
     </div>
   <% end %>
-</div>
 
-<% if @playground_run_result.system_message.present? %>
-  <div class="card">
-    <div class="card__header">
-      <h2 class="card__title">System Message</h2>
-    </div>
-    <div class="card__content">
-      <div class="code-block">
-        <pre><code><%= @playground_run_result.system_message %></code></pre>
+  <% if @playground_run_result.system_message.present? %>
+    <div class="card mb-lg">
+      <div class="card__header">
+        <h3 class="card__title">System Message</h3>
+      </div>
+      <div class="card__body">
+        <pre class="prompt-content"><%= @playground_run_result.system_message %></pre>
       </div>
     </div>
-  </div>
-<% end %>
+  <% end %>
 
-<div class="card">
-  <div class="card__header">
-    <h2 class="card__title">Rendered Prompt</h2>
+  <div class="card mb-lg">
+    <div class="card__header">
+      <h3 class="card__title">Rendered Prompt</h3>
+    </div>
+    <div class="card__body">
+      <pre class="prompt-content"><%= @playground_run_result.rendered_prompt %></pre>
+    </div>
   </div>
-  <div class="card__content">
-    <div class="code-block">
-      <pre><code><%= @playground_run_result.rendered_prompt %></code></pre>
+
+  <div class="card">
+    <div class="card__header">
+      <h3 class="card__title">AI Response</h3>
+    </div>
+    <div class="card__body">
+      <pre class="prompt-content"><%= @playground_run_result.response %></pre>
     </div>
   </div>
 </div>
 
-<div class="card">
-  <div class="card__header">
-    <h2 class="card__title">AI Response</h2>
-  </div>
-  <div class="card__content">
-    <div class="code-block">
-      <pre><code><%= @playground_run_result.response %></code></pre>
-    </div>
-  </div>
+<div class="form__actions mt-lg">
+  <%= link_to "Back to Test Runs", prompt_playground_run_results_path(@playground_run_result.prompt_version.prompt), class: "btn btn--secondary btn--medium" %>
 </div>

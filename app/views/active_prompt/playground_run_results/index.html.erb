@@ -1,57 +1,99 @@
-<div class="page-header">
-  <h1 class="page-header__title">
-    Test Run Results
+<div class="admin-header">
+  <div>
+    <h1>Test Run History</h1>
     <% if @prompt %>
-      <span class="page-header__subtitle">for <%= @prompt.name %></span>
+      <p class="text-muted">All test runs for <%= @prompt.name %></p>
     <% elsif @prompt_version %>
-      <span class="page-header__subtitle">for <%= @prompt_version.prompt.name %> v<%= @prompt_version.version_number %></span>
-    <% end %>
-  </h1>
-  
-  <div class="page-header__actions">
-    <% if @prompt %>
-      <%= link_to "Back to Prompt", prompt_path(@prompt), class: "btn btn--secondary" %>
-    <% elsif @prompt_version %>
-      <%= link_to "Back to Version", prompt_version_path(@prompt_version.prompt, @prompt_version), class: "btn btn--secondary" %>
+      <p class="text-muted">Test runs for <%= @prompt_version.prompt.name %> - Version <%= @prompt_version.version_number %></p>
     <% else %>
-      <%= link_to "All Prompts", prompts_path, class: "btn btn--secondary" %>
+      <p class="text-muted">All test runs across all prompts</p>
+    <% end %>
+  </div>
+  
+  <div class="btn-group">
+    <% if @prompt %>
+      <%= link_to "Back to Prompt", prompt_path(@prompt), class: "btn btn--secondary btn--medium" %>
+      <%= link_to "Test Prompt", playground_prompt_path(@prompt), class: "btn btn--primary btn--medium" %>
+    <% elsif @prompt_version %>
+      <%= link_to "Back to Version", prompt_version_path(@prompt_version.prompt, @prompt_version), class: "btn btn--secondary btn--medium" %>
+    <% else %>
+      <%= link_to "All Prompts", prompts_path, class: "btn btn--secondary btn--medium" %>
     <% end %>
   </div>
 </div>
 
 <div class="table-container">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Run Date</th>
-        <th>Provider</th>
-        <th>Model</th>
-        <th>Execution Time</th>
-        <th>Tokens</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% if @playground_run_results.any? %>
-        <% @playground_run_results.each do |result| %>
-          <tr>
-            <td><%= result.created_at.strftime("%b %d, %Y %I:%M %p") %></td>
-            <td><span class="badge"><%= result.provider %></span></td>
-            <td><%= result.model %></td>
-            <td><%= "#{result.execution_time}s" %></td>
-            <td><%= result.token_count || "N/A" %></td>
-            <td>
-              <%= link_to "View Details", playground_run_result_path(result), class: "table__action" %>
-            </td>
+  <% if @playground_run_results.any? %>
+    <table class="table">
+        <thead>
+          <tr class="table__row">
+            <th class="table__cell table__cell--header">Prompt</th>
+            <th class="table__cell table__cell--header">Run Date</th>
+            <th class="table__cell table__cell--header">Version</th>
+            <th class="table__cell table__cell--header">Provider</th>
+            <th class="table__cell table__cell--header table__cell--hide-mobile">Model</th>
+            <th class="table__cell table__cell--header">Execution Time</th>
+            <th class="table__cell table__cell--header">Tokens</th>
+            <th class="table__cell table__cell--header table__cell--actions">Actions</th>
           </tr>
-        <% end %>
+        </thead>
+        <tbody>
+          <% @playground_run_results.each do |result| %>
+            <tr class="table__row">
+              <td class="table__cell">
+                <%= link_to result.prompt_version.prompt.name, prompt_path(result.prompt_version.prompt), class: "table__action" %>
+              </td>
+              <td class="table__cell">
+                <div class="table__primary">
+                  <%= result.created_at.strftime("%b %d, %Y") %>
+                </div>
+                <div class="table__secondary">
+                  <%= result.created_at.strftime("%I:%M %p") %>
+                </div>
+              </td>
+              <td class="table__cell">
+                <span class="table__badge table__badge--info">v<%= result.prompt_version.version_number %></span>
+              </td>
+              <td class="table__cell">
+                <span class="table__badge table__badge--<%= result.provider == 'anthropic' ? 'warning' : 'success' %>">
+                  <%= result.provider %>
+                </span>
+              </td>
+              <td class="table__cell table__cell--hide-mobile">
+                <span class="table__secondary"><%= result.model %></span>
+              </td>
+              <td class="table__cell">
+                <div class="table__metric">
+                  <span class="table__metric-value"><%= result.execution_time %></span>
+                  <span class="table__metric-unit">s</span>
+                </div>
+              </td>
+              <td class="table__cell">
+                <% if result.token_count %>
+                  <div class="table__metric">
+                    <span class="table__metric-value"><%= result.token_count %></span>
+                    <span class="table__metric-unit">tokens</span>
+                  </div>
+                <% else %>
+                  <span class="table__secondary">—</span>
+                <% end %>
+              </td>
+              <td class="table__cell table__cell--actions">
+                <%= link_to "View Details", playground_run_result_path(result), class: "table__action" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+  <% else %>
+    <div class="table__empty">
+      <div class="table__empty-title">No test runs yet</div>
+      <% if @prompt %>
+        <p class="table__empty-text">Start testing your prompt to see results here.</p>
+        <%= link_to "Test this prompt", playground_prompt_path(@prompt), class: "btn btn--primary btn--medium" %>
       <% else %>
-        <tr>
-          <td colspan="6" class="table__empty">
-            No test runs yet. <%= link_to "Test this prompt", @prompt ? playground_prompt_path(@prompt) : "#" %> in the playground.
-          </td>
-        </tr>
+        <p class="table__empty-text">Test runs will appear here once you start testing prompts.</p>
       <% end %>
-    </tbody>
-  </table>
+    </div>
+  <% end %>
 </div>

@@ -31,27 +31,27 @@
             </span>
           </div>
         </div>
-        
+
         <div class="detail-item">
           <label class="detail-label">Model</label>
           <div class="detail-value"><%= @prompt.model || "Not configured" %></div>
         </div>
-        
+
         <div class="detail-item">
           <label class="detail-label">Temperature</label>
           <div class="detail-value"><%= @prompt.temperature || "Default" %></div>
         </div>
-        
+
         <div class="detail-item">
           <label class="detail-label">Max Tokens</label>
           <div class="detail-value"><%= @prompt.max_tokens || "Default" %></div>
         </div>
-        
+
         <div class="detail-item">
           <label class="detail-label">Created</label>
           <div class="detail-value"><%= @prompt.created_at.strftime("%B %d, %Y at %I:%M %p") %></div>
         </div>
-        
+
         <div class="detail-item">
           <label class="detail-label">Last Updated</label>
           <div class="detail-value"><%= @prompt.updated_at.strftime("%B %d, %Y at %I:%M %p") %></div>
@@ -136,7 +136,7 @@ response = OpenAI::Client.new.chat(
     </div>
   <% end %>
 
-  <div class="card">
+  <div class="card mb-lg">
     <div class="card__header">
       <h3 class="card__title">Prompt Content</h3>
     </div>
@@ -144,9 +144,59 @@ response = OpenAI::Client.new.chat(
       <pre class="prompt-content"><%= @prompt.content %></pre>
     </div>
   </div>
+
+  <div class="card mb-lg">
+    <div class="card__header">
+      <h3 class="card__title">Recent Test Runs</h3>
+      <div class="card__actions">
+        <%= link_to "View All", prompt_playground_run_results_path(@prompt), class: "btn btn--secondary btn--small" %>
+      </div>
+    </div>
+    <div class="card__body">
+      <% if @recent_test_runs.any? %>
+        <div class="table-container table-container--compact">
+          <table class="table table--simple">
+            <tbody>
+              <% @recent_test_runs.each do |run| %>
+                <tr>
+                  <td>
+                    <div class="table__primary"><%= run.created_at.strftime("%b %d, %Y %I:%M %p") %></div>
+                  </td>
+                  <td>
+                    <span class="table__badge table__badge--info">v<%= run.prompt_version.version_number %></span>
+                  </td>
+                  <td>
+                    <span class="table__secondary"><%= run.provider %></span>
+                  </td>
+                  <td>
+                    <span class="table__secondary"><%= run.model %></span>
+                  </td>
+                  <td>
+                    <div class="table__metric">
+                      <span class="table__metric-value"><%= run.execution_time %></span>
+                      <span class="table__metric-unit">s</span>
+                    </div>
+                  </td>
+                  <td>
+                    <% if run.token_count %>
+                      <span class="table__secondary"><%= run.token_count %> tokens</span>
+                    <% end %>
+                  </td>
+                  <td class="table__actions">
+                    <%= link_to "View Details", playground_run_result_path(run), class: "table__action" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-muted">No test runs yet. <%= link_to "Test this prompt", playground_prompt_path(@prompt) %> in the playground.</p>
+      <% end %>
+    </div>
+  </div>
 </div>
 
 <div class="form__actions mt-lg">
   <%= link_to "Back to Prompts", prompts_path, class: "btn btn--secondary btn--medium" %>
 </div>
-

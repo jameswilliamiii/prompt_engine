@@ -5,7 +5,7 @@ module ActivePrompt
     before_action :set_context, only: [:index]
 
     def index
-      @playground_run_results = scope.recent
+      @playground_run_results = scope.recent.includes(prompt_version: :prompt)
     end
 
     def show

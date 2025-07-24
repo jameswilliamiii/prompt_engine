@@ -17,21 +17,19 @@
             <h1 class="admin-sidebar__title">ActivePrompt</h1>
             <span class="admin-sidebar__version">v<%= ActivePrompt::VERSION %></span>
           </div>
-          
+
           <nav class="admin-sidebar__nav">
             <ul class="admin-nav">
               <li class="admin-nav__item">
-                <%= link_to "Dashboard", "#", class: "admin-nav__link admin-nav__link--disabled" %>
+                <%= link_to "Dashboard", root_path, class: "admin-nav__link admin-nav__link--disabled" %>
               </li>
               <li class="admin-nav__item">
                 <%= link_to "Prompts", prompts_path, 
                     class: "admin-nav__link #{'admin-nav__link--active' if %w[prompts versions].include?(controller_name)}" %>
               </li>
               <li class="admin-nav__item">
-                <%= link_to "Templates", "#", class: "admin-nav__link admin-nav__link--disabled" %>
-              </li>
-              <li class="admin-nav__item">
-                <%= link_to "Responses", "#", class: "admin-nav__link admin-nav__link--disabled" %>
+                <%= link_to "Test Runs", playground_run_results_path, 
+                    class: "admin-nav__link #{'admin-nav__link--active' if controller_name == 'playground_run_results'}" %>
               </li>
               <li class="admin-nav__item">
                 <%= link_to "Settings", "#", class: "admin-nav__link admin-nav__link--disabled" %>

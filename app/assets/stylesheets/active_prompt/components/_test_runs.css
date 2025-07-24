@@ -1,0 +1,144 @@
+/* Test Runs List */
+.test-runs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.test-run-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid hsl(var(--border));
+  transition: all 0.2s;
+}
+
+.test-run-item:last-child {
+  border-bottom: none;
+}
+
+.test-run-item:hover {
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+.test-run-item__main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.test-run-item__info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.test-run-item__date {
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+  font-weight: 500;
+}
+
+.test-run-item__version {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  background-color: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+.test-run-item__provider {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  border-radius: 0.25rem;
+  text-transform: capitalize;
+}
+
+.test-run-item__model {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.test-run-item__metrics {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.test-run-item__time {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.test-run-item__time::before {
+  content: "⏱";
+  opacity: 0.7;
+}
+
+.test-run-item__tokens {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.test-run-item__tokens::before {
+  content: "🎯";
+  opacity: 0.7;
+}
+
+.test-run-item__actions {
+  flex-shrink: 0;
+}
+
+
+/* Small button variant */
+.btn--sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  height: auto;
+  min-height: 0;
+}
+
+/* Parameter value display */
+.parameter-value {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--muted));
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  display: inline-block;
+}
+
+/* Link styling */
+.link {
+  color: hsl(var(--primary));
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.empty-state__message {
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 1.5rem;
+  font-size: 1.125rem;
+}
