@@ -1,28 +1,28 @@
 module ActivePrompt
   class Prompt < ApplicationRecord
     self.table_name = "active_prompt_prompts"
-    
-    has_many :versions, -> { order(version_number: :desc) }, 
-             class_name: 'ActivePrompt::PromptVersion',
+
+    has_many :versions, -> { order(version_number: :desc) },
+             class_name: "ActivePrompt::PromptVersion",
              dependent: :destroy
-    has_many :parameters, -> { ordered }, 
-             class_name: 'ActivePrompt::Parameter',
+    has_many :parameters, -> { ordered },
+             class_name: "ActivePrompt::Parameter",
              dependent: :destroy
-    
+
     attr_accessor :change_summary
 
     validates :name, presence: true, uniqueness: { scope: :status }
     validates :content, presence: true
-    
+
     accepts_nested_attributes_for :parameters, allow_destroy: true
-    
+
     enum :status, {
-      draft: 'draft',
-      active: 'active',
-      archived: 'archived'
-    }, default: 'draft'
-    
-    scope :active, -> { where(status: 'active') }
+      draft: "draft",
+      active: "active",
+      archived: "archived"
+    }, default: "draft"
+
+    scope :active, -> { where(status: "active") }
     scope :by_name, -> { order(:name) }
 
     after_create :create_initial_version
@@ -54,30 +54,30 @@ module ActivePrompt
       # This method is for checking if versioned attributes have changed before save
       (changed & VERSIONED_ATTRIBUTES).any?
     end
-    
+
     # Parameter management methods
     def detect_variables
       # Don't cache the detector as content can change
       ActivePrompt::VariableDetector.new(content).variable_names
     end
-    
+
     def sync_parameters!
       detected_vars = detect_variables
       existing_names = parameters.pluck(:name)
-      
+
       # Add new parameters
       new_vars = detected_vars - existing_names
       if new_vars.any?
         # Get max position once, before the loop
         max_position = parameters.maximum(:position) || 0
         detector = ActivePrompt::VariableDetector.new(content)
-        
+
         new_vars.each_with_index do |var_name, index|
           var_info = detector.extract_variables.find { |v| v[:name] == var_name }
-          
+
           # Skip if parameter already exists (race condition protection)
           next if parameters.exists?(name: var_name)
-          
+
           parameters.create!(
             name: var_name,
             parameter_type: var_info[:type],
@@ -86,21 +86,21 @@ module ActivePrompt
           )
         end
       end
-      
+
       # Remove parameters that no longer exist
       removed_vars = existing_names - detected_vars
       parameters.where(name: removed_vars).destroy_all if removed_vars.any?
-      
+
       true
     end
-    
+
     def render_with_params(provided_params = {})
       detector = ActivePrompt::VariableDetector.new(content)
-      
+
       # Validate all required parameters are provided
       validation = validate_parameters(provided_params)
-      return { error: validation[:errors].join(', ') } unless validation[:valid]
-      
+      return { error: validation[:errors].join(", ") } unless validation[:valid]
+
       # Cast parameters to their correct types, including defaults
       casted_params = {}
       parameters.each do |param|
@@ -108,7 +108,7 @@ module ActivePrompt
         # Let cast_value handle the default value logic
         casted_params[param.name] = param.cast_value(value)
       end
-      
+
       # Also include any parameters not defined in the database but present in the template
       detected_vars = detect_variables
       detected_vars.each do |var_name|
@@ -117,7 +117,7 @@ module ActivePrompt
           casted_params[var_name] = value.to_s if value.present?
         end
       end
-      
+
       {
         content: detector.render(casted_params),
         system_message: system_message,
@@ -127,10 +127,10 @@ module ActivePrompt
         parameters_used: casted_params
       }
     end
-    
+
     def validate_parameters(provided_params = {})
       errors = []
-      
+
       parameters.each do |param|
         value = provided_params[param.name] || provided_params[param.name.to_sym]
         # Use default value if not provided and parameter is optional
@@ -140,7 +140,7 @@ module ActivePrompt
         param_errors = param.validate_value(value)
         errors.concat(param_errors)
       end
-      
+
       {
         valid: errors.empty?,
         errors: errors
@@ -157,7 +157,7 @@ module ActivePrompt
         temperature: temperature,
         max_tokens: max_tokens,
         metadata: metadata,
-        change_description: 'Initial version'
+        change_description: "Initial version"
       )
     end
 
@@ -175,10 +175,10 @@ module ActivePrompt
         change_description: "Updated: #{(saved_changes.keys & VERSIONED_ATTRIBUTES).join(', ')}"
       )
     end
-    
+
     def clean_orphaned_parameters
       return unless content_changed?
-      
+
       # Mark parameters for destruction if their names are not in the content
       detected_vars = detect_variables
       parameters.each do |param|

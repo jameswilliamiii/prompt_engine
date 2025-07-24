@@ -32,7 +32,8 @@
                     class: "admin-nav__link #{'admin-nav__link--active' if controller_name == 'playground_run_results'}" %>
               </li>
               <li class="admin-nav__item">
-                <%= link_to "Settings", "#", class: "admin-nav__link admin-nav__link--disabled" %>
+                <%= link_to "Settings", edit_settings_path, 
+                    class: "admin-nav__link #{'admin-nav__link--active' if controller_name == 'settings'}" %>
               </li>
             </ul>
           </nav>

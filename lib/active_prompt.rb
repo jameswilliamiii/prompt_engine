@@ -9,7 +9,7 @@ module ActivePrompt
     # @return [Hash] The rendered prompt with content and system_message
     def render(prompt_name, variables: {})
       prompt = Prompt.active.find_by!(name: prompt_name.to_s)
-      
+
       {
         content: interpolate_variables(prompt.content, variables),
         system_message: interpolate_variables(prompt.system_message, variables),
@@ -18,12 +18,12 @@ module ActivePrompt
         max_tokens: prompt.max_tokens
       }
     end
-    
+
     private
-    
+
     def interpolate_variables(text, variables)
       return text if text.blank? || variables.empty?
-      
+
       text.gsub(/\{\{(\w+)\}\}/) do |match|
         key = $1.to_sym
         variables.fetch(key) { match }

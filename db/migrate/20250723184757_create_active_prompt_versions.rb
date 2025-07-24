@@ -15,7 +15,7 @@ class CreateActivePromptVersions < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :active_prompt_prompt_versions, [:prompt_id, :version_number], unique: true, name: 'index_prompt_versions_on_prompt_and_version'
+    add_index :active_prompt_prompt_versions, [ :prompt_id, :version_number ], unique: true, name: 'index_prompt_versions_on_prompt_and_version'
     add_index :active_prompt_prompt_versions, :version_number
 
     # Add version_count counter cache to prompts table

@@ -1,0 +1,93 @@
+<div class="admin-header">
+  <div>
+    <h1>Settings</h1>
+    <p class="text-muted">Configure your AI provider API keys</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card__header">
+    <h3 class="card__title">API Keys</h3>
+  </div>
+  <div class="card__body">
+    <%= form_with model: @settings, url: settings_path, method: :patch, local: true, html: { class: "form" } do |form| %>
+      <div class="form__section">
+        <h4 class="form__section-title">OpenAI Configuration</h4>
+        
+        <div class="form__group">
+          <%= form.label :openai_api_key, "OpenAI API Key", class: "form__label" %>
+          <%= form.password_field :openai_api_key, 
+              class: "form__input", 
+              placeholder: @settings.openai_configured? ? "API key is saved (#{@settings.masked_openai_api_key})" : "Enter your OpenAI API key",
+              autocomplete: "off" %>
+          <div class="form__help">
+            Your API key will be encrypted and stored securely. 
+            <%= link_to "Get your API key from OpenAI", "https://platform.openai.com/api-keys", target: "_blank", class: "link" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="form__section">
+        <h4 class="form__section-title">Anthropic Configuration</h4>
+        
+        <div class="form__group">
+          <%= form.label :anthropic_api_key, "Anthropic API Key", class: "form__label" %>
+          <%= form.password_field :anthropic_api_key, 
+              class: "form__input", 
+              placeholder: @settings.anthropic_configured? ? "API key is saved (#{@settings.masked_anthropic_api_key})" : "Enter your Anthropic API key",
+              autocomplete: "off" %>
+          <div class="form__help">
+            Your API key will be encrypted and stored securely. 
+            <%= link_to "Get your API key from Anthropic", "https://console.anthropic.com/account/keys", target: "_blank", class: "link" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="form__section">
+        <div class="alert alert--info">
+          <div class="alert__content">
+            <strong>Security Note:</strong> API keys are encrypted at rest using Rails' built-in encryption. 
+            Leave fields empty to keep existing values unchanged.
+          </div>
+        </div>
+      </div>
+
+      <div class="form__actions">
+        <%= form.submit "Save Settings", class: "btn btn--primary btn--medium" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .form__section {
+    margin-bottom: 2rem;
+  }
+  
+  .form__section:last-child {
+    margin-bottom: 0;
+  }
+  
+  .form__section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--color-gray-900);
+  }
+  
+  .alert {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid;
+  }
+  
+  .alert--info {
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1e40af;
+  }
+  
+  .alert__content {
+    font-size: 0.875rem;
+  }
+</style>

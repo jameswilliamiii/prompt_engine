@@ -18,7 +18,7 @@ module ActivePrompt
       validate_inputs!
 
       start_time = Time.current
-      
+
       # Replace parameters in prompt content
       parser = ParameterParser.new(prompt.content)
       processed_content = parser.replace_parameters(parameters)
@@ -28,38 +28,38 @@ module ActivePrompt
 
       # Create chat instance with the model
       chat = RubyLLM.chat(model: MODELS[provider])
-      
+
       # Apply temperature if specified
       if prompt.temperature.present?
         chat = chat.with_temperature(prompt.temperature)
       end
-      
+
       # Apply system message if present
       if prompt.system_message.present?
         chat = chat.with_instructions(prompt.system_message)
       end
-      
+
       # Execute the prompt
       # Note: max_tokens may need to be passed differently depending on RubyLLM version
       response = chat.ask(processed_content)
-      
+
       execution_time = (Time.current - start_time).round(3)
 
       # Handle response based on its structure
       response_content = if response.respond_to?(:content)
                           response.content
-                        elsif response.is_a?(String)
+      elsif response.is_a?(String)
                           response
-                        else
+      else
                           response.to_s
-                        end
+      end
 
       # Try to get token count if available
       token_count = if response.respond_to?(:input_tokens) && response.respond_to?(:output_tokens)
                       (response.input_tokens || 0) + (response.output_tokens || 0)
-                    else
+      else
                       0 # Default if token information isn't available
-                    end
+      end
 
       {
         response: response_content,
@@ -81,8 +81,8 @@ module ActivePrompt
     end
 
     def configure_ruby_llm
-      require 'ruby_llm'
-      
+      require "ruby_llm"
+
       RubyLLM.configure do |config|
         case provider
         when "anthropic"
@@ -96,7 +96,7 @@ module ActivePrompt
     def handle_error(error)
       # Re-raise ArgumentError as-is for validation errors
       raise error if error.is_a?(ArgumentError)
-      
+
       # Check for specific error types first
       case error
       when Net::HTTPUnauthorized

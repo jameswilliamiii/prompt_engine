@@ -7,4 +7,4 @@ Rails.application.config.assets.version = "1.0"
 # Rails.application.config.assets.paths << Emoji.images_path
 
 # Include engine assets
-Rails.application.config.assets.precompile += %w( active_prompt/application.css )
+Rails.application.config.assets.precompile += %w[ active_prompt/application.css ]

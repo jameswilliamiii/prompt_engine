@@ -29,17 +29,17 @@ module ActivePrompt
         expect(version).not_to be_valid
         expect(version.errors[:version_number]).to include('must be greater than 0')
       end
-      
+
       context 'uniqueness of version_number' do
         let(:prompt) { create(:prompt) }
-        
+
         it 'validates uniqueness of version_number scoped to prompt' do
           # The prompt already has version 1 from auto-creation
           version2 = build(:prompt_version, prompt: prompt, version_number: 1)
           expect(version2).not_to be_valid
           expect(version2.errors[:version_number]).to include('has already been taken')
         end
-        
+
         it 'allows same version_number for different prompts' do
           other_prompt = create(:prompt)
           # Both prompts have version 1, which is fine
@@ -51,13 +51,13 @@ module ActivePrompt
 
     describe 'version number auto-increment' do
       let(:prompt) { create(:prompt) }
-      
+
       context 'when no additional versions exist' do
         it 'auto-increments from existing version' do
           # Prompt already has version 1 from creation
           expect(prompt.versions.count).to eq(1)
           expect(prompt.versions.first.version_number).to eq(1)
-          
+
           version = PromptVersion.create!(
             prompt: prompt,
             content: 'Test content',
@@ -69,13 +69,13 @@ module ActivePrompt
           expect(version.version_number).to eq(2)
         end
       end
-      
+
       context 'when multiple versions exist' do
         before do
           # Prompt already has version 1, so we create version 2
           create(:prompt_version, prompt: prompt, version_number: 2)
         end
-        
+
         it 'auto-increments to next version number' do
           version = PromptVersion.create!(
             prompt: prompt,
@@ -93,7 +93,7 @@ module ActivePrompt
     describe 'content immutability' do
       let(:prompt) { create(:prompt) }
       let(:version) { prompt.versions.first }
-      
+
       it 'prevents updating content after creation' do
         original_content = version.content
         version.content = 'Changed content'
@@ -101,7 +101,7 @@ module ActivePrompt
         expect(version.errors[:content]).to include('cannot be changed after creation')
         expect(version.reload.content).to eq(original_content)
       end
-      
+
       it 'prevents updating system_message after creation' do
         original_message = version.system_message
         version.system_message = 'Changed message'
@@ -109,7 +109,7 @@ module ActivePrompt
         expect(version.errors[:system_message]).to include('cannot be changed after creation')
         expect(version.reload.system_message).to eq(original_message)
       end
-      
+
       it 'prevents updating model after creation' do
         original_model = version.model
         version.model = 'gpt-3.5-turbo'
@@ -117,7 +117,7 @@ module ActivePrompt
         expect(version.errors[:model]).to include('cannot be changed after creation')
         expect(version.reload.model).to eq(original_model)
       end
-      
+
       it 'prevents updating temperature after creation' do
         original_temp = version.temperature
         version.temperature = 0.9
@@ -125,7 +125,7 @@ module ActivePrompt
         expect(version.errors[:temperature]).to include('cannot be changed after creation')
         expect(version.reload.temperature).to eq(original_temp)
       end
-      
+
       it 'prevents updating max_tokens after creation' do
         original_tokens = version.max_tokens
         version.max_tokens = 2000
@@ -133,7 +133,7 @@ module ActivePrompt
         expect(version.errors[:max_tokens]).to include('cannot be changed after creation')
         expect(version.reload.max_tokens).to eq(original_tokens)
       end
-      
+
       it 'allows updating change_description' do
         version.change_description = 'Updated description'
         expect(version.save).to be true
@@ -146,23 +146,23 @@ module ActivePrompt
       let!(:version1) { prompt.versions.first.tap { |v| v.update_column(:created_at, 3.days.ago) } }
       let!(:version2) { create(:prompt_version, prompt: prompt, version_number: 2, created_at: 2.days.ago) }
       let!(:version3) { create(:prompt_version, prompt: prompt, version_number: 3, created_at: 1.day.ago) }
-      
+
       describe '.latest' do
         it 'returns versions ordered by version_number descending' do
-          expect(prompt.versions.latest).to eq([version3, version2, version1])
+          expect(prompt.versions.latest).to eq([ version3, version2, version1 ])
         end
       end
-      
+
       describe '.chronological' do
         it 'returns versions ordered by created_at ascending' do
-          expect(PromptVersion.where(prompt: prompt).chronological.to_a).to eq([version1, version2, version3])
+          expect(PromptVersion.where(prompt: prompt).chronological.to_a).to eq([ version1, version2, version3 ])
         end
       end
     end
 
     describe '#restore!' do
-      let(:prompt) do 
-        create(:prompt, 
+      let(:prompt) do
+        create(:prompt,
           content: 'Old content',
           system_message: 'Old message',
           model: 'gpt-3.5-turbo',
@@ -175,19 +175,19 @@ module ActivePrompt
         # Store the initial version
         prompt.versions.first
       end
-      
+
       it 'restores the prompt to the version state' do
         # Verify old_version has the expected content
         expect(old_version.content).to eq('Old content')
-        
+
         # Now update the prompt to something different
         prompt.update!(content: 'Different content', system_message: 'Different message')
         expect(prompt.content).to eq('Different content')
-        
+
         # Restore to the old version
         old_version.restore!
         prompt.reload
-        
+
         expect(prompt.content).to eq('Old content')
         expect(prompt.system_message).to eq('Old message')
         expect(prompt.model).to eq('gpt-3.5-turbo')
@@ -195,34 +195,34 @@ module ActivePrompt
         expect(prompt.max_tokens).to eq(500)
         expect(prompt.metadata).to eq({ 'key' => 'value' })
       end
-      
+
       it 'creates a new version when restoring' do
         # Verify initial state
         expect(prompt.versions.count).to eq(1)
         expect(prompt.content).to eq('Old content')
-        
+
         # Debug: Check if attributes are changing
         expect(prompt.system_message).to eq('Old message')
-        
+
         # Update the prompt to something different - force reload to ensure clean state
         prompt.reload
         expect(prompt.versioned_attributes_changed?).to be false
-        
+
         prompt.content = 'Different content'
         prompt.system_message = 'Different message'
         expect(prompt.versioned_attributes_changed?).to be true
-        
+
         prompt.save!
-        
+
         # Check version was created
         expect(prompt.reload.versions.count).to eq(2)
-        
+
         # Now restore to old version
         old_version.restore!
-        
+
         # Should have created exactly one new version
         expect(prompt.versions.count).to eq(3)
-        
+
         new_version = prompt.versions.latest.first
         expect(new_version.content).to eq('Old content')
         expect(new_version.change_description).to include('Restored from version')
@@ -242,10 +242,10 @@ module ActivePrompt
           metadata: { 'foo' => 'bar' }
         )
       end
-      
+
       it 'returns a hash of prompt attributes' do
         attributes = version.to_prompt_attributes
-        
+
         expect(attributes).to eq({
           content: 'Version content',
           system_message: 'Version message',

@@ -66,4 +66,10 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Configure Active Record encryption for development
+  # In production, use Rails credentials or environment variables instead
+  config.active_record.encryption.primary_key = 'development' * 4  # 32 bytes
+  config.active_record.encryption.deterministic_key = 'development' * 4  # 32 bytes
+  config.active_record.encryption.key_derivation_salt = 'development' * 4  # 32 bytes
 end

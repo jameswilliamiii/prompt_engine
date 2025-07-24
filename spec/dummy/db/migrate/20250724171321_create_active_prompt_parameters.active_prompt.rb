@@ -15,7 +15,7 @@ class CreateActivePromptParameters < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :active_prompt_parameters, [:prompt_id, :name], unique: true
+    add_index :active_prompt_parameters, [ :prompt_id, :name ], unique: true
     add_index :active_prompt_parameters, :position
   end
 end

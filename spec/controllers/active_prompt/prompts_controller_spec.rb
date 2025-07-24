@@ -6,11 +6,11 @@
 # See docs/CONTROLLER-TESTS.md for migration guidelines.
 
 # require 'rails_helper'
-# 
+#
 # module ActivePrompt
 #   RSpec.describe PromptsController, type: :controller do
 #     routes { ActivePrompt::Engine.routes }
-#     
+#
 #     let(:valid_attributes) do
 #       {
 #         name: 'Test Prompt',
@@ -23,7 +23,7 @@
 #         status: 'draft'
 #       }
 #     end
-#     
+#
 #     let(:invalid_attributes) do
 #       {
 #         name: '',
@@ -31,30 +31,30 @@
 #         description: 'Invalid prompt without required fields'
 #       }
 #     end
-#     
+#
 #     describe 'GET #index' do
 #       it 'returns a success response' do
 #         get :index
 #         expect(response).to be_successful
 #       end
 #     end
-#     
+#
 #     describe 'GET #show' do
 #       let(:prompt) { create(:prompt) }
-#       
+#
 #       it 'returns a success response' do
 #         get :show, params: { id: prompt.to_param }
 #         expect(response).to be_successful
 #       end
 #     end
-#     
+#
 #     describe 'GET #new' do
 #       it 'returns a success response' do
 #         get :new
 #         expect(response).to be_successful
 #       end
 #     end
-#     
+#
 #     describe 'POST #create' do
 #       context 'with valid params' do
 #         it 'creates a new Prompt' do
@@ -62,44 +62,44 @@
 #             post :create, params: { prompt: valid_attributes }
 #           }.to change(ActivePrompt::Prompt, :count).by(1)
 #         end
-#         
+#
 #         it 'redirects to the created prompt' do
 #           post :create, params: { prompt: valid_attributes }
 #           expect(response).to redirect_to(prompt_path(ActivePrompt::Prompt.last))
 #         end
-#         
+#
 #         it 'sets a success notice' do
 #           post :create, params: { prompt: valid_attributes }
 #           expect(flash[:notice]).to eq('Prompt was successfully created.')
 #         end
 #       end
-#       
+#
 #       context 'with invalid params' do
 #         it 'does not create a new Prompt' do
 #           expect {
 #             post :create, params: { prompt: invalid_attributes }
 #           }.not_to change(ActivePrompt::Prompt, :count)
 #         end
-#         
+#
 #         it 'returns unprocessable entity status' do
 #           post :create, params: { prompt: invalid_attributes }
 #           expect(response).to have_http_status(:unprocessable_entity)
 #         end
 #       end
 #     end
-#     
+#
 #     describe 'GET #edit' do
 #       let(:prompt) { create(:prompt) }
-#       
+#
 #       it 'returns a success response' do
 #         get :edit, params: { id: prompt.to_param }
 #         expect(response).to be_successful
 #       end
 #     end
-#     
+#
 #     describe 'PUT #update' do
 #       let(:prompt) { create(:prompt) }
-#       
+#
 #       context 'with valid params' do
 #         let(:new_attributes) do
 #           {
@@ -108,7 +108,7 @@
 #             temperature: 0.9
 #           }
 #         end
-#         
+#
 #         it 'updates the requested prompt' do
 #           put :update, params: { id: prompt.to_param, prompt: new_attributes }
 #           prompt.reload
@@ -116,18 +116,18 @@
 #           expect(prompt.description).to eq('Updated description')
 #           expect(prompt.temperature).to eq(0.9)
 #         end
-#         
+#
 #         it 'redirects to the prompt' do
 #           put :update, params: { id: prompt.to_param, prompt: new_attributes }
 #           expect(response).to redirect_to(prompt_path(prompt))
 #         end
-#         
+#
 #         it 'sets a success notice' do
 #           put :update, params: { id: prompt.to_param, prompt: new_attributes }
 #           expect(flash[:notice]).to eq('Prompt was successfully updated.')
 #         end
 #       end
-#       
+#
 #       context 'with invalid params' do
 #         it 'does not update the prompt' do
 #           original_name = prompt.name
@@ -135,28 +135,28 @@
 #           prompt.reload
 #           expect(prompt.name).to eq(original_name)
 #         end
-#         
+#
 #         it 'returns unprocessable entity status' do
 #           put :update, params: { id: prompt.to_param, prompt: invalid_attributes }
 #           expect(response).to have_http_status(:unprocessable_entity)
 #         end
 #       end
 #     end
-#     
+#
 #     describe 'DELETE #destroy' do
 #       let!(:prompt) { create(:prompt) }
-#       
+#
 #       it 'destroys the requested prompt' do
 #         expect {
 #           delete :destroy, params: { id: prompt.to_param }
 #         }.to change(ActivePrompt::Prompt, :count).by(-1)
 #       end
-#       
+#
 #       it 'redirects to the prompts list' do
 #         delete :destroy, params: { id: prompt.to_param }
 #         expect(response).to redirect_to(prompts_path)
 #       end
-#       
+#
 #       it 'sets a success notice' do
 #         delete :destroy, params: { id: prompt.to_param }
 #         expect(flash[:notice]).to eq('Prompt was successfully deleted.')

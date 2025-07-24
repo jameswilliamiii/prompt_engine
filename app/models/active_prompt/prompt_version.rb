@@ -2,10 +2,10 @@ module ActivePrompt
   class PromptVersion < ApplicationRecord
     self.table_name = "active_prompt_prompt_versions"
 
-    belongs_to :prompt, class_name: 'ActivePrompt::Prompt', counter_cache: :versions_count
-    has_many :playground_run_results, class_name: 'ActivePrompt::PlaygroundRunResult', dependent: :destroy
+    belongs_to :prompt, class_name: "ActivePrompt::Prompt", counter_cache: :versions_count
+    has_many :playground_run_results, class_name: "ActivePrompt::PlaygroundRunResult", dependent: :destroy
 
-    validates :version_number, presence: true, 
+    validates :version_number, presence: true,
               numericality: { greater_than: 0 },
               uniqueness: { scope: :prompt_id }
     validates :content, presence: true
@@ -19,10 +19,10 @@ module ActivePrompt
     def restore!
       # Update the prompt attributes
       prompt.update!(to_prompt_attributes)
-      
+
       # Check if a version was created (attributes changed)
       latest_version = prompt.versions.first
-      
+
       if latest_version.created_at > 1.second.ago
         # A new version was just created, update its description
         latest_version.update_column(:change_description, "Restored from version #{version_number}")
@@ -52,7 +52,7 @@ module ActivePrompt
     def set_version_number
       return if version_number.present?
       return unless prompt
-      
+
       max_version = prompt.versions.maximum(:version_number) || 0
       self.version_number = max_version + 1
     end
@@ -60,7 +60,7 @@ module ActivePrompt
     def ensure_immutability
       immutable_attributes = %w[content system_message model temperature max_tokens]
       changed_immutable = (changed & immutable_attributes)
-      
+
       if changed_immutable.any?
         changed_immutable.each do |attr|
           errors.add(attr, "cannot be changed after creation")

@@ -119,7 +119,7 @@ RSpec.describe ActivePrompt::ParameterParser, type: :model do
       it "does not extract empty parameter names" do
         parser = described_class.new("Hello {{}} world")
         parameters = parser.extract_parameters
-        
+
         # The regex [^}]+ requires at least one character that's not a closing brace
         expect(parameters).to eq([])
       end

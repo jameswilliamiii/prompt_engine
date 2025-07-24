@@ -1,8 +1,8 @@
 module ActivePrompt
   class PlaygroundRunResultsController < ApplicationController
     layout "active_prompt/admin"
-    before_action :set_playground_run_result, only: [:show]
-    before_action :set_context, only: [:index]
+    before_action :set_playground_run_result, only: [ :show ]
+    before_action :set_context, only: [ :index ]
 
     def index
       @playground_run_results = scope.recent.includes(prompt_version: :prompt)

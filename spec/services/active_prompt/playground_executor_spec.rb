@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe ActivePrompt::PlaygroundExecutor, type: :service do
   let(:prompt) do
-    FactoryBot.create(:prompt, 
+    FactoryBot.create(:prompt,
       content: "Tell me about {{topic}} in {{style}} style",
       system_message: "You are a helpful assistant",
       temperature: 0.8,
@@ -63,14 +63,14 @@ RSpec.describe ActivePrompt::PlaygroundExecutor, type: :service do
           allow(config).to receive(:openai_api_key=)
           yield(config)
         end
-        
+
         def self.chat(options = {})
           # This will be overridden in specific tests
         end
       end
-      
+
       stub_const("RubyLLM", mock_ruby_llm)
-      
+
       # Mock the require to prevent loading the actual gem
       allow(executor).to receive(:require).with('ruby_llm')
     end
@@ -98,25 +98,25 @@ RSpec.describe ActivePrompt::PlaygroundExecutor, type: :service do
 
       it "applies temperature when specified" do
         expect(mock_chat).to receive(:with_temperature).with(0.8).and_return(mock_chat)
-        
+
         executor.execute
       end
 
       it "applies system message when present" do
         expect(mock_chat).to receive(:with_instructions).with("You are a helpful assistant").and_return(mock_chat)
-        
+
         executor.execute
       end
 
       it "replaces parameters in prompt content" do
         expect(mock_chat).to receive(:ask).with("Tell me about ruby programming in casual style")
-        
+
         executor.execute
       end
 
       context "with response containing token information" do
         let(:mock_response) do
-          double("response", 
+          double("response",
             content: "Response content",
             input_tokens: 50,
             output_tokens: 100
@@ -125,7 +125,7 @@ RSpec.describe ActivePrompt::PlaygroundExecutor, type: :service do
 
         it "calculates total token count" do
           result = executor.execute
-          
+
           expect(result[:token_count]).to eq(150)
         end
       end
@@ -135,7 +135,7 @@ RSpec.describe ActivePrompt::PlaygroundExecutor, type: :service do
 
         it "handles string response correctly" do
           result = executor.execute
-          
+
           expect(result[:response]).to eq("Simple string response")
         end
       end
@@ -177,7 +177,7 @@ RSpec.describe ActivePrompt::PlaygroundExecutor, type: :service do
 
       it "uses Claude model" do
         result = executor.execute
-        
+
         expect(result[:model]).to eq("claude-3-5-sonnet-20241022")
         expect(result[:provider]).to eq("anthropic")
       end
@@ -275,7 +275,7 @@ RSpec.describe ActivePrompt::PlaygroundExecutor, type: :service do
 
     context "with prompt without optional fields" do
       let(:minimal_prompt) do
-        FactoryBot.create(:prompt, 
+        FactoryBot.create(:prompt,
           content: "Simple prompt",
           system_message: nil,
           temperature: nil
@@ -301,13 +301,13 @@ RSpec.describe ActivePrompt::PlaygroundExecutor, type: :service do
 
       it "does not apply temperature when not present" do
         expect(mock_chat).not_to receive(:with_temperature)
-        
+
         executor.execute
       end
 
       it "does not apply system message when not present" do
         expect(mock_chat).not_to receive(:with_instructions)
-        
+
         executor.execute
       end
     end

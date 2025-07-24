@@ -13,7 +13,7 @@ module ActivePrompt
     # Extract all variables from the content
     def extract_variables
       variables = []
-      
+
       content.scan(VARIABLE_PATTERN) do |match|
         variable_name = match.first
         variables << {
@@ -24,7 +24,7 @@ module ActivePrompt
           required: true
         }
       end
-      
+
       # Remove duplicates while preserving order
       variables.uniq { |v| v[:name] }
     end
@@ -47,13 +47,13 @@ module ActivePrompt
     # Replace variables with provided values
     def render(variables = {})
       rendered = content.dup
-      
+
       variables.each do |key, value|
         # Support both string and symbol keys
         placeholder = "{{#{key}}}"
         rendered.gsub!(placeholder, value.to_s)
       end
-      
+
       rendered
     end
 
@@ -61,13 +61,13 @@ module ActivePrompt
     def validate_variables(provided_variables = {})
       missing = []
       stringified_keys = provided_variables.stringify_keys
-      
+
       variable_names.each do |var_name|
         unless stringified_keys.key?(var_name)
           missing << var_name
         end
       end
-      
+
       {
         valid: missing.empty?,
         missing_variables: missing
@@ -80,17 +80,17 @@ module ActivePrompt
     def infer_type(variable_name)
       case variable_name.downcase
       when /(_id|_count|_number|_qty|_quantity)$/
-        'integer'
+        "integer"
       when /(_at|_date|_time)$/
-        'datetime'
+        "datetime"
       when /(_price|_amount|_cost|_total)$/
-        'decimal'
+        "decimal"
       when /(is_|has_|can_|should_)/
-        'boolean'
+        "boolean"
       when /(_list|_array|_items)$/
-        'array'
+        "array"
       else
-        'string'
+        "string"
       end
     end
   end

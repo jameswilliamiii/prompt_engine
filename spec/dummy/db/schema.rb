@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_24_160956) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_24_171323) do
   create_table "active_prompt_parameters", force: :cascade do |t|
     t.integer "prompt_id", null: false
     t.string "name", null: false
@@ -23,9 +23,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_24_160956) do
     t.integer "position"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["position"], name: "index_active_prompt_parameters_on_position"
-    t.index ["prompt_id", "name"], name: "index_active_prompt_parameters_on_prompt_id_and_name", unique: true
-    t.index ["prompt_id"], name: "index_active_prompt_parameters_on_prompt_id"
+    t.index [ "position" ], name: "index_active_prompt_parameters_on_position"
+    t.index [ "prompt_id", "name" ], name: "index_active_prompt_parameters_on_prompt_id_and_name", unique: true
+    t.index [ "prompt_id" ], name: "index_active_prompt_parameters_on_prompt_id"
   end
 
   create_table "active_prompt_playground_run_results", force: :cascade do |t|
@@ -42,9 +42,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_24_160956) do
     t.integer "max_tokens"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["created_at"], name: "index_active_prompt_playground_run_results_on_created_at"
-    t.index ["prompt_version_id"], name: "index_active_prompt_playground_run_results_on_prompt_version_id"
-    t.index ["provider"], name: "index_active_prompt_playground_run_results_on_provider"
+    t.index [ "created_at" ], name: "index_active_prompt_playground_run_results_on_created_at"
+    t.index [ "prompt_version_id" ], name: "index_active_prompt_playground_run_results_on_prompt_version_id"
+    t.index [ "provider" ], name: "index_active_prompt_playground_run_results_on_provider"
   end
 
   create_table "active_prompt_prompt_versions", force: :cascade do |t|
@@ -60,9 +60,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_24_160956) do
     t.text "change_description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["prompt_id", "version_number"], name: "index_prompt_versions_on_prompt_and_version", unique: true
-    t.index ["prompt_id"], name: "index_active_prompt_prompt_versions_on_prompt_id"
-    t.index ["version_number"], name: "index_active_prompt_prompt_versions_on_version_number"
+    t.index [ "prompt_id", "version_number" ], name: "index_prompt_versions_on_prompt_and_version", unique: true
+    t.index [ "prompt_id" ], name: "index_active_prompt_prompt_versions_on_prompt_id"
+    t.index [ "version_number" ], name: "index_active_prompt_prompt_versions_on_version_number"
   end
 
   create_table "active_prompt_prompts", force: :cascade do |t|
@@ -78,6 +78,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_24_160956) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "versions_count", default: 0, null: false
+  end
+
+  create_table "active_prompt_settings", force: :cascade do |t|
+    t.text "openai_api_key"
+    t.text "anthropic_api_key"
+    t.json "preferences", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   add_foreign_key "active_prompt_parameters", "active_prompt_prompts", column: "prompt_id"

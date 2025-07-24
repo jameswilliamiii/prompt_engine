@@ -3,8 +3,8 @@ require_relative "lib/active_prompt/version"
 Gem::Specification.new do |spec|
   spec.name = "active_prompt"
   spec.version = ActivePrompt::VERSION
-  spec.authors = ["Avi Flombaum"]
-  spec.email = ["4515+aviflombaum@users.noreply.github.com"]
+  spec.authors = [ "Avi Flombaum" ]
+  spec.email = [ "4515+aviflombaum@users.noreply.github.com" ]
   spec.homepage = "https://github.com/aviflombaum/active_prompt"
   spec.summary = "Rails mountable engine for AI prompt management"
   spec.description = "ActivePrompt is a Rails mountable engine that provides a simple interface for managing AI prompts, templates, and responses within Rails applications."
@@ -20,6 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rails", ">= 8.0.2"
   spec.add_dependency "ruby_llm", "~> 1.3"
+  spec.add_dependency "bcrypt"
 
   spec.add_development_dependency "rspec-rails", "~> 7.0"
   spec.add_development_dependency "factory_bot_rails", "~> 6.4"

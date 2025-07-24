@@ -12,23 +12,25 @@ ActivePrompt::Engine.routes.draw do
       get :search
     end
 
-    resources :versions, only: [:index, :show] do
+    resources :versions, only: [ :index, :show ] do
       member do
         post :restore
         get :compare
       end
-      resources :playground_run_results, only: [:index]
+      resources :playground_run_results, only: [ :index ]
     end
 
-    resources :playground_run_results, only: [:index]
+    resources :playground_run_results, only: [ :index ]
   end
 
-  resources :playground_run_results, only: [:index, :show]
+  resources :playground_run_results, only: [ :index, :show ]
+
+  resource :settings, only: [ :edit, :update ]
 
   # API endpoints for integration
   namespace :api do
     namespace :v1 do
-      resources :prompts, only: [:index, :show] do
+      resources :prompts, only: [ :index, :show ] do
         member do
           post :execute
         end

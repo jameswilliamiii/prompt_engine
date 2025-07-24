@@ -14,11 +14,11 @@ RSpec.describe ActivePrompt::Parameter, type: :model do
 
       it 'validates uniqueness of name scoped to prompt' do
         existing_param = create(:parameter, name: 'user_name', prompt: prompt)
-        
+
         duplicate = build(:parameter, name: 'user_name', prompt: prompt)
         expect(duplicate).not_to be_valid
         expect(duplicate.errors[:name]).to include("has already been taken")
-        
+
         # Same name for different prompt should be valid
         other_prompt = create(:prompt)
         different_prompt_param = build(:parameter, name: 'user_name', prompt: other_prompt)
@@ -34,7 +34,7 @@ RSpec.describe ActivePrompt::Parameter, type: :model do
         end
 
         # Invalid names
-        ['123name', 'user-name', 'user name', 'user.name', ''].each do |invalid_name|
+        [ '123name', 'user-name', 'user name', 'user.name', '' ].each do |invalid_name|
           parameter.name = invalid_name
           expect(parameter).not_to be_valid
           expect(parameter.errors[:name]).to include("must start with a letter or underscore and contain only letters, numbers, and underscores")
@@ -102,10 +102,10 @@ RSpec.describe ActivePrompt::Parameter, type: :model do
         # In most SQL databases, NULL values come first when ordering ASC
         # Parameters are ordered by: position ASC (nulls first), then created_at ASC
         ordered = prompt.parameters.ordered.to_a
-        
+
         # First should be the parameter with NULL position (oldest created_at)
         expect(ordered.first).to eq(optional_param2)
-        
+
         # Then parameters with positions in ascending order
         expect(ordered[1]).to eq(required_param2) # position 1
         expect(ordered[2]).to eq(required_param1) # position 2
@@ -147,7 +147,7 @@ RSpec.describe ActivePrompt::Parameter, type: :model do
 
     context 'when parameter is optional and value is blank' do
       let(:parameter) { create(:parameter, prompt: prompt, required: false, default_value: 'default') }
-      
+
       it 'returns default_value' do
         expect(parameter.cast_value('')).to eq('default')
         expect(parameter.cast_value(nil)).to eq('default')
@@ -232,12 +232,12 @@ RSpec.describe ActivePrompt::Parameter, type: :model do
       let(:parameter) { create(:parameter, prompt: prompt, parameter_type: 'array') }
 
       it 'returns array if already an array' do
-        expect(parameter.cast_value(['a', 'b', 'c'])).to eq(['a', 'b', 'c'])
+        expect(parameter.cast_value([ 'a', 'b', 'c' ])).to eq([ 'a', 'b', 'c' ])
       end
 
       it 'splits comma-separated string into array' do
-        expect(parameter.cast_value('a,b,c')).to eq(['a', 'b', 'c'])
-        expect(parameter.cast_value('a, b, c')).to eq(['a', 'b', 'c'])
+        expect(parameter.cast_value('a,b,c')).to eq([ 'a', 'b', 'c' ])
+        expect(parameter.cast_value('a, b, c')).to eq([ 'a', 'b', 'c' ])
       end
     end
 
@@ -268,7 +268,7 @@ RSpec.describe ActivePrompt::Parameter, type: :model do
       it 'returns error when value is blank and parameter is required' do
         errors = parameter.validate_value('')
         expect(errors).to include('username is required')
-        
+
         errors = parameter.validate_value(nil)
         expect(errors).to include('username is required')
       end
@@ -281,7 +281,7 @@ RSpec.describe ActivePrompt::Parameter, type: :model do
 
     context 'min_length validation' do
       let(:parameter) do
-        create(:parameter, 
+        create(:parameter,
           prompt: prompt,
           name: 'username',
           validation_rules: { 'min_length' => 3 }

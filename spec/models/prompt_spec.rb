@@ -11,12 +11,12 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
     it 'validates uniqueness of name scoped to status' do
       # Create first prompt with required content
       ActivePrompt::Prompt.create!(name: 'test', content: 'Test content', status: 'active')
-      
+
       # Same name with same status should be invalid
       duplicate = ActivePrompt::Prompt.new(name: 'test', content: 'Test content', status: 'active')
       expect(duplicate).not_to be_valid
       expect(duplicate.errors[:name]).to include("has already been taken")
-      
+
       # Same name with different status should be valid
       different_status = ActivePrompt::Prompt.new(name: 'test', content: 'Test content', status: 'draft')
       expect(different_status).to be_valid
@@ -31,10 +31,10 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
     it 'validates inclusion of status' do
       # Rails enum raises ArgumentError for invalid values, so we need to test differently
       prompt = ActivePrompt::Prompt.new(name: 'test', content: 'Test content')
-      
+
       # Test that enum only accepts valid values
       expect { prompt.status = 'invalid' }.to raise_error(ArgumentError)
-      
+
       # Test that valid statuses work
       %w[draft active archived].each do |valid_status|
         prompt.status = valid_status
@@ -85,7 +85,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
             max_tokens: 1000
           )
         }.to change { ActivePrompt::PromptVersion.count }.by(1)
-        
+
         version = new_prompt.versions.first
         expect(version.version_number).to eq(1)
         expect(version.content).to eq('Initial content')
@@ -95,7 +95,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
 
       it 'creates new version on update when content changes' do
         prompt.update!(content: 'Updated content')
-        
+
         expect(prompt.versions.count).to eq(2)
         latest_version = prompt.versions.latest.first
         expect(latest_version.version_number).to eq(2)
@@ -104,7 +104,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
 
       it 'creates new version when system_message changes' do
         prompt.update!(system_message: 'Updated system message')
-        
+
         expect(prompt.versions.count).to eq(2)
         latest_version = prompt.versions.latest.first
         expect(latest_version.system_message).to eq('Updated system message')
@@ -112,7 +112,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
 
       it 'creates new version when model changes' do
         prompt.update!(model: 'gpt-3.5-turbo')
-        
+
         expect(prompt.versions.count).to eq(2)
         latest_version = prompt.versions.latest.first
         expect(latest_version.model).to eq('gpt-3.5-turbo')
@@ -120,7 +120,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
 
       it 'creates new version when temperature changes' do
         prompt.update!(temperature: 0.9)
-        
+
         expect(prompt.versions.count).to eq(2)
         latest_version = prompt.versions.latest.first
         expect(latest_version.temperature).to eq(0.9)
@@ -128,7 +128,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
 
       it 'creates new version when max_tokens changes' do
         prompt.update!(max_tokens: 2000)
-        
+
         expect(prompt.versions.count).to eq(2)
         latest_version = prompt.versions.latest.first
         expect(latest_version.max_tokens).to eq(2000)
@@ -136,13 +136,13 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
 
       it 'does not create version when only non-versioned fields change' do
         prompt.update!(name: 'New Name', description: 'New Description')
-        
+
         expect(prompt.versions.count).to eq(1)
       end
 
       it 'does not create version when no changes are made' do
         prompt.save!
-        
+
         expect(prompt.versions.count).to eq(1)
       end
     end
@@ -151,7 +151,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
       it 'returns the latest version' do
         prompt.update!(content: 'Version 2')
         prompt.update!(content: 'Version 3')
-        
+
         current = prompt.current_version
         expect(current.version_number).to eq(3)
         expect(current.content).to eq('Version 3')
@@ -161,10 +161,10 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
     describe '#version_count' do
       it 'returns the number of versions' do
         expect(prompt.version_count).to eq(1)
-        
+
         prompt.update!(content: 'Version 2')
         expect(prompt.version_count).to eq(2)
-        
+
         prompt.update!(content: 'Version 3')
         expect(prompt.version_count).to eq(3)
       end
@@ -183,7 +183,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
 
       it 'restores prompt to a specific version' do
         prompt.restore_version!(version1.version_number)
-        
+
         expect(prompt.content).to eq(version1.content)
         expect(prompt.system_message).to eq(version1.system_message)
         expect(prompt.versions.count).to eq(4) # Original 3 + 1 restoration
@@ -203,7 +203,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
       it 'returns the version with specified number' do
         version = prompt.version_at(1)
         expect(version).to eq(version1)
-        
+
         version = prompt.version_at(2)
         expect(version).to eq(version2)
       end
@@ -229,7 +229,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
       end
     end
   end
-  
+
   describe 'usage in Rails models' do
     # Create a test model that uses prompts
     before do
@@ -239,11 +239,11 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
         end
       end
     end
-    
+
     after do
       Object.send(:remove_const, :TestModel) if defined?(TestModel)
     end
-    
+
     context 'when using ActivePrompt.render' do
       let!(:welcome_prompt) do
         ActivePrompt::Prompt.create!(
@@ -256,20 +256,20 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
           status: "active"
         )
       end
-      
+
       it 'renders a prompt with variables from a Rails model' do
         result = TestModel.generate_content(:welcome_message, {
           user_name: "Alice",
           company_name: "Acme Corp"
         })
-        
+
         expect(result[:content]).to eq("Welcome Alice! Thanks for joining Acme Corp.")
         expect(result[:system_message]).to eq("You are a friendly assistant.")
         expect(result[:model]).to eq("gpt-4")
         expect(result[:temperature]).to eq(0.7)
         expect(result[:max_tokens]).to eq(100)
       end
-      
+
       it 'only uses active prompts' do
         # Create an archived version
         ActivePrompt::Prompt.create!(
@@ -277,11 +277,11 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
           content: "Old content",
           status: "archived"
         )
-        
+
         result = TestModel.generate_content(:welcome_message)
         expect(result[:content]).not_to include("Old content")
       end
-      
+
       it 'raises error for non-existent prompts' do
         expect {
           TestModel.generate_content(:non_existent)
@@ -293,14 +293,14 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
   describe 'nested attributes' do
     it 'accepts nested attributes for parameters' do
       prompt = create(:prompt, content: "Simple content without variables")
-      
+
       prompt.update!(
         parameters_attributes: [
           { name: 'param1', parameter_type: 'string' },
           { name: 'param2', parameter_type: 'integer', required: false }
         ]
       )
-      
+
       expect(prompt.parameters.count).to eq(2)
       expect(prompt.parameters.pluck(:name)).to contain_exactly('param1', 'param2')
     end
@@ -310,7 +310,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
       prompt = create(:prompt)
       param = create(:parameter, prompt: prompt)
       prompt.reload # Ensure associations are loaded
-      
+
       expect {
         prompt.update!(
           parameters_attributes: [
@@ -347,7 +347,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
 
       it 'detects unique variables only' do
         prompt.update!(content: 'Hello {{name}}, {{name}} is great!')
-        expect(prompt.detect_variables).to eq(['name'])
+        expect(prompt.detect_variables).to eq([ 'name' ])
       end
     end
 
@@ -356,22 +356,22 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
         it 'creates parameters for new variables' do
           # Make sure no parameters exist initially
           prompt.parameters.destroy_all
-          
+
           # After update, sync_parameters! is called automatically
           prompt.update!(content: 'Hello {{user_name}}, your count is {{item_count}}')
-          
+
           # Parameters should already be created by the after_update callback
           expect(prompt.parameters.reload.count).to eq(2)
-          
+
           # The positions should be 1 and 2 for the two new parameters
           params = prompt.parameters.order(:position)
           expect(params.count).to eq(2)
-          
+
           # Just check that positions are sequential
           expect(params[0].name).to eq('user_name')
-          expect(params[1].name).to eq('item_count') 
+          expect(params[1].name).to eq('item_count')
           expect(params[1].position).to eq(params[0].position + 1)
-          
+
           # Calling sync_parameters! again should not create duplicates
           expect {
             prompt.sync_parameters!
@@ -381,14 +381,14 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
         it 'preserves existing parameters' do
           # Start with content that includes existing_param
           prompt.update!(content: 'Hello {{existing_param}}')
-          
+
           # Now we have a parameter for existing_param created by auto-sync
           existing = prompt.parameters.find_by(name: 'existing_param')
           existing.update!(description: 'Should not change', required: false)
-          
+
           # Update content to add new_param
           prompt.update!(content: 'Hello {{existing_param}} and {{new_param}}')
-          
+
           existing.reload
           expect(existing.description).to eq('Should not change')
           expect(existing.required).to be false
@@ -400,16 +400,16 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
         it 'removes parameters no longer in content' do
           # Start with content that has both parameters
           prompt.update!(content: 'Hello {{keep_me}} and {{remove_me}}')
-          
+
           param1 = prompt.parameters.find_by(name: 'keep_me')
           param2 = prompt.parameters.find_by(name: 'remove_me')
-          
+
           # When content is updated, orphaned parameters are removed automatically
           prompt.update!(content: 'Only {{keep_me}} remains')
-          
+
           # The parameter should already be removed
           expect(prompt.parameters.reload.count).to eq(1)
-          expect(prompt.parameters.pluck(:name)).to eq(['keep_me'])
+          expect(prompt.parameters.pluck(:name)).to eq([ 'keep_me' ])
           expect(ActivePrompt::Parameter.exists?(param2.id)).to be false
         end
       end
@@ -433,7 +433,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
       context 'with valid parameters' do
         it 'renders content with provided parameters' do
           result = prompt.render_with_params(name: 'Alice', item_count: '25')
-          
+
           expect(result[:content]).to eq('Hello Alice, you have 25 items')
           expect(result[:system_message]).to eq(prompt.system_message)
           expect(result[:model]).to eq(prompt.model)
@@ -445,23 +445,23 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
         it 'accepts string or symbol parameter keys' do
           result1 = prompt.render_with_params('name' => 'Bob', 'item_count' => '30')
           result2 = prompt.render_with_params(name: 'Bob', item_count: '30')
-          
+
           expect(result1[:content]).to eq(result2[:content])
         end
 
         it 'casts parameters to correct types' do
           result = prompt.render_with_params(name: 123, item_count: '45')
-          
+
           expect(result[:parameters_used]).to eq({ 'name' => '123', 'item_count' => 45 })
         end
 
         it 'uses default values for optional parameters' do
           param = prompt.parameters.find_by(name: 'name')
           param.update!(required: false, default_value: 'Guest')
-          
+
           # Reload to ensure we have fresh parameter data
           prompt.reload
-          
+
           result = prompt.render_with_params(item_count: '30')
           expect(result[:content]).to eq('Hello Guest, you have 30 items')
         end
@@ -470,7 +470,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
       context 'with invalid parameters' do
         it 'returns error when required parameter is missing' do
           result = prompt.render_with_params(name: 'Alice')
-          
+
           expect(result[:error]).to include('item_count is required')
           expect(result).not_to have_key(:content)
         end
@@ -478,7 +478,7 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
         it 'returns error when parameter validation fails' do
           prompt.reload # Ensure fresh parameter data
           result = prompt.render_with_params(name: 'Alice', item_count: '200')
-          
+
           expect(result[:error]).to include('item_count must be at most 150')
         end
 
@@ -486,10 +486,10 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
           prompt.parameters.find_by(name: 'name').update!(
             validation_rules: { 'min_length' => 3 }
           )
-          
+
           prompt.reload # Ensure fresh parameter data
           result = prompt.render_with_params(name: 'Al', item_count: '200')
-          
+
           expect(result[:error]).to include('name must be at least 3 characters')
           expect(result[:error]).to include('item_count must be at most 150')
         end
@@ -504,14 +504,14 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
 
       it 'returns valid true when all parameters are valid' do
         result = prompt.validate_parameters(name: 'Alice', item_count: '25')
-        
+
         expect(result[:valid]).to be true
         expect(result[:errors]).to be_empty
       end
 
       it 'returns valid false with errors when parameters are invalid' do
         result = prompt.validate_parameters(name: '')
-        
+
         expect(result[:valid]).to be false
         expect(result[:errors]).to include('name is required')
         expect(result[:errors]).to include('item_count is required')
@@ -521,10 +521,10 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
         prompt.parameters.find_by(name: 'name').update!(
           validation_rules: { 'pattern' => '^[A-Z]' }
         )
-        
+
         prompt.reload # Ensure fresh parameter data
         result = prompt.validate_parameters(name: 'alice', item_count: '25')
-        
+
         expect(result[:valid]).to be false
         expect(result[:errors]).to include('name must match pattern: ^[A-Z]')
       end
@@ -534,22 +534,22 @@ RSpec.describe ActivePrompt::Prompt, type: :model do
       it 'marks parameters for destruction when content changes' do
         prompt.update!(content: 'Hello {{param1}} and {{param2}}')
         prompt.sync_parameters!
-        
+
         expect(prompt.parameters.count).to eq(2)
-        
+
         # Change content to remove param2
         prompt.update!(content: 'Hello {{param1}} only')
-        
-        expect(prompt.parameters.reload.pluck(:name)).to eq(['param1'])
+
+        expect(prompt.parameters.reload.pluck(:name)).to eq([ 'param1' ])
       end
 
       it 'does not affect parameters when content does not change' do
         prompt.update!(content: 'Hello {{param1}}')
         prompt.sync_parameters!
-        
+
         # Update other attributes
         prompt.update!(name: 'New Name')
-        
+
         expect(prompt.parameters.count).to eq(1)
       end
     end
