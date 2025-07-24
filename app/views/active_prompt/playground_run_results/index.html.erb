@@ -1,0 +1,57 @@
+<div class="page-header">
+  <h1 class="page-header__title">
+    Test Run Results
+    <% if @prompt %>
+      <span class="page-header__subtitle">for <%= @prompt.name %></span>
+    <% elsif @prompt_version %>
+      <span class="page-header__subtitle">for <%= @prompt_version.prompt.name %> v<%= @prompt_version.version_number %></span>
+    <% end %>
+  </h1>
+  
+  <div class="page-header__actions">
+    <% if @prompt %>
+      <%= link_to "Back to Prompt", prompt_path(@prompt), class: "btn btn--secondary" %>
+    <% elsif @prompt_version %>
+      <%= link_to "Back to Version", prompt_version_path(@prompt_version.prompt, @prompt_version), class: "btn btn--secondary" %>
+    <% else %>
+      <%= link_to "All Prompts", prompts_path, class: "btn btn--secondary" %>
+    <% end %>
+  </div>
+</div>
+
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Run Date</th>
+        <th>Provider</th>
+        <th>Model</th>
+        <th>Execution Time</th>
+        <th>Tokens</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @playground_run_results.any? %>
+        <% @playground_run_results.each do |result| %>
+          <tr>
+            <td><%= result.created_at.strftime("%b %d, %Y %I:%M %p") %></td>
+            <td><span class="badge"><%= result.provider %></span></td>
+            <td><%= result.model %></td>
+            <td><%= "#{result.execution_time}s" %></td>
+            <td><%= result.token_count || "N/A" %></td>
+            <td>
+              <%= link_to "View Details", playground_run_result_path(result), class: "table__action" %>
+            </td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="6" class="table__empty">
+            No test runs yet. <%= link_to "Test this prompt", @prompt ? playground_prompt_path(@prompt) : "#" %> in the playground.
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

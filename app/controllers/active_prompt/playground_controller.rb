@@ -26,6 +26,20 @@ module ActivePrompt
         # Store the rendered prompt for display
         parser = ParameterParser.new(@prompt.content)
         @rendered_prompt = parser.replace_parameters(params[:parameters])
+        
+        # Save the playground run result
+        @prompt.current_version.playground_run_results.create!(
+          provider: @provider,
+          model: @model,
+          rendered_prompt: @rendered_prompt,
+          system_message: @prompt.system_message,
+          parameters: params[:parameters],
+          response: @response,
+          execution_time: @execution_time,
+          token_count: @token_count,
+          temperature: @prompt.temperature,
+          max_tokens: @prompt.max_tokens
+        )
       rescue => e
         @error = e.message
       end

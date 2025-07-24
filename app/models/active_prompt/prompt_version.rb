@@ -3,6 +3,7 @@ module ActivePrompt
     self.table_name = "active_prompt_prompt_versions"
 
     belongs_to :prompt, class_name: 'ActivePrompt::Prompt', counter_cache: :versions_count
+    has_many :playground_run_results, class_name: 'ActivePrompt::PlaygroundRunResult', dependent: :destroy
 
     validates :version_number, presence: true, 
               numericality: { greater_than: 0 },

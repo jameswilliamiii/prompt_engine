@@ -98,6 +98,22 @@ module ActivePrompt
           expect(response).to be_successful
         end
         
+        it "creates a PlaygroundRunResult record" do
+          expect {
+            post playground_prompt_path(prompt), params: valid_params
+          }.to change(PlaygroundRunResult, :count).by(1)
+          
+          result = PlaygroundRunResult.last
+          expect(result.prompt_version).to eq(prompt.current_version)
+          expect(result.provider).to eq("anthropic")
+          expect(result.model).to eq("claude-3-5-sonnet-20241022")
+          expect(result.rendered_prompt).to eq("Tell me about Ruby on Rails in technical style")
+          expect(result.response).to eq("This is a test response about Ruby on Rails")
+          expect(result.execution_time).to be > 0
+          expect(result.token_count).to eq(150)
+          expect(result.parameters).to eq({ "topic" => "Ruby on Rails", "style" => "technical" })
+        end
+        
         it "renders the result view" do
           post playground_prompt_path(prompt), params: valid_params
           

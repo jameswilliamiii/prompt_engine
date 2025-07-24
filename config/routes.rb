@@ -17,8 +17,13 @@ ActivePrompt::Engine.routes.draw do
         post :restore
         get :compare
       end
+      resources :playground_run_results, only: [:index]
     end
+    
+    resources :playground_run_results, only: [:index]
   end
+  
+  resources :playground_run_results, only: [:show]
   
   resources :templates do
     member do

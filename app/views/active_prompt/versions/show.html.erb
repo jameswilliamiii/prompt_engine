@@ -7,6 +7,7 @@
     <p class="page-header__subtitle"><%= @prompt.name %></p>
   </div>
   <div class="page-header__actions">
+    <%= link_to "Test Run History", prompt_version_playground_run_results_path(@prompt, @version), class: "button button--secondary" %>
     <%= link_to "Back to History", prompt_versions_path(@prompt), class: "button button--secondary" %>
     <%= link_to "Back to Prompt", @prompt, class: "button button--secondary" %>
     <% unless @version.version_number == @prompt.versions.maximum(:version_number) %>
