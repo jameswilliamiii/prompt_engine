@@ -1,6 +1,8 @@
 ActivePrompt::Engine.routes.draw do
-  root to: "prompts#index"
+  root to: "dashboard#index"
 
+  get "dashboard", to: "dashboard#index", as: :dashboard
+  
   resources :prompts do
     member do
       post :test

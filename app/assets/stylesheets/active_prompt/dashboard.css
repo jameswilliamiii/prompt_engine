@@ -1,0 +1,217 @@
+/* Dashboard Layout */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.dashboard__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.dashboard__content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xl);
+}
+
+@media (max-width: 1024px) {
+  .dashboard__content {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard__section {
+  min-width: 0;
+}
+
+/* Stat Cards */
+.stat-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  transition: var(--transition-all);
+}
+
+.stat-card:hover {
+  border-color: var(--color-gray-300);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-card__icon--primary {
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+}
+
+.stat-card__icon--success {
+  background: var(--color-success-50);
+  color: var(--color-success-600);
+}
+
+.stat-card__icon--info {
+  background: var(--color-info-50);
+  color: var(--color-info-600);
+}
+
+.stat-card__icon--warning {
+  background: var(--color-warning-50);
+  color: var(--color-warning-600);
+}
+
+.stat-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-card__title {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-gray-600);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.stat-card__value {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--color-gray-900);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Test Runs List */
+.test-runs-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.test-run-item {
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  transition: var(--transition-all);
+}
+
+.test-run-item:hover {
+  border-color: var(--color-gray-300);
+  background: var(--color-gray-50);
+}
+
+.test-run-item__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.test-run-item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: var(--spacing-md);
+}
+
+.test-run-item__title {
+  font-size: var(--text-base);
+  font-weight: 500;
+  margin: 0;
+}
+
+.test-run-item__date {
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.test-run-item__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.test-run-item__model {
+  font-size: var(--text-sm);
+  margin: 0;
+}
+
+.test-run-item__error {
+  font-size: var(--text-sm);
+  color: var(--color-danger-600);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-2xl) var(--spacing-lg);
+}
+
+.empty-state p {
+  margin-bottom: var(--spacing-md);
+}
+
+/* Dashboard Table Enhancements */
+.dashboard__section .table-container {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.dashboard__section .table {
+  background: transparent;
+}
+
+.dashboard__section .table__row {
+  border-bottom: 1px solid var(--color-gray-100);
+}
+
+.dashboard__section .table__row:hover {
+  background-color: var(--color-gray-50);
+}
+
+.dashboard__section .table__cell {
+  padding: var(--spacing-md) var(--spacing-sm);
+}
+
+.dashboard__section .table__cell:first-child {
+  padding-left: 0;
+}
+
+.dashboard__section .table__cell:last-child {
+  padding-right: 0;
+}
+
+.dashboard__section .table__cell--header {
+  padding-top: 0;
+  padding-bottom: var(--spacing-sm);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gray-500);
+}
+
+.dashboard__section .table__action {
+  font-weight: 500;
+  color: var(--color-gray-900);
+}
+
+.dashboard__section .table__action:hover {
+  color: var(--color-primary-600);
+}

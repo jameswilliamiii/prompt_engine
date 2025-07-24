@@ -21,7 +21,8 @@
           <nav class="admin-sidebar__nav">
             <ul class="admin-nav">
               <li class="admin-nav__item">
-                <%= link_to "Dashboard", root_path, class: "admin-nav__link admin-nav__link--disabled" %>
+                <%= link_to "Dashboard", root_path, 
+                    class: "admin-nav__link #{'admin-nav__link--active' if controller_name == 'dashboard'}" %>
               </li>
               <li class="admin-nav__item">
                 <%= link_to "Prompts", prompts_path, 
