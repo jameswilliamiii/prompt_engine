@@ -10,3 +10,4 @@
 /spec/dummy/tmp/
 .claude
 .ai
+coverage

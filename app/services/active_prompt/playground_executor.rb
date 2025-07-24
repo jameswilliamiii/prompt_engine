@@ -94,15 +94,30 @@ module ActivePrompt
     end
 
     def handle_error(error)
+      # Re-raise ArgumentError as-is for validation errors
+      raise error if error.is_a?(ArgumentError)
+      
+      # Check for specific error types first
       case error
-      when Net::HTTPUnauthorized, /unauthorized/i
+      when Net::HTTPUnauthorized
         raise "Invalid API key"
-      when Net::HTTPTooManyRequests, /rate limit/i
+      when Net::HTTPTooManyRequests
         raise "Rate limit exceeded. Please try again later."
-      when Net::HTTPError, /network/i
+      when Net::HTTPError
         raise "Network error. Please check your connection and try again."
       else
-        raise "An error occurred: #{error.message}"
+        # Then check error message patterns
+        error_message = error.message.to_s
+        case error_message
+        when /unauthorized/i
+          raise "Invalid API key"
+        when /rate limit/i
+          raise "Rate limit exceeded. Please try again later."
+        when /network/i
+          raise "Network error. Please check your connection and try again."
+        else
+          raise "An error occurred: #{error.message}"
+        end
       end
     end
   end

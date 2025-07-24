@@ -22,6 +22,8 @@ module ActivePrompt
 
     def replace_parameters(parameters = {})
       result = content.dup
+      
+      return result if parameters.nil?
 
       parameters.each do |key, value|
         result.gsub!("{{#{key}}}", value.to_s)

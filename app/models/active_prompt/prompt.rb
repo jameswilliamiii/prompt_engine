@@ -55,8 +55,8 @@ module ActivePrompt
     
     # Parameter management methods
     def detect_variables
-      @variable_detector ||= ActivePrompt::VariableDetector.new(content)
-      @variable_detector.variable_names
+      # Don't cache the detector as content can change
+      ActivePrompt::VariableDetector.new(content).variable_names
     end
     
     def sync_parameters!
@@ -65,15 +65,23 @@ module ActivePrompt
       
       # Add new parameters
       new_vars = detected_vars - existing_names
-      new_vars.each_with_index do |var_name, index|
+      if new_vars.any?
+        # Get max position once, before the loop
+        max_position = parameters.maximum(:position) || 0
         detector = ActivePrompt::VariableDetector.new(content)
-        var_info = detector.extract_variables.find { |v| v[:name] == var_name }
         
-        parameters.create!(
-          name: var_name,
-          parameter_type: var_info[:type],
-          position: parameters.count + index + 1
-        )
+        new_vars.each_with_index do |var_name, index|
+          var_info = detector.extract_variables.find { |v| v[:name] == var_name }
+          
+          # Skip if parameter already exists (race condition protection)
+          next if parameters.exists?(name: var_name)
+          
+          parameters.create!(
+            name: var_name,
+            parameter_type: var_info[:type],
+            position: max_position + index + 1
+          )
+        end
       end
       
       # Remove parameters that no longer exist
@@ -90,11 +98,20 @@ module ActivePrompt
       validation = validate_parameters(provided_params)
       return { error: validation[:errors].join(', ') } unless validation[:valid]
       
-      # Cast parameters to their correct types
+      # Cast parameters to their correct types, including defaults
       casted_params = {}
       parameters.each do |param|
         value = provided_params[param.name] || provided_params[param.name.to_sym]
         casted_params[param.name] = param.cast_value(value)
+      end
+      
+      # Also include any parameters not defined in the database but present in the template
+      detected_vars = detect_variables
+      detected_vars.each do |var_name|
+        unless casted_params.key?(var_name)
+          value = provided_params[var_name] || provided_params[var_name.to_sym]
+          casted_params[var_name] = value.to_s if value.present?
+        end
       end
       
       {
@@ -112,6 +129,10 @@ module ActivePrompt
       
       parameters.each do |param|
         value = provided_params[param.name] || provided_params[param.name.to_sym]
+        # Use default value if not provided and parameter is optional
+        if value.blank? && !param.required? && param.default_value.present?
+          value = param.default_value
+        end
         param_errors = param.validate_value(value)
         errors.concat(param_errors)
       end
