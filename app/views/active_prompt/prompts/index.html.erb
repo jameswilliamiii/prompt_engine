@@ -10,6 +10,7 @@
         <tr class="table__row">
           <th class="table__cell table__cell--header">Name</th>
           <th class="table__cell table__cell--header table__cell--hide-mobile">Model</th>
+          <th class="table__cell table__cell--header table__cell--center">Version</th>
           <th class="table__cell table__cell--header table__cell--center">Status</th>
           <th class="table__cell table__cell--header table__cell--hide-mobile">Created</th>
           <th class="table__cell table__cell--header table__cell--actions">Actions</th>
@@ -26,6 +27,15 @@
             </td>
             <td class="table__cell table__cell--hide-mobile">
               <%= prompt.model || "Not set" %>
+            </td>
+            <td class="table__cell table__cell--center">
+              <% if prompt.current_version %>
+                <%= link_to "v#{prompt.current_version.version_number}", 
+                    prompt_versions_path(prompt), 
+                    class: "text-link" %>
+              <% else %>
+                <span class="text-muted">v1</span>
+              <% end %>
             </td>
             <td class="table__cell table__cell--center">
               <span class="table__badge table__badge--<%= prompt.status %>">

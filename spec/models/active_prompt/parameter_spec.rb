@@ -79,7 +79,7 @@ RSpec.describe ActivePrompt::Parameter, type: :model do
   end
 
   describe 'scopes' do
-    let(:prompt) { create(:prompt) }
+    let(:prompt) { create(:prompt, content: "Simple prompt without variables") }
     let!(:required_param1) { create(:parameter, prompt: prompt, required: true, position: 2) }
     let!(:required_param2) { create(:parameter, prompt: prompt, required: true, position: 1) }
     let!(:optional_param1) { create(:parameter, prompt: prompt, required: false, position: 3) }

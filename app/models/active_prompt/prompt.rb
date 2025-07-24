@@ -26,7 +26,9 @@ module ActivePrompt
     scope :by_name, -> { order(:name) }
 
     after_create :create_initial_version
+    after_create :sync_parameters!
     after_update :create_version_if_changed
+    after_update :sync_parameters!, if: :saved_change_to_content?
     before_save :clean_orphaned_parameters
 
     VERSIONED_ATTRIBUTES = %w[content system_message model temperature max_tokens metadata].freeze
@@ -79,6 +81,7 @@ module ActivePrompt
           parameters.create!(
             name: var_name,
             parameter_type: var_info[:type],
+            required: var_info[:required],
             position: max_position + index + 1
           )
         end
@@ -102,6 +105,7 @@ module ActivePrompt
       casted_params = {}
       parameters.each do |param|
         value = provided_params[param.name] || provided_params[param.name.to_sym]
+        # Let cast_value handle the default value logic
         casted_params[param.name] = param.cast_value(value)
       end
       
