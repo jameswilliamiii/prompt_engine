@@ -12,12 +12,12 @@ FactoryBot.define do
     openai_run_id { nil }
     openai_file_id { nil }
     report_url { nil }
-    
+
     trait :running do
       status { "running" }
       started_at { 1.minute.ago }
     end
-    
+
     trait :completed do
       status { "completed" }
       started_at { 5.minutes.ago }
@@ -26,7 +26,7 @@ FactoryBot.define do
       passed_count { 8 }
       failed_count { 2 }
     end
-    
+
     trait :failed do
       status { "failed" }
       started_at { 2.minutes.ago }

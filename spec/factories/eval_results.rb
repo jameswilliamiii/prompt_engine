@@ -6,12 +6,12 @@ FactoryBot.define do
     passed { true }
     execution_time_ms { 250 }
     error_message { nil }
-    
+
     trait :failed do
       passed { false }
       error_message { "Output did not match expected result" }
     end
-    
+
     trait :error do
       passed { false }
       actual_output { nil }

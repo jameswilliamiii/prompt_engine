@@ -36,7 +36,7 @@ end
 
 if eval_set.test_cases.empty?
   eval_set.test_cases.create!(
-    input_variables: {text: "Great product!"},
+    input_variables: { text: "Great product!" },
     expected_output: "positive"
   )
 end

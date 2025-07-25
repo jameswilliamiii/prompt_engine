@@ -15,7 +15,7 @@ module PromptEngine
           .recent
           .limit(5)
           .includes(:prompt_version)
-        
+
         # Get evaluation data for this prompt
         @eval_sets = @prompt.eval_sets.includes(:test_cases, :eval_runs)
         @recent_eval_runs = PromptEngine::EvalRun

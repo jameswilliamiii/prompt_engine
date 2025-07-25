@@ -89,11 +89,11 @@ RSpec.describe PromptEngine::TestCase, type: :model do
       it 'counts passed eval results' do
         version = create(:prompt_version, prompt: eval_set.prompt)
         eval_run = create(:eval_run, eval_set: eval_set, prompt_version: version)
-        
+
         create(:eval_result, test_case: test_case, eval_run: eval_run, passed: true)
         create(:eval_result, test_case: test_case, eval_run: eval_run, passed: true)
         create(:eval_result, test_case: test_case, eval_run: eval_run, passed: false)
-        
+
         expect(test_case.passed_count).to eq(2)
       end
 
@@ -106,11 +106,11 @@ RSpec.describe PromptEngine::TestCase, type: :model do
       it 'counts failed eval results' do
         version = create(:prompt_version, prompt: eval_set.prompt)
         eval_run = create(:eval_run, eval_set: eval_set, prompt_version: version)
-        
+
         create(:eval_result, test_case: test_case, eval_run: eval_run, passed: false)
         create(:eval_result, test_case: test_case, eval_run: eval_run, passed: false)
         create(:eval_result, test_case: test_case, eval_run: eval_run, passed: true)
-        
+
         expect(test_case.failed_count).to eq(2)
       end
 
@@ -123,12 +123,12 @@ RSpec.describe PromptEngine::TestCase, type: :model do
       it 'calculates success rate percentage' do
         version = create(:prompt_version, prompt: eval_set.prompt)
         eval_run = create(:eval_run, eval_set: eval_set, prompt_version: version)
-        
+
         create(:eval_result, test_case: test_case, eval_run: eval_run, passed: true)
         create(:eval_result, test_case: test_case, eval_run: eval_run, passed: true)
         create(:eval_result, test_case: test_case, eval_run: eval_run, passed: true)
         create(:eval_result, test_case: test_case, eval_run: eval_run, passed: false)
-        
+
         # 3/4 = 75%
         expect(test_case.success_rate).to eq(75.0)
       end
@@ -140,20 +140,20 @@ RSpec.describe PromptEngine::TestCase, type: :model do
       it 'returns 0 when all results failed' do
         version = create(:prompt_version, prompt: eval_set.prompt)
         eval_run = create(:eval_run, eval_set: eval_set, prompt_version: version)
-        
+
         create(:eval_result, test_case: test_case, eval_run: eval_run, passed: false)
         create(:eval_result, test_case: test_case, eval_run: eval_run, passed: false)
-        
+
         expect(test_case.success_rate).to eq(0)
       end
 
       it 'returns 100 when all results passed' do
         version = create(:prompt_version, prompt: eval_set.prompt)
         eval_run = create(:eval_run, eval_set: eval_set, prompt_version: version)
-        
+
         create(:eval_result, test_case: test_case, eval_run: eval_run, passed: true)
         create(:eval_result, test_case: test_case, eval_run: eval_run, passed: true)
-        
+
         expect(test_case.success_rate).to eq(100.0)
       end
     end
@@ -161,24 +161,24 @@ RSpec.describe PromptEngine::TestCase, type: :model do
 
   describe 'JSON storage' do
     let(:eval_set) { create(:eval_set) }
-    
+
     it 'stores and retrieves complex input variables' do
       variables = {
         'user_name' => 'John Doe',
         'age' => 30,
-        'tags' => ['ruby', 'rails'],
+        'tags' => [ 'ruby', 'rails' ],
         'metadata' => { 'source' => 'test' }
       }
-      
-      test_case = create(:test_case, 
+
+      test_case = create(:test_case,
         eval_set: eval_set,
         input_variables: variables,
         expected_output: 'Hello John'
       )
-      
+
       reloaded = PromptEngine::TestCase.find(test_case.id)
       expect(reloaded.input_variables).to eq(variables)
-      expect(reloaded.input_variables['tags']).to eq(['ruby', 'rails'])
+      expect(reloaded.input_variables['tags']).to eq([ 'ruby', 'rails' ])
       expect(reloaded.input_variables['metadata']['source']).to eq('test')
     end
   end

@@ -76,12 +76,12 @@ module PromptEngine
       context "with valid parameters" do
         it "creates a new EvalSet" do
           expect {
-            post prompt_engine.prompt_eval_sets_path(prompt), params: {eval_set: valid_attributes}
+            post prompt_engine.prompt_eval_sets_path(prompt), params: { eval_set: valid_attributes }
           }.to change(EvalSet, :count).by(1)
         end
 
         it "redirects to the created eval_set" do
-          post prompt_engine.prompt_eval_sets_path(prompt), params: {eval_set: valid_attributes}
+          post prompt_engine.prompt_eval_sets_path(prompt), params: { eval_set: valid_attributes }
           expect(response).to redirect_to(prompt_engine.prompt_eval_set_path(prompt, EvalSet.last))
         end
       end
@@ -89,12 +89,12 @@ module PromptEngine
       context "with invalid parameters" do
         it "does not create a new EvalSet" do
           expect {
-            post prompt_engine.prompt_eval_sets_path(prompt), params: {eval_set: invalid_attributes}
+            post prompt_engine.prompt_eval_sets_path(prompt), params: { eval_set: invalid_attributes }
           }.not_to change(EvalSet, :count)
         end
 
         it "renders the new template" do
-          post prompt_engine.prompt_eval_sets_path(prompt), params: {eval_set: invalid_attributes}
+          post prompt_engine.prompt_eval_sets_path(prompt), params: { eval_set: invalid_attributes }
           expect(response.body).to include("New Evaluation Set")
         end
       end
@@ -106,13 +106,13 @@ module PromptEngine
               name: "Regex Eval Set",
               description: "Tests with regex matching",
               grader_type: "regex",
-              grader_config: {"pattern" => "^Hello.*world$"}
+              grader_config: { "pattern" => "^Hello.*world$" }
             }
           end
 
           it "creates eval set with regex configuration" do
             expect {
-              post prompt_engine.prompt_eval_sets_path(prompt), params: {eval_set: regex_attributes}
+              post prompt_engine.prompt_eval_sets_path(prompt), params: { eval_set: regex_attributes }
             }.to change(EvalSet, :count).by(1)
 
             eval_set = EvalSet.last
@@ -121,8 +121,8 @@ module PromptEngine
           end
 
           it "validates regex pattern" do
-            regex_attributes[:grader_config] = {"pattern" => "[invalid"}
-            post prompt_engine.prompt_eval_sets_path(prompt), params: {eval_set: regex_attributes}
+            regex_attributes[:grader_config] = { "pattern" => "[invalid" }
+            post prompt_engine.prompt_eval_sets_path(prompt), params: { eval_set: regex_attributes }
             expect(response.body).to include("invalid regex pattern")
           end
         end
@@ -136,7 +136,7 @@ module PromptEngine
               grader_config: {
                 "schema" => {
                   "type" => "object",
-                  "properties" => {"name" => {"type" => "string"}}
+                  "properties" => { "name" => { "type" => "string" } }
                 }
               }
             }
@@ -144,7 +144,7 @@ module PromptEngine
 
           it "creates eval set with JSON schema configuration" do
             expect {
-              post prompt_engine.prompt_eval_sets_path(prompt), params: {eval_set: json_schema_attributes}
+              post prompt_engine.prompt_eval_sets_path(prompt), params: { eval_set: json_schema_attributes }
             }.to change(EvalSet, :count).by(1)
 
             eval_set = EvalSet.last
@@ -169,12 +169,12 @@ module PromptEngine
             name: "Updated Eval Set",
             description: "Updated description",
             grader_type: "regex",
-            grader_config: {"pattern" => "^test.*"}
+            grader_config: { "pattern" => "^test.*" }
           }
         end
 
         it "updates the eval_set" do
-          patch prompt_engine.prompt_eval_set_path(prompt, eval_set), params: {eval_set: new_attributes}
+          patch prompt_engine.prompt_eval_set_path(prompt, eval_set), params: { eval_set: new_attributes }
           eval_set.reload
           expect(eval_set.name).to eq("Updated Eval Set")
           expect(eval_set.description).to eq("Updated description")
@@ -183,14 +183,14 @@ module PromptEngine
         end
 
         it "redirects to the eval_set" do
-          patch prompt_engine.prompt_eval_set_path(prompt, eval_set), params: {eval_set: new_attributes}
+          patch prompt_engine.prompt_eval_set_path(prompt, eval_set), params: { eval_set: new_attributes }
           expect(response).to redirect_to(prompt_engine.prompt_eval_set_path(prompt, eval_set))
         end
       end
 
       context "with invalid parameters" do
         it "renders the edit template" do
-          patch prompt_engine.prompt_eval_set_path(prompt, eval_set), params: {eval_set: invalid_attributes}
+          patch prompt_engine.prompt_eval_set_path(prompt, eval_set), params: { eval_set: invalid_attributes }
           expect(response.body).to include("Edit Evaluation Set")
         end
       end

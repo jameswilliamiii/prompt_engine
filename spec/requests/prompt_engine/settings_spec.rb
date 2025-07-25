@@ -114,7 +114,7 @@ module PromptEngine
           }
 
           # Should still redirect as we're using update! but with permitted params
-          expect(response.status).to be_in([302, 422])
+          expect(response.status).to be_in([ 302, 422 ])
         end
       end
     end

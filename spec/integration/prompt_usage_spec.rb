@@ -132,7 +132,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
 
       # Don't provide product_name
       result = PromptEngine.render(:welcome_email,
-        variables: {customer_name: "Alice"})
+        variables: { customer_name: "Alice" })
 
       expect(result[:content]).to include("Alice")
       expect(result[:content]).to include("{{product_name}}") # Unmatched variable preserved

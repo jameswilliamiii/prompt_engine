@@ -48,7 +48,7 @@ RSpec.describe "PromptEngine::EvalSets Comparison", type: :request do
   describe "GET /prompt_engine/prompts/:prompt_id/eval_sets/:id/compare" do
     context "with valid run_ids" do
       it "displays comparison view successfully" do
-        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [run1.id, run2.id])
+        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [ run1.id, run2.id ])
 
         expect(response).to have_http_status(:success)
         expect(response.body).to include("Compare Evaluation Runs")
@@ -57,7 +57,7 @@ RSpec.describe "PromptEngine::EvalSets Comparison", type: :request do
       end
 
       it "shows summary statistics" do
-        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [run1.id, run2.id])
+        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [ run1.id, run2.id ])
 
         # Run 1 stats
         expect(response.body).to include("80.0%") # Success rate for run1
@@ -69,7 +69,7 @@ RSpec.describe "PromptEngine::EvalSets Comparison", type: :request do
       end
 
       it "shows improvements and regressions" do
-        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [run1.id, run2.id])
+        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [ run1.id, run2.id ])
 
         # Checking for improvement indicator (10% improvement from 80% to 90%)
         expect(response.body).to include("+10.0%")
@@ -77,7 +77,7 @@ RSpec.describe "PromptEngine::EvalSets Comparison", type: :request do
       end
 
       it "shows individual test case comparisons" do
-        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [run1.id, run2.id])
+        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [ run1.id, run2.id ])
 
         # The comparison view mentions test results are in OpenAI reports
         expect(response.body).to include("Individual test case results")
@@ -91,7 +91,7 @@ RSpec.describe "PromptEngine::EvalSets Comparison", type: :request do
       end
 
       it "shows error for non-completed runs" do
-        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [run1.id, pending_run.id])
+        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [ run1.id, pending_run.id ])
 
         expect(response).to redirect_to(prompt_eval_set_path(prompt, eval_set))
         expect(flash[:alert]).to include("Both evaluation runs must be completed")
@@ -107,7 +107,7 @@ RSpec.describe "PromptEngine::EvalSets Comparison", type: :request do
       end
 
       it "redirects with error when only one run_id provided" do
-        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [run1.id])
+        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [ run1.id ])
 
         expect(response).to redirect_to(prompt_eval_set_path(prompt, eval_set))
         expect(flash[:alert]).to include("select exactly two evaluation runs")
@@ -115,7 +115,7 @@ RSpec.describe "PromptEngine::EvalSets Comparison", type: :request do
 
       it "redirects with error when more than two run_ids provided" do
         run3 = create(:eval_run, :completed, eval_set: eval_set, prompt_version: prompt_version1)
-        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [run1.id, run2.id, run3.id])
+        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [ run1.id, run2.id, run3.id ])
 
         expect(response).to redirect_to(prompt_eval_set_path(prompt, eval_set))
         expect(flash[:alert]).to include("select exactly two evaluation runs")
@@ -124,7 +124,7 @@ RSpec.describe "PromptEngine::EvalSets Comparison", type: :request do
 
     context "with invalid run_ids" do
       it "handles non-existent run" do
-        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [run1.id, 999999])
+        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [ run1.id, 999999 ])
 
         expect(response).to redirect_to(prompt_eval_set_path(prompt, eval_set))
         expect(flash[:alert]).to include("One or both evaluation runs could not be found")
@@ -134,7 +134,7 @@ RSpec.describe "PromptEngine::EvalSets Comparison", type: :request do
         other_eval_set = create(:eval_set, prompt: prompt)
         other_run = create(:eval_run, :completed, eval_set: other_eval_set, prompt_version: prompt_version1)
 
-        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [run1.id, other_run.id])
+        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [ run1.id, other_run.id ])
 
         expect(response).to redirect_to(prompt_eval_set_path(prompt, eval_set))
         expect(flash[:alert]).to include("One or both evaluation runs could not be found")
@@ -161,7 +161,7 @@ RSpec.describe "PromptEngine::EvalSets Comparison", type: :request do
       end
 
       it "shows comparison based on aggregate counts" do
-        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [run_without_results1.id, run_without_results2.id])
+        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [ run_without_results1.id, run_without_results2.id ])
 
         expect(response).to have_http_status(:success)
         expect(response.body).to include("60.0%") # 3/5 for run1

@@ -2,7 +2,7 @@ PromptEngine::Engine.routes.draw do
   root to: "dashboard#index"
 
   get "dashboard", to: "dashboard#index", as: :dashboard
-  
+
   resources :prompts do
     member do
       post :test
@@ -23,14 +23,14 @@ PromptEngine::Engine.routes.draw do
     end
 
     resources :playground_run_results, only: [ :index ]
-    
+
     resources :eval_sets do
       member do
         post :run
         get :compare
         get :metrics
       end
-      resources :test_cases, except: [:index, :show] do
+      resources :test_cases, except: [ :index, :show ] do
         collection do
           get :import
           post :import_preview
@@ -38,13 +38,13 @@ PromptEngine::Engine.routes.draw do
         end
       end
     end
-    resources :eval_runs, only: [:show]
+    resources :eval_runs, only: [ :show ]
   end
 
   resources :playground_run_results, only: [ :index, :show ]
 
   resource :settings, only: [ :edit, :update ]
-  
+
   # Evaluations index - shows all eval sets across all prompts
   get "evaluations", to: "evaluations#index", as: :evaluations
 

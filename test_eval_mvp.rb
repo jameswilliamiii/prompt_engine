@@ -22,12 +22,12 @@ puts "✓ Created eval set: #{eval_set.name}"
 # 3. Create test cases if needed
 if eval_set.test_cases.empty?
   [
-    {text: "I love this!", expected: "positive"},
-    {text: "This is terrible", expected: "negative"},
-    {text: "It's okay", expected: "neutral"}
+    { text: "I love this!", expected: "positive" },
+    { text: "This is terrible", expected: "negative" },
+    { text: "It's okay", expected: "neutral" }
   ].each do |test|
     eval_set.test_cases.create!(
-      input_variables: {text: test[:text]},
+      input_variables: { text: test[:text] },
       expected_output: test[:expected],
       description: test[:text]
     )

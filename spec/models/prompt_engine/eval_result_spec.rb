@@ -21,7 +21,7 @@ RSpec.describe PromptEngine::EvalResult, type: :model do
     let(:eval_set) { create(:eval_set, prompt: prompt) }
     let(:eval_run) { create(:eval_run, eval_set: eval_set, prompt_version: version) }
     let(:test_case) { create(:test_case, eval_set: eval_set) }
-    
+
     let!(:passed_result1) { create(:eval_result, eval_run: eval_run, test_case: test_case, passed: true) }
     let!(:passed_result2) { create(:eval_result, eval_run: eval_run, test_case: test_case, passed: true) }
     let!(:failed_result1) { create(:eval_result, eval_run: eval_run, test_case: test_case, passed: false) }
@@ -49,9 +49,9 @@ RSpec.describe PromptEngine::EvalResult, type: :model do
       let!(:medium_result) { create(:eval_result, eval_run: eval_run, test_case: test_case, execution_time_ms: 300) }
 
       it 'orders results by execution time ascending' do
-        results = [fast_result, slow_result, medium_result]
+        results = [ fast_result, slow_result, medium_result ]
         ordered = PromptEngine::EvalResult.where(id: results.map(&:id)).by_execution_time
-        expect(ordered.map(&:execution_time_ms)).to eq([100, 300, 500])
+        expect(ordered.map(&:execution_time_ms)).to eq([ 100, 300, 500 ])
       end
     end
   end
@@ -108,7 +108,7 @@ RSpec.describe PromptEngine::EvalResult, type: :model do
         actual_output: "Hello, John! Welcome to our service.",
         passed: true
       )
-      
+
       reloaded = PromptEngine::EvalResult.find(result.id)
       expect(reloaded.actual_output).to eq("Hello, John! Welcome to our service.")
     end
@@ -120,7 +120,7 @@ RSpec.describe PromptEngine::EvalResult, type: :model do
         passed: false,
         error_message: "API timeout after 30 seconds"
       )
-      
+
       reloaded = PromptEngine::EvalResult.find(result.id)
       expect(reloaded.error_message).to eq("API timeout after 30 seconds")
     end

@@ -33,7 +33,7 @@ module PromptEngine
         get prompt_engine.prompt_versions_path(prompt)
 
         # Check that versions appear in the correct order in the response body
-        version_positions = [version_3, version_2, version_1].map do |version|
+        version_positions = [ version_3, version_2, version_1 ].map do |version|
           response.body.index("Version #{version.version_number}")
         end
 

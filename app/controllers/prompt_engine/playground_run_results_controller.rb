@@ -1,8 +1,8 @@
 module PromptEngine
   class PlaygroundRunResultsController < ApplicationController
     layout "prompt_engine/admin"
-    before_action :set_playground_run_result, only: [:show]
-    before_action :set_context, only: [:index]
+    before_action :set_playground_run_result, only: [ :show ]
+    before_action :set_context, only: [ :index ]
 
     def index
       @playground_run_results = scope.recent.includes(prompt_version: :prompt)
@@ -29,7 +29,7 @@ module PromptEngine
     def scope
       if params[:prompt_id]
         # Get all playground run results for all versions of this prompt
-        PlaygroundRunResult.joins(:prompt_version).where(prompt_engine_prompt_versions: {prompt_id: params[:prompt_id]})
+        PlaygroundRunResult.joins(:prompt_version).where(prompt_engine_prompt_versions: { prompt_id: params[:prompt_id] })
       elsif params[:version_id]
         # Get playground run results for a specific version
         PromptVersion.find(params[:version_id]).playground_run_results

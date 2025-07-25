@@ -6,7 +6,7 @@ class CreateEvalTables < ActiveRecord::Migration[7.1]
       t.references :prompt, null: false, foreign_key: { to_table: :prompt_engine_prompts }
       t.timestamps
     end
-    
+
     create_table :prompt_engine_test_cases do |t|
       t.references :eval_set, null: false, foreign_key: { to_table: :prompt_engine_eval_sets }
       t.json :input_variables, null: false, default: {}
@@ -14,7 +14,7 @@ class CreateEvalTables < ActiveRecord::Migration[7.1]
       t.text :description
       t.timestamps
     end
-    
+
     create_table :prompt_engine_eval_runs do |t|
       t.references :eval_set, null: false, foreign_key: { to_table: :prompt_engine_eval_sets }
       t.references :prompt_version, null: false, foreign_key: { to_table: :prompt_engine_prompt_versions }
@@ -27,7 +27,7 @@ class CreateEvalTables < ActiveRecord::Migration[7.1]
       t.text :error_message
       t.timestamps
     end
-    
+
     create_table :prompt_engine_eval_results do |t|
       t.references :eval_run, null: false, foreign_key: { to_table: :prompt_engine_eval_runs }
       t.references :test_case, null: false, foreign_key: { to_table: :prompt_engine_test_cases }
@@ -37,7 +37,7 @@ class CreateEvalTables < ActiveRecord::Migration[7.1]
       t.text :error_message
       t.timestamps
     end
-    
-    add_index :prompt_engine_eval_sets, [:prompt_id, :name], unique: true
+
+    add_index :prompt_engine_eval_sets, [ :prompt_id, :name ], unique: true
   end
 end

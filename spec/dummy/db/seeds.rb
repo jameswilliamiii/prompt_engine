@@ -51,8 +51,8 @@ eval_set1 = PromptEngine::EvalSet.create!(
 # Add test cases for customer support
 PromptEngine::TestCase.create!(
   eval_set: eval_set1,
-  input_variables: { 
-    customer_message: "My order hasn't arrived and it's been 2 weeks!" 
+  input_variables: {
+    customer_message: "My order hasn't arrived and it's been 2 weeks!"
   },
   expected_output: "I sincerely apologize for the delay with your order. I understand how frustrating this must be after waiting for two weeks. Let me immediately look into this for you and find out exactly where your package is. Could you please provide me with your order number so I can track it down right away?",
   description: "Delayed order complaint"
@@ -60,8 +60,8 @@ PromptEngine::TestCase.create!(
 
 PromptEngine::TestCase.create!(
   eval_set: eval_set1,
-  input_variables: { 
-    customer_message: "The product I received is defective" 
+  input_variables: {
+    customer_message: "The product I received is defective"
   },
   expected_output: "I'm very sorry to hear that you received a defective product. This is certainly not the experience we want you to have. I'd be happy to help you resolve this immediately. We can either send you a replacement right away or process a full refund - whichever you prefer. Could you please describe the defect so I can also report this to our quality team?",
   description: "Defective product complaint"
@@ -69,8 +69,8 @@ PromptEngine::TestCase.create!(
 
 PromptEngine::TestCase.create!(
   eval_set: eval_set1,
-  input_variables: { 
-    customer_message: "I'm very happy with my purchase! Thank you!" 
+  input_variables: {
+    customer_message: "I'm very happy with my purchase! Thank you!"
   },
   expected_output: "Thank you so much for taking the time to share your positive feedback! It's wonderful to hear that you're happy with your purchase. We truly appreciate customers like you. If you need anything else or have any questions in the future, please don't hesitate to reach out. Have a great day!",
   description: "Positive feedback"
@@ -86,7 +86,7 @@ eval_set2 = PromptEngine::EvalSet.create!(
 # Add test cases for product descriptions
 PromptEngine::TestCase.create!(
   eval_set: eval_set2,
-  input_variables: { 
+  input_variables: {
     product_name: "Wireless Bluetooth Headphones",
     features: "Noise cancellation, 30-hour battery, comfortable fit"
   },
@@ -96,7 +96,7 @@ PromptEngine::TestCase.create!(
 
 PromptEngine::TestCase.create!(
   eval_set: eval_set2,
-  input_variables: { 
+  input_variables: {
     product_name: "Organic Green Tea",
     features: "Antioxidant-rich, hand-picked, sustainable farming"
   },

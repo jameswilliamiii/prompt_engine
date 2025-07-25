@@ -47,7 +47,7 @@ email_prompt.sync_parameters!
 regex_eval = email_prompt.eval_sets.find_or_create_by!(name: "Email Format Test") do |es|
   es.description = "Tests email extraction with regex"
   es.grader_type = "regex"
-  es.grader_config = {"pattern" => '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'}
+  es.grader_config = { "pattern" => '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$' }
 end
 
 # Contains example
@@ -79,13 +79,13 @@ json_eval = api_prompt.eval_sets.find_or_create_by!(name: "Response Schema Test"
         "user" => {
           "type" => "object",
           "properties" => {
-            "name" => {"type" => "string"},
-            "role" => {"type" => "string"}
+            "name" => { "type" => "string" },
+            "role" => { "type" => "string" }
           },
-          "required" => ["name", "role"]
+          "required" => [ "name", "role" ]
         }
       },
-      "required" => ["user"]
+      "required" => [ "user" ]
     }
   }
 end
@@ -102,17 +102,17 @@ puts "\n3. Adding Test Cases:"
 # Add test cases for exact match
 if exact_match_eval.test_cases.empty?
   exact_match_eval.test_cases.create!([
-    {input_variables: {text: "I love this product!"}, expected_output: "positive"},
-    {input_variables: {text: "This is terrible."}, expected_output: "negative"},
-    {input_variables: {text: "It's okay, I guess."}, expected_output: "neutral"}
+    { input_variables: { text: "I love this product!" }, expected_output: "positive" },
+    { input_variables: { text: "This is terrible." }, expected_output: "negative" },
+    { input_variables: { text: "It's okay, I guess." }, expected_output: "neutral" }
   ])
 end
 
 # Add test cases for regex
 if regex_eval.test_cases.empty?
   regex_eval.test_cases.create!([
-    {input_variables: {text: "Contact me at john@example.com"}, expected_output: "john@example.com"},
-    {input_variables: {text: "Email: support@company.org"}, expected_output: "support@company.org"}
+    { input_variables: { text: "Contact me at john@example.com" }, expected_output: "john@example.com" },
+    { input_variables: { text: "Email: support@company.org" }, expected_output: "support@company.org" }
   ])
 end
 
@@ -133,7 +133,7 @@ end
 if json_eval.test_cases.empty?
   json_eval.test_cases.create!([
     {
-      input_variables: {name: "Alice", role: "admin"},
+      input_variables: { name: "Alice", role: "admin" },
       expected_output: '{"user":{"name":"Alice","role":"admin"}}'
     }
   ])
@@ -151,7 +151,7 @@ puts "   Access via 'Import' button on any eval set page"
 # 5. Demonstrate metrics
 puts "\n5. Metrics Dashboard:"
 sentiment_eval_with_runs = PromptEngine::EvalSet.joins(:eval_runs)
-  .where(eval_runs: {status: "completed"})
+  .where(eval_runs: { status: "completed" })
   .first
 
 if sentiment_eval_with_runs

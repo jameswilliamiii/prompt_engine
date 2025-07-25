@@ -22,14 +22,14 @@ puts "✓ Using eval set: #{eval_set.name}"
 # Create test cases if none exist
 if eval_set.test_cases.empty?
   test_data = [
-    {text: "I love this product!", expected: "positive"},
-    {text: "This is terrible.", expected: "negative"},
-    {text: "It's okay.", expected: "neutral"}
+    { text: "I love this product!", expected: "positive" },
+    { text: "This is terrible.", expected: "negative" },
+    { text: "It's okay.", expected: "neutral" }
   ]
 
   test_data.each do |data|
     eval_set.test_cases.create!(
-      input_variables: {text: data[:text]},
+      input_variables: { text: data[:text] },
       expected_output: data[:expected],
       description: "Test: #{data[:text]}"
     )

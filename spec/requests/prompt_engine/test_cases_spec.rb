@@ -49,20 +49,20 @@ module PromptEngine
         it "creates a new TestCase" do
           expect {
             post prompt_engine.prompt_eval_set_test_cases_path(prompt, eval_set),
-              params: {test_case: valid_attributes}
+              params: { test_case: valid_attributes }
           }.to change(TestCase, :count).by(1)
         end
 
         it "associates the test case with the eval set" do
           post prompt_engine.prompt_eval_set_test_cases_path(prompt, eval_set),
-            params: {test_case: valid_attributes}
+            params: { test_case: valid_attributes }
           test_case = TestCase.last
           expect(test_case.eval_set).to eq(eval_set)
         end
 
         it "redirects to the eval set" do
           post prompt_engine.prompt_eval_set_test_cases_path(prompt, eval_set),
-            params: {test_case: valid_attributes}
+            params: { test_case: valid_attributes }
           expect(response).to redirect_to(prompt_engine.prompt_eval_set_path(prompt, eval_set))
         end
       end
@@ -71,13 +71,13 @@ module PromptEngine
         it "does not create a new TestCase" do
           expect {
             post prompt_engine.prompt_eval_set_test_cases_path(prompt, eval_set),
-              params: {test_case: invalid_attributes}
+              params: { test_case: invalid_attributes }
           }.not_to change(TestCase, :count)
         end
 
         it "renders the new template" do
           post prompt_engine.prompt_eval_set_test_cases_path(prompt, eval_set),
-            params: {test_case: invalid_attributes}
+            params: { test_case: invalid_attributes }
           expect(response.body).to include("New Test Case")
         end
       end
@@ -110,7 +110,7 @@ module PromptEngine
 
         it "updates the test case" do
           patch prompt_engine.prompt_eval_set_test_case_path(prompt, eval_set, test_case),
-            params: {test_case: new_attributes}
+            params: { test_case: new_attributes }
           test_case.reload
           expect(test_case.input_variables["topic"]).to eq("deep learning")
           expect(test_case.expected_output).to include("Deep learning")
@@ -119,7 +119,7 @@ module PromptEngine
 
         it "redirects to the eval set" do
           patch prompt_engine.prompt_eval_set_test_case_path(prompt, eval_set, test_case),
-            params: {test_case: new_attributes}
+            params: { test_case: new_attributes }
           expect(response).to redirect_to(prompt_engine.prompt_eval_set_path(prompt, eval_set))
         end
       end
@@ -127,7 +127,7 @@ module PromptEngine
       context "with invalid parameters" do
         it "renders the edit template" do
           patch prompt_engine.prompt_eval_set_test_case_path(prompt, eval_set, test_case),
-            params: {test_case: invalid_attributes}
+            params: { test_case: invalid_attributes }
           expect(response.body).to include("Edit Test Case")
         end
       end

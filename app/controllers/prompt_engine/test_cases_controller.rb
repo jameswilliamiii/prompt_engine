@@ -4,7 +4,7 @@ module PromptEngine
 
     before_action :set_prompt
     before_action :set_eval_set
-    before_action :set_test_case, only: [:edit, :update, :destroy]
+    before_action :set_test_case, only: [ :edit, :update, :destroy ]
 
     def new
       @test_case = @eval_set.test_cases.build

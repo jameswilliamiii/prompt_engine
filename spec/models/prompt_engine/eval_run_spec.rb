@@ -40,10 +40,10 @@ RSpec.describe PromptEngine::EvalRun, type: :model do
       version = create(:prompt_version, prompt: prompt)
       eval_set = create(:eval_set, prompt: prompt)
       eval_run = create(:eval_run, eval_set: eval_set, prompt_version: version, status: :pending)
-      
+
       expect(eval_run.pending?).to be true
       expect(eval_run.running?).to be false
-      
+
       eval_run.running!
       expect(eval_run.running?).to be true
       expect(eval_run.pending?).to be false
@@ -52,7 +52,7 @@ RSpec.describe PromptEngine::EvalRun, type: :model do
     it 'allows setting status by string or symbol' do
       eval_run.status = 'completed'
       expect(eval_run.completed?).to be true
-      
+
       eval_run.status = :failed
       expect(eval_run.failed?).to be true
     end
@@ -62,21 +62,21 @@ RSpec.describe PromptEngine::EvalRun, type: :model do
     let(:prompt) { create(:prompt) }
     let(:version) { create(:prompt_version, prompt: prompt) }
     let(:eval_set) { create(:eval_set, prompt: prompt) }
-    
+
     let!(:old_run) { create(:eval_run, eval_set: eval_set, prompt_version: version, created_at: 3.days.ago) }
     let!(:recent_run) { create(:eval_run, eval_set: eval_set, prompt_version: version, created_at: 1.hour.ago) }
     let!(:middle_run) { create(:eval_run, eval_set: eval_set, prompt_version: version, created_at: 1.day.ago) }
 
     describe '.recent' do
       it 'orders runs by created_at descending' do
-        expect(PromptEngine::EvalRun.recent).to eq([recent_run, middle_run, old_run])
+        expect(PromptEngine::EvalRun.recent).to eq([ recent_run, middle_run, old_run ])
       end
     end
 
     describe '.by_status' do
       let!(:completed_run) { create(:eval_run, eval_set: eval_set, prompt_version: version, status: :completed) }
       let!(:failed_run) { create(:eval_run, eval_set: eval_set, prompt_version: version, status: :failed) }
-      
+
       it 'filters runs by status' do
         expect(PromptEngine::EvalRun.by_status(:completed)).to include(completed_run)
         expect(PromptEngine::EvalRun.by_status(:completed)).not_to include(failed_run)
@@ -84,13 +84,13 @@ RSpec.describe PromptEngine::EvalRun, type: :model do
     end
 
     describe '.successful' do
-      let!(:successful_run) { create(:eval_run, eval_set: eval_set, prompt_version: version, 
+      let!(:successful_run) { create(:eval_run, eval_set: eval_set, prompt_version: version,
                                      status: :completed, total_count: 10, passed_count: 8) }
       let!(:failed_all_run) { create(:eval_run, eval_set: eval_set, prompt_version: version,
                                      status: :completed, total_count: 10, passed_count: 0) }
       let!(:pending_run) { create(:eval_run, eval_set: eval_set, prompt_version: version,
                                   status: :pending) }
-      
+
       it 'returns completed runs with at least one passed test' do
         results = PromptEngine::EvalRun.successful
         expect(results).to include(successful_run)
@@ -136,7 +136,7 @@ RSpec.describe PromptEngine::EvalRun, type: :model do
       it 'calculates duration between started_at and completed_at' do
         eval_run.started_at = Time.current
         eval_run.completed_at = eval_run.started_at + 2.hours + 30.minutes
-        
+
         expect(eval_run.duration).to eq(9000) # 2.5 hours in seconds
       end
 
@@ -211,7 +211,7 @@ RSpec.describe PromptEngine::EvalRun, type: :model do
     it 'can store OpenAI run ID' do
       eval_run.openai_run_id = 'run_abc123'
       eval_run.save!
-      
+
       reloaded = PromptEngine::EvalRun.find(eval_run.id)
       expect(reloaded.openai_run_id).to eq('run_abc123')
     end
@@ -219,7 +219,7 @@ RSpec.describe PromptEngine::EvalRun, type: :model do
     it 'can store OpenAI file ID' do
       eval_run.openai_file_id = 'file_xyz789'
       eval_run.save!
-      
+
       reloaded = PromptEngine::EvalRun.find(eval_run.id)
       expect(reloaded.openai_file_id).to eq('file_xyz789')
     end
@@ -227,7 +227,7 @@ RSpec.describe PromptEngine::EvalRun, type: :model do
     it 'can store report URL' do
       eval_run.report_url = 'https://platform.openai.com/evals/run_abc123'
       eval_run.save!
-      
+
       reloaded = PromptEngine::EvalRun.find(eval_run.id)
       expect(reloaded.report_url).to eq('https://platform.openai.com/evals/run_abc123')
     end
@@ -249,7 +249,7 @@ RSpec.describe PromptEngine::EvalRun, type: :model do
     it 'can store error messages' do
       eval_run.error_message = 'API rate limit exceeded'
       eval_run.save!
-      
+
       reloaded = PromptEngine::EvalRun.find(eval_run.id)
       expect(reloaded.error_message).to eq('API rate limit exceeded')
     end

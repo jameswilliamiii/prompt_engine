@@ -62,10 +62,10 @@ module PromptEngine
           schema = {
             type: "object",
             properties: {
-              name: {type: "string"},
-              age: {type: "integer"}
+              name: { type: "string" },
+              age: { type: "integer" }
             },
-            required: ["name"]
+            required: [ "name" ]
           }
 
           post prompt_eval_sets_path(prompt), params: {
@@ -106,7 +106,7 @@ module PromptEngine
       end
 
       it "clears grader_config when changing to exact_match" do
-        eval_set.update!(grader_type: "regex", grader_config: {pattern: "test"})
+        eval_set.update!(grader_type: "regex", grader_config: { pattern: "test" })
 
         patch prompt_eval_set_path(prompt, eval_set), params: {
           eval_set: {

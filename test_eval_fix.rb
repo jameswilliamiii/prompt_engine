@@ -28,7 +28,7 @@ eval_set.update!(openai_eval_id: nil) if eval_set.openai_eval_id.present?
 # Create test case
 if eval_set.test_cases.empty?
   eval_set.test_cases.create!(
-    input_variables: {email_topic: "server outage"},
+    input_variables: { email_topic: "server outage" },
     expected_output: "urgent",
     description: "Server outage email"
   )

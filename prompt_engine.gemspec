@@ -3,8 +3,8 @@ require_relative "lib/prompt_engine/version"
 Gem::Specification.new do |spec|
   spec.name = "prompt_engine"
   spec.version = PromptEngine::VERSION
-  spec.authors = ["Avi Flombaum"]
-  spec.email = ["4515+aviflombaum@users.noreply.github.com"]
+  spec.authors = [ "Avi Flombaum" ]
+  spec.email = [ "4515+aviflombaum@users.noreply.github.com" ]
   spec.homepage = "https://github.com/aviflombaum/prompt_engine"
   spec.summary = "Rails mountable engine for AI prompt management"
   spec.description = "PromptEngine is a Rails mountable engine that provides a simple interface for managing AI prompts, templates, and responses within Rails applications."

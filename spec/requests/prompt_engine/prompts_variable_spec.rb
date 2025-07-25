@@ -12,7 +12,7 @@ module PromptEngine
           }
 
           expect {
-            post "/prompt_engine/prompts", params: {prompt: prompt_params}
+            post "/prompt_engine/prompts", params: { prompt: prompt_params }
           }.to change(Prompt, :count).by(1)
 
           prompt = Prompt.last
@@ -31,7 +31,7 @@ module PromptEngine
             status: "draft"
           }
 
-          post "/prompt_engine/prompts", params: {prompt: prompt_params}
+          post "/prompt_engine/prompts", params: { prompt: prompt_params }
 
           prompt = Prompt.last
           expect(prompt).to be_persisted
@@ -51,7 +51,7 @@ module PromptEngine
             status: "draft"
           }
 
-          post "/prompt_engine/prompts", params: {prompt: prompt_params}
+          post "/prompt_engine/prompts", params: { prompt: prompt_params }
 
           prompt = Prompt.last
           expect(prompt.versions.count).to eq(1)
@@ -64,7 +64,7 @@ module PromptEngine
 
         it "syncs parameters when content changes" do
           patch "/prompt_engine/prompts/#{prompt.id}", params: {
-            prompt: {content: "Hello {{first_name}} {{last_name}}!"}
+            prompt: { content: "Hello {{first_name}} {{last_name}}!" }
           }
 
           prompt.reload

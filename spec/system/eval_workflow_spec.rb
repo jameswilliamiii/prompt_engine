@@ -110,7 +110,7 @@ RSpec.describe "Evaluation Workflow", type: :system do
     let!(:test_case) do
       create(:test_case,
         eval_set: eval_set,
-        input_variables: {"text" => "Test text"},
+        input_variables: { "text" => "Test text" },
         expected_output: "positive")
     end
 
