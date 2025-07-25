@@ -57,6 +57,31 @@
         <p class="stat-card__value"><%= number_with_delimiter(@total_tokens_used) %></p>
       </div>
     </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon stat-card__icon--secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+        </svg>
+      </div>
+      <div class="stat-card__content">
+        <h3 class="stat-card__title">Evaluation Sets</h3>
+        <p class="stat-card__value"><%= @total_eval_sets %></p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon stat-card__icon--danger">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div class="stat-card__content">
+        <h3 class="stat-card__title">Evaluation Runs</h3>
+        <p class="stat-card__value"><%= @total_eval_runs %></p>
+      </div>
+    </div>
   </div>
 
   <div class="dashboard__content">
@@ -149,6 +174,53 @@
             <div class="empty-state">
               <p class="text-muted">No test runs yet</p>
               <%= link_to "Test a prompt", prompts_path, class: "btn btn--primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard__section">
+      <div class="card">
+        <div class="card__header">
+          <h2 class="card__title">Recent Evaluation Runs</h2>
+          <%= link_to "View all", evaluations_path, class: "btn btn--sm btn--ghost" %>
+        </div>
+        <div class="card__body">
+          <% if @recent_eval_runs.any? %>
+            <div class="test-runs-list">
+              <% @recent_eval_runs.each do |run| %>
+                <div class="test-run-item">
+                  <div class="test-run-item__main">
+                    <div class="test-run-item__header">
+                      <h4 class="test-run-item__title">
+                        <%= link_to run.eval_set.name, prompt_eval_run_path(run.eval_set.prompt, run), class: "link" %>
+                      </h4>
+                      <span class="test-run-item__date text-muted">
+                        <%= time_ago_in_words(run.created_at) %> ago
+                      </span>
+                    </div>
+                    <div class="test-run-item__content">
+                      <p class="test-run-item__model text-muted">
+                        <%= run.eval_set.prompt.name %> • 
+                        <%= pluralize(run.total_count, 'test') %> • 
+                        <% if run.total_count > 0 %>
+                          <span class="<%= (run.passed_count.to_f / run.total_count * 100) >= 80 ? 'text-success' : 'text-danger' %>">
+                            <%= number_to_percentage((run.passed_count.to_f / run.total_count * 100), precision: 1) %> passed
+                          </span>
+                        <% else %>
+                          <span class="text-muted">No tests</span>
+                        <% end %>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="empty-state">
+              <p class="text-muted">No evaluation runs yet</p>
+              <%= link_to "View evaluations", evaluations_path, class: "btn btn--primary" %>
             </div>
           <% end %>
         </div>

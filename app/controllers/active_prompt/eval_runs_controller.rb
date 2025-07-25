@@ -1,5 +1,7 @@
 module ActivePrompt
   class EvalRunsController < ApplicationController
+    layout "active_prompt/admin"
+    
     before_action :set_prompt
     before_action :set_eval_run
     

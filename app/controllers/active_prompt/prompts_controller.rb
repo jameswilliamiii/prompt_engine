@@ -15,6 +15,15 @@ module ActivePrompt
           .recent
           .limit(5)
           .includes(:prompt_version)
+        
+        # Get evaluation data for this prompt
+        @eval_sets = @prompt.eval_sets.includes(:test_cases, :eval_runs)
+        @recent_eval_runs = ActivePrompt::EvalRun
+          .joins(:eval_set)
+          .where(active_prompt_eval_sets: { prompt_id: @prompt.id })
+          .order(created_at: :desc)
+          .limit(5)
+          .includes(:eval_set, :prompt_version)
       end
 
       def new

@@ -26,7 +26,11 @@
               </li>
               <li class="admin-nav__item">
                 <%= link_to "Prompts", prompts_path, 
-                    class: "admin-nav__link #{'admin-nav__link--active' if %w[prompts versions].include?(controller_name)}" %>
+                    class: "admin-nav__link #{'admin-nav__link--active' if %w[prompts versions playground].include?(controller_name)}" %>
+              </li>
+              <li class="admin-nav__item">
+                <%= link_to "Evaluations", evaluations_path, 
+                    class: "admin-nav__link #{'admin-nav__link--active' if %w[eval_sets eval_runs test_cases].include?(controller_name)}" %>
               </li>
               <li class="admin-nav__item">
                 <%= link_to "Test Runs", playground_run_results_path, 

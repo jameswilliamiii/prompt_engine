@@ -44,6 +44,9 @@ ActivePrompt::Engine.routes.draw do
   resources :playground_run_results, only: [ :index, :show ]
 
   resource :settings, only: [ :edit, :update ]
+  
+  # Evaluations index - shows all eval sets across all prompts
+  get "evaluations", to: "evaluations#index", as: :evaluations
 
   # API endpoints for integration
   namespace :api do

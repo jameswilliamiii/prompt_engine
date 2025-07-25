@@ -1,0 +1,124 @@
+/* Evaluations Index Page */
+.eval-prompts-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.eval-prompt-item {
+  border-bottom: 1px solid var(--color-gray-200);
+  padding-bottom: var(--spacing-xl);
+}
+
+.eval-prompt-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.eval-prompt-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.eval-prompt-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin: 0;
+}
+
+.eval-sets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.eval-set-card {
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.eval-set-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: var(--spacing-md);
+}
+
+.eval-set-card__title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  margin: 0;
+}
+
+.eval-set-card__stats {
+  display: flex;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+}
+
+.eval-set-card__stat {
+  white-space: nowrap;
+}
+
+.eval-set-card__description {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  margin: 0;
+}
+
+.eval-set-card__actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: auto;
+}
+
+/* Eval Set Summary on Prompt Show Page */
+.eval-sets-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.eval-set-summary-item {
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+
+.eval-set-summary__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.eval-set-summary__title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  margin: 0;
+}
+
+.eval-set-summary__stats {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.eval-set-summary__description {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.eval-set-summary__result {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-700);
+}
