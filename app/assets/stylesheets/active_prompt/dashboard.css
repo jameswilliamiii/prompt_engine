@@ -215,3 +215,129 @@
 .dashboard__section .table__action:hover {
   color: var(--color-primary-600);
 }
+
+/* Metrics Dashboard */
+.metrics-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.metrics-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  transition: var(--transition-all);
+}
+
+.metrics-card:hover {
+  border-color: var(--color-gray-300);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+
+.metrics-card__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.metrics-card__icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.metrics-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.metrics-card__label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-gray-600);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.metrics-card__value {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-gray-900);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Chart Grid */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+@media (max-width: 900px) {
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Chart Container */
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+  padding: var(--spacing-sm);
+}
+
+.chart-container--small {
+  height: 250px;
+}
+
+.chart-container canvas {
+  max-width: 100%;
+}
+
+/* Metrics-specific text colors */
+.text-warning {
+  color: var(--color-warning);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .metrics-summary {
+    grid-template-columns: 1fr;
+  }
+  
+  .metrics-card {
+    padding: var(--spacing-md);
+  }
+  
+  .metrics-card__icon {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .metrics-card__icon svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .metrics-card__value {
+    font-size: var(--font-size-xl);
+  }
+  
+  .chart-container {
+    height: 250px;
+  }
+}

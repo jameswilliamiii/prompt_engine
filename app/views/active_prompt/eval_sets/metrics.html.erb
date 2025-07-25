@@ -1,0 +1,371 @@
+<% content_for :head do %>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<% end %>
+
+<div class="admin-header">
+  <div>
+    <h1>Evaluation Metrics</h1>
+    <p class="text-muted">Performance insights for <%= @eval_set.name %></p>
+  </div>
+  <div class="btn-group">
+    <%= link_to "Back to Eval Set", prompt_eval_set_path(@prompt, @eval_set), 
+        class: "btn btn--secondary btn--medium" %>
+    <% if @eval_runs.any? %>
+      <%= link_to "Compare Runs", prompt_eval_set_path(@prompt, @eval_set), 
+          class: "btn btn--secondary btn--medium" %>
+    <% end %>
+  </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="metrics-summary">
+  <div class="metrics-card">
+    <div class="metrics-card__icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 11l3 3L22 4"></path>
+        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+      </svg>
+    </div>
+    <div class="metrics-card__content">
+      <h3 class="metrics-card__label">Total Test Cases</h3>
+      <p class="metrics-card__value"><%= @total_test_cases %></p>
+    </div>
+  </div>
+
+  <div class="metrics-card">
+    <div class="metrics-card__icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+    <div class="metrics-card__content">
+      <h3 class="metrics-card__label">Total Runs</h3>
+      <p class="metrics-card__value"><%= @total_runs %></p>
+    </div>
+  </div>
+
+  <div class="metrics-card">
+    <div class="metrics-card__icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+      </svg>
+    </div>
+    <div class="metrics-card__content">
+      <h3 class="metrics-card__label">Overall Pass Rate</h3>
+      <p class="metrics-card__value"><%= number_to_percentage(@overall_pass_rate, precision: 1) %></p>
+    </div>
+  </div>
+</div>
+
+<% if @eval_runs.any? %>
+  <!-- Charts Row 1 -->
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card__header">
+        <h3 class="card__title">Success Rate Trend</h3>
+      </div>
+      <div class="card__body">
+        <div class="chart-container">
+          <canvas id="successRateTrendChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card__header">
+        <h3 class="card__title">Success Rate by Version</h3>
+      </div>
+      <div class="card__body">
+        <div class="chart-container">
+          <canvas id="successRateByVersionChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card__header">
+        <h3 class="card__title">Test Results Distribution</h3>
+      </div>
+      <div class="card__body">
+        <div class="chart-container chart-container--small">
+          <canvas id="testDistributionChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card__header">
+        <h3 class="card__title">Average Evaluation Duration</h3>
+      </div>
+      <div class="card__body">
+        <div class="chart-container">
+          <canvas id="durationTrendChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="card">
+    <div class="card__header">
+      <h3 class="card__title">Recent Evaluation Activity</h3>
+    </div>
+    <div class="card__body">
+      <div class="table-container">
+        <table class="table table--simple">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Version</th>
+              <th>Success Rate</th>
+              <th>Duration</th>
+              <th class="table__actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @recent_activity.each do |run| %>
+              <tr>
+                <td>
+                  <div class="table__primary">
+                    <%= run.created_at.strftime("%b %d, %Y %I:%M %p") %>
+                  </div>
+                </td>
+                <td>
+                  <span class="table__badge table__badge--info">v<%= run.prompt_version.version_number %></span>
+                </td>
+                <td>
+                  <% success_rate = run.total_count > 0 ? (run.passed_count.to_f / run.total_count * 100) : 0 %>
+                  <div class="table__metric">
+                    <span class="table__metric-value 
+                      <%= success_rate >= 80 ? 'text-success' : success_rate >= 60 ? 'text-warning' : 'text-danger' %>">
+                      <%= number_to_percentage(success_rate, precision: 1) %>
+                    </span>
+                  </div>
+                </td>
+                <td>
+                  <% if run.completed_at && run.started_at %>
+                    <span class="table__secondary">
+                      <%= distance_of_time_in_words(run.started_at, run.completed_at) %>
+                    </span>
+                  <% else %>
+                    <span class="table__secondary text-muted">—</span>
+                  <% end %>
+                </td>
+                <td class="table__actions">
+                  <%= link_to "View", prompt_eval_run_path(@prompt, run), 
+                      class: "table__action" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Chart.js configuration
+    Chart.defaults.font.family = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    Chart.defaults.color = '#374151';
+    
+    // Success Rate Trend Chart
+    const successRateTrendCtx = document.getElementById('successRateTrendChart').getContext('2d');
+    new Chart(successRateTrendCtx, {
+      type: 'line',
+      data: {
+        labels: <%= @success_rate_trend.map { |d| d[:date] }.to_json.html_safe %>,
+        datasets: [{
+          label: 'Success Rate (%)',
+          data: <%= @success_rate_trend.map { |d| d[:rate] }.to_json.html_safe %>,
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              afterLabel: function(context) {
+                const index = context.dataIndex;
+                const version = <%= @success_rate_trend.map { |d| d[:version] }.to_json.html_safe %>[index];
+                return 'Version: ' + version;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              callback: function(value) {
+                return value + '%';
+              }
+            }
+          }
+        }
+      }
+    });
+    
+    // Success Rate by Version Chart
+    const successRateByVersionCtx = document.getElementById('successRateByVersionChart').getContext('2d');
+    new Chart(successRateByVersionCtx, {
+      type: 'bar',
+      data: {
+        labels: <%= @success_rate_by_version.map { |d| d[:version] }.to_json.html_safe %>,
+        datasets: [{
+          label: 'Success Rate (%)',
+          data: <%= @success_rate_by_version.map { |d| d[:rate] }.to_json.html_safe %>,
+          backgroundColor: '#10b981',
+          borderColor: '#059669',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              afterLabel: function(context) {
+                const index = context.dataIndex;
+                const runs = <%= @success_rate_by_version.map { |d| d[:runs] }.to_json.html_safe %>[index];
+                return 'Runs: ' + runs;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              callback: function(value) {
+                return value + '%';
+              }
+            }
+          }
+        }
+      }
+    });
+    
+    // Test Distribution Chart
+    const testDistributionCtx = document.getElementById('testDistributionChart').getContext('2d');
+    const totalPassed = <%= @eval_runs.sum(&:passed_count) %>;
+    const totalFailed = <%= @eval_runs.sum(&:failed_count) %>;
+    
+    new Chart(testDistributionCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Passed', 'Failed'],
+        datasets: [{
+          data: [totalPassed, totalFailed],
+          backgroundColor: ['#10b981', '#ef4444'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const total = totalPassed + totalFailed;
+                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+              }
+            }
+          }
+        }
+      }
+    });
+    
+    // Duration Trend Chart
+    const durationTrendCtx = document.getElementById('durationTrendChart').getContext('2d');
+    const durationData = <%= @duration_trend.to_json.html_safe %>;
+    
+    new Chart(durationTrendCtx, {
+      type: 'line',
+      data: {
+        labels: durationData.map(d => d.date),
+        datasets: [{
+          label: 'Duration (seconds)',
+          data: durationData.map(d => d.duration),
+          borderColor: '#8b5cf6',
+          backgroundColor: 'rgba(139, 92, 246, 0.1)',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              afterLabel: function(context) {
+                const index = context.dataIndex;
+                const version = durationData[index].version;
+                return 'Version: ' + version;
+              },
+              label: function(context) {
+                const value = context.parsed.y;
+                const minutes = Math.floor(value / 60);
+                const seconds = value % 60;
+                if (minutes > 0) {
+                  return minutes + 'm ' + seconds + 's';
+                }
+                return seconds + ' seconds';
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return value + 's';
+              }
+            }
+          }
+        }
+      }
+    });
+  </script>
+<% else %>
+  <div class="card">
+    <div class="card__body">
+      <div class="table-empty">
+        <p class="text-muted">No evaluation runs completed yet.</p>
+        <p class="text-muted">Run some evaluations to see metrics and insights.</p>
+        <%= link_to "Back to Eval Set", prompt_eval_set_path(@prompt, @eval_set), 
+            class: "btn btn--primary btn--medium mt-md" %>
+      </div>
+    </div>
+  </div>
+<% end %>

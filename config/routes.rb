@@ -27,6 +27,8 @@ ActivePrompt::Engine.routes.draw do
     resources :eval_sets do
       member do
         post :run
+        get :compare
+        get :metrics
       end
       resources :test_cases, except: [:index, :show] do
         collection do

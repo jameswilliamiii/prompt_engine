@@ -118,7 +118,7 @@ RSpec.describe "Evaluation Workflow", type: :system do
     
     it "displays authentication error gracefully" do
       allow_any_instance_of(ActivePrompt::EvaluationRunner).to receive(:execute)
-        .and_raise(ActivePrompt::OpenAIEvalsClient::AuthenticationError, "Invalid API key")
+        .and_raise(ActivePrompt::OpenAiEvalsClient::AuthenticationError, "Invalid API key")
       
       visit active_prompt.prompt_eval_set_path(prompt, eval_set)
       click_button "Run Evaluation"
@@ -129,7 +129,7 @@ RSpec.describe "Evaluation Workflow", type: :system do
     
     it "displays rate limit error gracefully" do
       allow_any_instance_of(ActivePrompt::EvaluationRunner).to receive(:execute)
-        .and_raise(ActivePrompt::OpenAIEvalsClient::RateLimitError, "Rate limit exceeded")
+        .and_raise(ActivePrompt::OpenAiEvalsClient::RateLimitError, "Rate limit exceeded")
       
       visit active_prompt.prompt_eval_set_path(prompt, eval_set)
       click_button "Run Evaluation"
@@ -139,7 +139,7 @@ RSpec.describe "Evaluation Workflow", type: :system do
     
     it "displays general API errors" do
       allow_any_instance_of(ActivePrompt::EvaluationRunner).to receive(:execute)
-        .and_raise(ActivePrompt::OpenAIEvalsClient::APIError, "Service unavailable")
+        .and_raise(ActivePrompt::OpenAiEvalsClient::APIError, "Service unavailable")
       
       visit active_prompt.prompt_eval_set_path(prompt, eval_set)
       click_button "Run Evaluation"

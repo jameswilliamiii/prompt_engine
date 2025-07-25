@@ -92,7 +92,7 @@ RSpec.describe ActivePrompt::EvaluationRunner, :live_api do
       
       runner = described_class.new(eval_run)
       
-      expect { runner.execute }.to raise_error(ActivePrompt::OpenAIEvalsClient::AuthenticationError)
+      expect { runner.execute }.to raise_error(ActivePrompt::OpenAiEvalsClient::AuthenticationError)
       
       eval_run.reload
       expect(eval_run.status).to eq("failed")
@@ -102,7 +102,7 @@ RSpec.describe ActivePrompt::EvaluationRunner, :live_api do
   
   describe "OpenAI Evals API availability" do
     it "checks if Evals API is available for the account" do
-      client = ActivePrompt::OpenAIEvalsClient.new
+      client = ActivePrompt::OpenAiEvalsClient.new
       
       # Try to create a simple eval to test API availability
       begin
@@ -129,9 +129,9 @@ RSpec.describe ActivePrompt::EvaluationRunner, :live_api do
         
         expect(response).to have_key("id")
         puts "✓ OpenAI Evals API is available on this account"
-      rescue ActivePrompt::OpenAIEvalsClient::NotFoundError => e
+      rescue ActivePrompt::OpenAiEvalsClient::NotFoundError => e
         skip "OpenAI Evals API not available on this account: #{e.message}"
-      rescue ActivePrompt::OpenAIEvalsClient::APIError => e
+      rescue ActivePrompt::OpenAiEvalsClient::APIError => e
         skip "OpenAI Evals API error: #{e.message}"
       end
     end

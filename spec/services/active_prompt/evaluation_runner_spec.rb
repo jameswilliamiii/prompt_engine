@@ -110,24 +110,28 @@ RSpec.describe ActivePrompt::EvaluationRunner, type: :service do
   end
   
   describe '#build_templated_content' do
-    before do
-      prompt_version.update!(content: "Please help with {{topic}} in a {{tone}} tone.")
-    end
-    
     subject(:content) { runner.send(:build_templated_content) }
     
-    it 'converts {{variable}} syntax to {{ item.variable }} syntax' do
-      expect(content).to eq("Please help with {{ item.topic }} in a {{ item.tone }} tone.")
+    context 'with default content' do
+      it 'converts {{variable}} syntax to {{ item.variable }} syntax' do
+        expect(content).to eq("Please help with {{ item.topic }} in a {{ item.tone }} tone.")
+      end
     end
     
-    it 'handles multiple variables' do
-      prompt_version.update!(content: "{{greeting}} {{name}}, how about {{topic}}?")
-      expect(content).to eq("{{ item.greeting }} {{ item.name }}, how about {{ item.topic }}?")
+    context 'with multiple variables' do
+      let(:prompt_content) { "{{greeting}} {{name}}, how about {{topic}}?" }
+      
+      it 'handles multiple variables' do
+        expect(content).to eq("{{ item.greeting }} {{ item.name }}, how about {{ item.topic }}?")
+      end
     end
     
-    it 'preserves content without variables' do
-      prompt_version.update!(content: "This is a static prompt.")
-      expect(content).to eq("This is a static prompt.")
+    context 'without variables' do
+      let(:prompt_content) { "This is a static prompt." }
+      
+      it 'preserves content without variables' do
+        expect(content).to eq("This is a static prompt.")
+      end
     end
   end
 end

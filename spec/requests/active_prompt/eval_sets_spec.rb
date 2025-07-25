@@ -8,14 +8,16 @@ module ActivePrompt
     let(:valid_attributes) do
       {
         name: 'New Eval Set',
-        description: 'Testing prompt accuracy'
+        description: 'Testing prompt accuracy',
+        grader_type: 'exact_match'
       }
     end
     
     let(:invalid_attributes) do
       {
         name: '',
-        description: 'Missing required name'
+        description: 'Missing required name',
+        grader_type: 'exact_match'
       }
     end
     
@@ -96,6 +98,61 @@ module ActivePrompt
           expect(response.body).to include('New Evaluation Set')
         end
       end
+      
+      context 'with grader types' do
+        context 'when creating regex grader' do
+          let(:regex_attributes) do
+            {
+              name: 'Regex Eval Set',
+              description: 'Tests with regex matching',
+              grader_type: 'regex',
+              grader_config: { 'pattern' => '^Hello.*world$' }
+            }
+          end
+          
+          it 'creates eval set with regex configuration' do
+            expect {
+              post active_prompt.prompt_eval_sets_path(prompt), params: { eval_set: regex_attributes }
+            }.to change(EvalSet, :count).by(1)
+            
+            eval_set = EvalSet.last
+            expect(eval_set.grader_type).to eq('regex')
+            expect(eval_set.grader_config['pattern']).to eq('^Hello.*world$')
+          end
+          
+          it 'validates regex pattern' do
+            regex_attributes[:grader_config] = { 'pattern' => '[invalid' }
+            post active_prompt.prompt_eval_sets_path(prompt), params: { eval_set: regex_attributes }
+            expect(response.body).to include('invalid regex pattern')
+          end
+        end
+        
+        context 'when creating json_schema grader' do
+          let(:json_schema_attributes) do
+            {
+              name: 'JSON Schema Eval Set',
+              description: 'Tests with JSON schema validation',
+              grader_type: 'json_schema',
+              grader_config: { 
+                'schema' => { 
+                  'type' => 'object',
+                  'properties' => { 'name' => { 'type' => 'string' } }
+                }
+              }
+            }
+          end
+          
+          it 'creates eval set with JSON schema configuration' do
+            expect {
+              post active_prompt.prompt_eval_sets_path(prompt), params: { eval_set: json_schema_attributes }
+            }.to change(EvalSet, :count).by(1)
+            
+            eval_set = EvalSet.last
+            expect(eval_set.grader_type).to eq('json_schema')
+            expect(eval_set.grader_config['schema']['type']).to eq('object')
+          end
+        end
+      end
     end
     
     describe 'GET /active_prompt/prompts/:prompt_id/eval_sets/:id/edit' do
@@ -110,7 +167,9 @@ module ActivePrompt
         let(:new_attributes) do
           {
             name: 'Updated Eval Set',
-            description: 'Updated description'
+            description: 'Updated description',
+            grader_type: 'regex',
+            grader_config: { 'pattern' => '^test.*' }
           }
         end
         
@@ -119,6 +178,8 @@ module ActivePrompt
           eval_set.reload
           expect(eval_set.name).to eq('Updated Eval Set')
           expect(eval_set.description).to eq('Updated description')
+          expect(eval_set.grader_type).to eq('regex')
+          expect(eval_set.grader_config['pattern']).to eq('^test.*')
         end
         
         it 'redirects to the eval_set' do
@@ -154,8 +215,11 @@ module ActivePrompt
       let(:prompt_version) { create(:prompt_version, prompt: prompt) }
       
       before do
+        # Create Settings with API key
+        ActivePrompt::Setting.instance.update!(openai_api_key: 'sk-test-key-123')
+        
         allow_any_instance_of(Prompt).to receive(:current_version).and_return(prompt_version)
-        allow_any_instance_of(EvaluationRunner).to receive(:execute).and_return(true)
+        allow_any_instance_of(ActivePrompt::EvaluationRunner).to receive(:execute).and_return(true)
       end
       
       it 'creates a new eval run' do
@@ -171,7 +235,7 @@ module ActivePrompt
       end
       
       it 'calls EvaluationRunner' do
-        expect_any_instance_of(EvaluationRunner).to receive(:execute)
+        expect_any_instance_of(ActivePrompt::EvaluationRunner).to receive(:execute)
         post active_prompt.run_prompt_eval_set_path(prompt, eval_set)
       end
       
@@ -183,7 +247,7 @@ module ActivePrompt
       
       context 'when evaluation fails' do
         before do
-          allow_any_instance_of(EvaluationRunner).to receive(:execute).and_raise(StandardError, "API Error")
+          allow_any_instance_of(ActivePrompt::EvaluationRunner).to receive(:execute).and_raise(StandardError, "API Error")
         end
         
         it 'still creates the eval run' do
@@ -192,10 +256,16 @@ module ActivePrompt
           }.to change(EvalRun, :count).by(1)
         end
         
-        it 'raises the error' do
-          expect {
-            post active_prompt.run_prompt_eval_set_path(prompt, eval_set)
-          }.to raise_error(StandardError, "API Error")
+        it 'handles the error gracefully' do
+          post active_prompt.run_prompt_eval_set_path(prompt, eval_set)
+          
+          expect(response).to redirect_to(active_prompt.prompt_eval_set_path(prompt, eval_set))
+          expect(flash[:alert]).to include("Evaluation failed: API Error")
+          
+          # Verify the run was marked as failed
+          eval_run = EvalRun.last
+          expect(eval_run.status).to eq('failed')
+          expect(eval_run.error_message).to eq("API Error")
         end
       end
     end

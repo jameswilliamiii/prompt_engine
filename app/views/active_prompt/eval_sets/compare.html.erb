@@ -1,0 +1,229 @@
+<div class="admin-header">
+  <div>
+    <h1>Compare Evaluation Runs</h1>
+    <p class="text-muted">
+      Comparing runs from <%= @run1.created_at.strftime("%b %d, %Y %I:%M %p") %> 
+      and <%= @run2.created_at.strftime("%b %d, %Y %I:%M %p") %>
+    </p>
+  </div>
+  <div class="btn-group">
+    <%= link_to "Back to Eval Set", prompt_eval_set_path(@prompt, @eval_set), 
+        class: "btn btn--secondary btn--medium" %>
+  </div>
+</div>
+
+<!-- Overall Comparison Summary -->
+<div class="card mb-lg">
+  <div class="card__header">
+    <h3 class="card__title">Performance Comparison</h3>
+  </div>
+  <div class="card__body">
+    <div class="comparison-grid">
+      <div class="comparison-column">
+        <div class="comparison-header">
+          <h4>Run 1</h4>
+          <span class="table__badge table__badge--info">v<%= @run1.prompt_version.version_number %></span>
+          <span class="text-muted"><%= @run1.created_at.strftime("%b %d, %Y %I:%M %p") %></span>
+        </div>
+        <div class="comparison-metrics">
+          <div class="metric">
+            <div class="metric__label">Success Rate</div>
+            <div class="metric__value metric__value--large">
+              <%= number_to_percentage(@run1_success_rate, precision: 1) %>
+            </div>
+          </div>
+          <div class="metric">
+            <div class="metric__label">Passed Tests</div>
+            <div class="metric__value">
+              <%= @run1.passed_count %> / <%= @run1.total_count %>
+            </div>
+          </div>
+          <div class="metric">
+            <div class="metric__label">Run Time</div>
+            <div class="metric__value">
+              <% if @run1.completed_at && @run1.started_at %>
+                <%= distance_of_time_in_words(@run1.started_at, @run1.completed_at) %>
+              <% else %>
+                —
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="comparison-divider">
+        <div class="comparison-indicator">
+          <% if @success_rate_diff > 0 %>
+            <span class="indicator indicator--success">
+              <svg class="indicator__icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+              +<%= number_to_percentage(@success_rate_diff.abs, precision: 1) %>
+            </span>
+          <% elsif @success_rate_diff < 0 %>
+            <span class="indicator indicator--danger">
+              <svg class="indicator__icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <%= number_to_percentage(@success_rate_diff.abs, precision: 1) %>
+            </span>
+          <% else %>
+            <span class="indicator indicator--neutral">
+              <svg class="indicator__icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
+              </svg>
+              No change
+            </span>
+          <% end %>
+        </div>
+      </div>
+      
+      <div class="comparison-column">
+        <div class="comparison-header">
+          <h4>Run 2</h4>
+          <span class="table__badge table__badge--info">v<%= @run2.prompt_version.version_number %></span>
+          <span class="text-muted"><%= @run2.created_at.strftime("%b %d, %Y %I:%M %p") %></span>
+        </div>
+        <div class="comparison-metrics">
+          <div class="metric">
+            <div class="metric__label">Success Rate</div>
+            <div class="metric__value metric__value--large <%= @success_rate_diff > 0 ? 'text-success' : @success_rate_diff < 0 ? 'text-danger' : '' %>">
+              <%= number_to_percentage(@run2_success_rate, precision: 1) %>
+            </div>
+          </div>
+          <div class="metric">
+            <div class="metric__label">Passed Tests</div>
+            <div class="metric__value">
+              <%= @run2.passed_count %> / <%= @run2.total_count %>
+            </div>
+          </div>
+          <div class="metric">
+            <div class="metric__label">Run Time</div>
+            <div class="metric__value">
+              <% if @run2.completed_at && @run2.started_at %>
+                <%= distance_of_time_in_words(@run2.started_at, @run2.completed_at) %>
+              <% else %>
+                —
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Prompt Content Comparison -->
+<div class="card mb-lg">
+  <div class="card__header">
+    <h3 class="card__title">Prompt Content Comparison</h3>
+  </div>
+  <div class="card__body">
+    <div class="comparison-grid">
+      <div class="comparison-column">
+        <div class="comparison-content">
+          <% if @run1.prompt_version.system_message.present? %>
+            <div class="comparison-section">
+              <h5 class="comparison-section__title">System Message</h5>
+              <pre class="prompt-content prompt-content--comparison"><%= @run1.prompt_version.system_message %></pre>
+            </div>
+          <% end %>
+          <div class="comparison-section">
+            <h5 class="comparison-section__title">Prompt Content</h5>
+            <pre class="prompt-content prompt-content--comparison"><%= @run1.prompt_version.content %></pre>
+          </div>
+        </div>
+      </div>
+      
+      <div class="comparison-divider"></div>
+      
+      <div class="comparison-column">
+        <div class="comparison-content">
+          <% if @run2.prompt_version.system_message.present? %>
+            <div class="comparison-section">
+              <h5 class="comparison-section__title">System Message</h5>
+              <pre class="prompt-content prompt-content--comparison"><%= @run2.prompt_version.system_message %></pre>
+            </div>
+          <% end %>
+          <div class="comparison-section">
+            <h5 class="comparison-section__title">Prompt Content</h5>
+            <pre class="prompt-content prompt-content--comparison"><%= @run2.prompt_version.content %></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Model Configuration Comparison -->
+<div class="card mb-lg">
+  <div class="card__header">
+    <h3 class="card__title">Model Configuration</h3>
+  </div>
+  <div class="card__body">
+    <div class="comparison-grid">
+      <div class="comparison-column">
+        <dl class="comparison-list">
+          <dt>Model</dt>
+          <dd><%= @run1.prompt_version.model || "Default" %></dd>
+          
+          <dt>Temperature</dt>
+          <dd><%= @run1.prompt_version.temperature || "Default" %></dd>
+          
+          <dt>Max Tokens</dt>
+          <dd><%= @run1.prompt_version.max_tokens || "Default" %></dd>
+        </dl>
+      </div>
+      
+      <div class="comparison-divider"></div>
+      
+      <div class="comparison-column">
+        <dl class="comparison-list">
+          <dt>Model</dt>
+          <dd class="<%= @run1.prompt_version.model != @run2.prompt_version.model ? 'text-warning' : '' %>">
+            <%= @run2.prompt_version.model || "Default" %>
+          </dd>
+          
+          <dt>Temperature</dt>
+          <dd class="<%= @run1.prompt_version.temperature != @run2.prompt_version.temperature ? 'text-warning' : '' %>">
+            <%= @run2.prompt_version.temperature || "Default" %>
+          </dd>
+          
+          <dt>Max Tokens</dt>
+          <dd class="<%= @run1.prompt_version.max_tokens != @run2.prompt_version.max_tokens ? 'text-warning' : '' %>">
+            <%= @run2.prompt_version.max_tokens || "Default" %>
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Test Results Summary -->
+<div class="card">
+  <div class="card__header">
+    <h3 class="card__title">Test Results Summary</h3>
+  </div>
+  <div class="card__body">
+    <div class="alert alert--info mb-md">
+      <p>
+        Individual test case results are available in the OpenAI evaluation reports:
+      </p>
+      <div class="mt-md">
+        <% if @run1.report_url.present? %>
+          <%= link_to "View Run 1 Report", @run1.report_url, 
+              target: "_blank", rel: "noopener", class: "btn btn--secondary btn--small" %>
+        <% end %>
+        <% if @run2.report_url.present? %>
+          <%= link_to "View Run 2 Report", @run2.report_url, 
+              target: "_blank", rel: "noopener", class: "btn btn--secondary btn--small" %>
+        <% end %>
+      </div>
+    </div>
+    
+    <p class="text-muted">
+      The OpenAI evaluation reports provide detailed test-by-test comparisons, including actual outputs 
+      and specific failure reasons for each test case.
+    </p>
+  </div>
+</div>

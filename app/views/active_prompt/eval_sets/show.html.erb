@@ -15,6 +15,9 @@
   </div>
   <div class="btn-group">
     <%= link_to "Back to Eval Sets", prompt_eval_sets_path(@prompt), class: "btn btn--secondary btn--medium" %>
+    <% if @recent_runs.any? %>
+      <%= link_to "View Metrics", metrics_prompt_eval_set_path(@prompt, @eval_set), class: "btn btn--secondary btn--medium" %>
+    <% end %>
     <%= link_to "Add Test Case", new_prompt_eval_set_test_case_path(@prompt, @eval_set), class: "btn btn--secondary btn--medium" %>
     <% if controller.send(:api_key_configured?) %>
       <%= button_to "Run Evaluation", run_prompt_eval_set_path(@prompt, @eval_set), 
@@ -102,23 +105,51 @@
 <div class="card">
   <div class="card__header">
     <h3 class="card__title">Recent Evaluation Runs</h3>
+    <% if @recent_runs.select { |r| r.status == 'completed' }.count >= 2 %>
+      <div class="card__actions">
+        <button type="submit" form="compare-runs-form" class="btn btn--secondary btn--small" 
+                id="compare-runs-btn" disabled>
+          Compare Selected (0/2)
+        </button>
+      </div>
+    <% end %>
   </div>
   <div class="card__body">
     <% if @recent_runs.any? %>
-      <div class="table-container">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Run Date</th>
-              <th>Prompt Version</th>
-              <th>Status</th>
-              <th>Results</th>
-              <th class="table__actions">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+      <%= form_with url: compare_prompt_eval_set_path(@prompt, @eval_set), method: :get, 
+                    local: true, id: "compare-runs-form" do |form| %>
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <% if @recent_runs.select { |r| r.status == 'completed' }.count >= 2 %>
+                  <th class="table__checkbox-column">Compare</th>
+                <% end %>
+                <th>Run Date</th>
+                <th>Prompt Version</th>
+                <th>Status</th>
+                <th>Results</th>
+                <th class="table__actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
             <% @recent_runs.each do |run| %>
               <tr>
+                <% if @recent_runs.select { |r| r.status == 'completed' }.count >= 2 %>
+                  <td class="table__checkbox-column">
+                    <% if run.status == 'completed' %>
+                      <%= check_box_tag "run_ids[]", run.id, false, 
+                          class: "compare-checkbox",
+                          data: { 
+                            run_id: run.id,
+                            version: "v#{run.prompt_version.version_number}",
+                            date: run.created_at.strftime("%b %d, %Y %I:%M %p")
+                          } %>
+                    <% else %>
+                      <span class="text-muted" title="Only completed runs can be compared">—</span>
+                    <% end %>
+                  </td>
+                <% end %>
                 <td>
                   <div class="table__primary">
                     <%= run.created_at.strftime("%b %d, %Y %I:%M %p") %>
@@ -155,6 +186,7 @@
           </tbody>
         </table>
       </div>
+      <% end %>
     <% else %>
       <div class="table-empty">
         <p class="text-muted">No evaluation runs yet.</p>
@@ -168,3 +200,36 @@
     <% end %>
   </div>
 </div>
+
+<% if @recent_runs.select { |r| r.status == 'completed' }.count >= 2 %>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const checkboxes = document.querySelectorAll('.compare-checkbox');
+  const compareBtn = document.getElementById('compare-runs-btn');
+  
+  function updateCompareButton() {
+    const checkedBoxes = document.querySelectorAll('.compare-checkbox:checked');
+    const count = checkedBoxes.length;
+    
+    compareBtn.disabled = count !== 2;
+    compareBtn.textContent = `Compare Selected (${count}/2)`;
+    
+    // Disable unchecked checkboxes if 2 are already selected
+    checkboxes.forEach(checkbox => {
+      if (!checkbox.checked && count === 2) {
+        checkbox.disabled = true;
+      } else {
+        checkbox.disabled = false;
+      }
+    });
+  }
+  
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', updateCompareButton);
+  });
+  
+  // Initialize button state
+  updateCompareButton();
+});
+</script>
+<% end %>
