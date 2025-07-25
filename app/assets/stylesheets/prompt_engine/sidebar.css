@@ -18,13 +18,37 @@
   color: var(--color-gray-100);
   margin: 0;
   letter-spacing: -0.025em;
+  text-align: center;
+}
+
+.admin-sidebar__meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
 }
 
 .admin-sidebar__version {
-  font-size: var(--font-size-xs);
-  color: var(--color-gray-500);
-  display: block;
-  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-300);
+  font-weight: 500;
+}
+
+.admin-sidebar__github {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-gray-400);
+  transition: color var(--transition-fast);
+}
+
+.admin-sidebar__github:hover {
+  color: var(--color-gray-100);
+}
+
+.admin-sidebar__github svg {
+  width: 18px;
+  height: 18px;
 }
 
 /* Sidebar Navigation */
@@ -87,4 +111,34 @@
 .admin-nav__link--disabled:hover {
   color: var(--color-gray-500);
   background-color: transparent;
+}
+
+/* Sidebar Footer */
+.admin-sidebar__footer {
+  margin-top: auto;
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--color-gray-800);
+  text-align: center;
+}
+
+.admin-sidebar__footer-content {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-400);
+  margin-bottom: var(--spacing-xs);
+}
+
+.admin-sidebar__footer-sponsor {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+}
+
+.admin-sidebar__footer a {
+  color: var(--color-primary-400);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.admin-sidebar__footer a:hover {
+  color: var(--color-primary-300);
+  text-decoration: underline;
 }
