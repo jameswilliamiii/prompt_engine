@@ -40,6 +40,20 @@ module ActivePrompt
     def ensure_openai_eval_exists
       return if @eval_set.openai_eval_id.present?
       
+      # Build schema properties dynamically based on prompt parameters
+      schema_properties = {}
+      required_fields = []
+      
+      # Add properties for each parameter in the prompt
+      @prompt.parameters.each do |param|
+        schema_properties[param.name] = { type: parameter_type_to_json_schema(param.parameter_type) }
+        required_fields << param.name if param.required?
+      end
+      
+      # Always include expected_output
+      schema_properties["expected_output"] = { type: "string" }
+      required_fields << "expected_output"
+      
       # Create eval configuration on OpenAI
       eval_config = @client.create_eval(
         name: "#{@prompt.name} - #{@eval_set.name}",
@@ -47,11 +61,8 @@ module ActivePrompt
           type: "custom",
           item_schema: {
             type: "object",
-            properties: {
-              input_variables: { type: "object" },
-              expected_output: { type: "string" }
-            },
-            required: ["input_variables", "expected_output"]
+            properties: schema_properties,
+            required: required_fields
           },
           include_sample_schema: true
         },
@@ -75,12 +86,11 @@ module ActivePrompt
       
       File.open(file_path, "w") do |file|
         @eval_set.test_cases.each do |test_case|
-          line = {
-            item: {
-              input_variables: test_case.input_variables,
-              expected_output: test_case.expected_output
-            }
-          }
+          # Flatten the structure - put input variables directly on item
+          item_data = test_case.input_variables.dup
+          item_data["expected_output"] = test_case.expected_output
+          
+          line = { item: item_data }
           file.puts(line.to_json)
         end
       end
@@ -129,10 +139,10 @@ module ActivePrompt
       # Convert our {{variable}} syntax to OpenAI's template syntax
       content = @prompt_version.content.dup
       
-      # Replace {{variable}} with {{ item.input_variables.variable }}
+      # Replace {{variable}} with {{ item.variable }} (flat structure)
       content.gsub(/\{\{(\w+)\}\}/) do |match|
         variable_name = $1
-        "{{ item.input_variables.#{variable_name} }}"
+        "{{ item.#{variable_name} }}"
       end
     end
     
@@ -187,6 +197,21 @@ module ActivePrompt
       
       # Note: Individual test results would need to be fetched separately
       # For MVP, we just store the aggregate counts
+    end
+    
+    def parameter_type_to_json_schema(type)
+      case type
+      when "integer"
+        "integer"
+      when "decimal"
+        "number"
+      when "boolean"
+        "boolean"
+      when "array", "json"
+        "array"
+      else
+        "string"
+      end
     end
   end
 end
