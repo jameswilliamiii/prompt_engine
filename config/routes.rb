@@ -23,6 +23,14 @@ ActivePrompt::Engine.routes.draw do
     end
 
     resources :playground_run_results, only: [ :index ]
+    
+    resources :eval_sets do
+      member do
+        post :run
+      end
+      resources :test_cases, except: [:index, :show]
+    end
+    resources :eval_runs, only: [:show]
   end
 
   resources :playground_run_results, only: [ :index, :show ]

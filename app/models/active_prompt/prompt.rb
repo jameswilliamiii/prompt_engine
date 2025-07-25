@@ -8,6 +8,9 @@ module ActivePrompt
     has_many :parameters, -> { ordered },
              class_name: "ActivePrompt::Parameter",
              dependent: :destroy
+    has_many :eval_sets,
+             class_name: "ActivePrompt::EvalSet",
+             dependent: :destroy
 
     attr_accessor :change_summary
 
