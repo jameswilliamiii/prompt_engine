@@ -3,6 +3,7 @@
 A Rails engine for managing AI prompts with version control and secure API key storage.
 
 ## Installation
+
 Add this line to your application's Gemfile:
 
 ```ruby
@@ -10,6 +11,7 @@ gem "prompt_engine"
 ```
 
 And then execute:
+
 ```bash
 $ bundle
 $ rails prompt_engine:install:migrations
@@ -33,14 +35,17 @@ For production, use `rails db:encryption:init` to generate secure keys.
 
 ### Configure API Keys
 
-PromptEngine requires API keys for AI providers. See [API Credentials Setup](docs/API_CREDENTIALS.md) for detailed configuration instructions.
+PromptEngine requires API keys for AI providers. See
+[API Credentials Setup](docs/API_CREDENTIALS.md) for detailed configuration instructions.
 
 Quick setup:
+
 ```bash
 rails credentials:edit
 ```
 
 Add your API keys:
+
 ```yaml
 openai:
   api_key: sk-your-openai-api-key
@@ -61,7 +66,14 @@ mount PromptEngine::Engine => "/prompt_engine"
 Visit `/prompt_engine` to access the admin interface.
 
 ## Contributing
+
 Contribution directions go here.
 
+## Sponsors
+
+- [Innovent Capital](https://innoventcapital.com)
+
 ## License
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+The gem is available as open source under the terms of the
+[MIT License](https://opensource.org/licenses/MIT).

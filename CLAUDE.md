@@ -11,6 +11,19 @@ code changes.
 
 ## Development Commands
 
+### Initial Setup
+
+```bash
+bundle install
+bundle exec rake setup                      # Complete setup for development and testing
+```
+
+This setup task:
+- Removes existing migrations and databases
+- Installs engine migrations into dummy app
+- Creates and migrates both development and test databases
+- Seeds development database with sample data
+
 ### Running the Development Server
 
 ```bash
@@ -19,13 +32,13 @@ cd spec/dummy && rails s
 
 Access the admin interface at `http://localhost:3000/prompt_engine`
 
-### Database Setup
+### Manual Database Setup (if needed)
 
 ```bash
 cd spec/dummy
-bundle exec rails db:create
-bundle exec rails db:migrate
-bundle exec rails db:seed  # Loads sample prompts
+bundle exec rails prompt_engine:install:migrations  # Install engine migrations
+bundle exec rails db:create db:migrate db:seed      # Setup development database
+RAILS_ENV=test bundle exec rails db:create db:migrate  # Setup test database
 ```
 
 ### Running Tests
@@ -38,9 +51,17 @@ bundle exec rspec spec/system               # Run system tests
 bundle exec rspec path/to/spec.rb           # Run specific test file
 bundle exec rspec path/to/spec.rb:42        # Run specific test by line number
 bundle exec rspec --format documentation    # Run with detailed output
+bundle exec rspec --fail-fast              # Stop on first failure
 
 # Coverage report
 open coverage/index.html                    # View SimpleCov coverage report
+```
+
+### Linting
+
+```bash
+bundle exec rubocop                         # Run RuboCop with Rails Omakase style
+bundle exec rubocop -a                      # Auto-correct offenses
 ```
 
 ### Rake Tasks
@@ -48,6 +69,7 @@ open coverage/index.html                    # View SimpleCov coverage report
 ```bash
 bundle exec rake setup                      # Setup dummy app for development
 bundle exec rake spec                       # Run all specs
+bundle exec rake prompt_engine:setup        # Alternative setup command
 bin/rails prompt_engine:install:migrations  # Install engine migrations in host app
 ```
 
@@ -94,19 +116,39 @@ bin/rails prompt_engine:install:migrations  # Install engine migrations in host 
 
 Read `.ai/RSPEC-TESTS.md` before writing tests. Key principles:
 
-- Use request specs instead of controller specs
+- Use request specs instead of controller specs for testing controllers
 - Test full request/response cycle
-- Use FactoryBot for test data
+- Use FactoryBot for test data creation
 - Keep unit tests focused on single behaviors
 - Test both happy and unhappy paths
+- One expectation per unit test (multiple expectations OK for integration tests)
+- Test edge cases and validations
+- Use `let` for lazy-loading test data
+- Organize with `describe` and `context` blocks
 
 ### CSS Architecture
 
 - BEM methodology with `.component__element--modifier` pattern
-- Foundation based on shadcn/ui aesthetic
+- Foundation based on shadcn/ui aesthetic (without React)
 - Propshaft for asset management
 - Components organized in separate files (buttons, forms, tables, etc.)
 - All styles must be explicitly imported in `application.css`
+- Component prefix: `ap-` for all PromptEngine components
+- Color variables defined in `foundation.css`
+- Spacing system based on 4px units
+
+## Dependencies
+
+- **Rails**: 8.0.2+ (mountable engine)
+- **Ruby**: 3.0+
+- **ruby_llm**: For AI provider integration
+- **bcrypt**: For encryption support
+- **RSpec Rails**: Testing framework
+- **FactoryBot**: Test data generation
+- **VCR**: External API testing
+- **Capybara**: System testing
+- **SimpleCov**: Code coverage
+- **Rubocop Rails Omakase**: Code style enforcement
 
 ## Key Implementation Details
 
@@ -143,6 +185,55 @@ mount PromptEngine::Engine => "/prompt_engine"
 PromptEngine.render(:prompt_name, variables: { user_name: "John" })
 ```
 
+## File Structure
+
+```
+app/
+├── assets/stylesheets/prompt_engine/    # CSS files (BEM methodology)
+├── controllers/prompt_engine/           # Engine controllers
+├── models/prompt_engine/               # Models (Prompt, PromptVersion, Parameter)
+├── services/prompt_engine/             # Service objects (VariableDetector, PlaygroundExecutor)
+├── views/
+│   ├── layouts/prompt_engine/          # Engine layouts
+│   └── prompt_engine/                  # View templates
+spec/
+├── dummy/                              # Test Rails application
+├── models/                             # Model specs
+├── requests/                           # Request specs (controller testing)
+├── services/                           # Service object specs
+├── system/                             # System/feature specs
+└── factories/                          # FactoryBot factories
+```
+
+## API Credentials Setup
+
+PromptEngine requires API keys for AI providers. Configure in Rails credentials:
+
+```bash
+rails credentials:edit
+```
+
+Add:
+```yaml
+openai:
+  api_key: sk-your-openai-api-key
+anthropic:
+  api_key: sk-ant-your-anthropic-api-key
+```
+
+## Host Application Integration
+
+```ruby
+# Gemfile
+gem 'prompt_engine'
+
+# config/routes.rb
+mount PromptEngine::Engine => "/prompt_engine"
+
+# In your application code
+PromptEngine.render(:prompt_name, variables: { user_name: "John" })
+```
+
 ## Current Status
 
 **Implemented**: Core CRUD, version control, parameter management, playground, admin UI
@@ -151,5 +242,4 @@ PromptEngine.render(:prompt_name, variables: { user_name: "John" })
 
 **Planned**: Multi-language support, A/B testing, prompt marketplace
 
-See `docs/SPEC.md` for complete product vision and `docs/ARCHITECTURE.md` for detailed technical
-documentation.
+See `docs/SPEC.md` for complete product vision and `docs/ARCHITECTURE.md` for detailed technical documentation.
