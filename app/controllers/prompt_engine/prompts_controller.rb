@@ -63,7 +63,7 @@ module PromptEngine
       end
 
       def prompt_params
-        params.require(:prompt).permit(:name, :description, :content, :system_message, :model, :temperature, :max_tokens, :status,
+        params.require(:prompt).permit(:name, :slug, :description, :content, :system_message, :model, :temperature, :max_tokens, :status,
           parameters_attributes: [ :id, :name, :description, :parameter_type, :required, :default_value, :_destroy ])
       end
   end

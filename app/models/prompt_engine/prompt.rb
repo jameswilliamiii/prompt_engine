@@ -16,6 +16,7 @@ module PromptEngine
 
     validates :name, presence: true, uniqueness: { scope: :status }
     validates :content, presence: true
+    validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9-]+\z/ }
 
     accepts_nested_attributes_for :parameters, allow_destroy: true
 
@@ -28,6 +29,7 @@ module PromptEngine
     scope :active, -> { where(status: "active") }
     scope :by_name, -> { order(:name) }
 
+    before_validation :generate_slug_from_name, on: :create
     after_create :create_initial_version
     after_create :sync_parameters!
     after_update :create_version_if_changed
@@ -35,6 +37,7 @@ module PromptEngine
     before_save :clean_orphaned_parameters
 
     VERSIONED_ATTRIBUTES = %w[content system_message model temperature max_tokens metadata].freeze
+    OVERRIDE_KEYS = %i[model temperature max_tokens version].freeze
 
     def current_version
       versions.first
@@ -150,6 +153,57 @@ module PromptEngine
       }
     end
 
+    # New render method that returns RenderedPrompt
+    def render(**options)
+      # Separate variables from overrides
+      overrides = options.slice(*OVERRIDE_KEYS)
+      variables = options.except(*OVERRIDE_KEYS)
+
+      # Handle version specification
+      if overrides[:version]
+        version_number = overrides.delete(:version)
+        return render_version(version_number, variables: variables, overrides: overrides)
+      end
+
+      rendered_data = render_with_params(variables)
+
+      # Handle errors
+      if rendered_data[:error]
+        raise PromptEngine::RenderError, rendered_data[:error]
+      end
+
+      # Add current version number
+      rendered_data[:version_number] = current_version&.version_number
+
+      PromptEngine::RenderedPrompt.new(self, rendered_data, overrides)
+    end
+
+    # Render a specific version
+    def render_version(version_number, variables: {}, overrides: {})
+      version = versions.find_by!(version_number: version_number)
+
+      # Use version's content and settings
+      detector = PromptEngine::VariableDetector.new(version.content)
+      rendered_content = detector.render(variables)
+
+      rendered_data = {
+        content: rendered_content,
+        system_message: version.system_message,
+        model: version.model,
+        temperature: version.temperature,
+        max_tokens: version.max_tokens,
+        parameters_used: variables,
+        version_number: version.version_number
+      }
+
+      PromptEngine::RenderedPrompt.new(self, rendered_data, overrides)
+    end
+
+    # Class method for finding by slug
+    def self.find_by_slug!(slug)
+      find_by!(slug: slug, status: "active")
+    end
+
     private
 
     def create_initial_version
@@ -187,6 +241,10 @@ module PromptEngine
       parameters.each do |param|
         param.mark_for_destruction unless detected_vars.include?(param.name)
       end
+    end
+
+    def generate_slug_from_name
+      self.slug ||= name&.parameterize
     end
   end
 end

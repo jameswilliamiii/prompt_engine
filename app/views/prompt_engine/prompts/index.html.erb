@@ -9,6 +9,7 @@
       <thead>
         <tr class="table__row">
           <th class="table__cell table__cell--header">Name</th>
+          <th class="table__cell table__cell--header table__cell--hide-mobile">Slug</th>
           <th class="table__cell table__cell--header table__cell--hide-mobile">Model</th>
           <th class="table__cell table__cell--header table__cell--center">Version</th>
           <th class="table__cell table__cell--header table__cell--center">Status</th>
@@ -24,6 +25,9 @@
               <% if prompt.description.present? %>
                 <div class="text-sm text-muted"><%= truncate(prompt.description, length: 60) %></div>
               <% end %>
+            </td>
+            <td class="table__cell table__cell--hide-mobile">
+              <code class="text-sm"><%= prompt.slug %></code>
             </td>
             <td class="table__cell table__cell--hide-mobile">
               <%= prompt.model || "Not set" %>

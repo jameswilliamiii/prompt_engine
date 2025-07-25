@@ -1,3 +1,6 @@
+<%# Prism.js for syntax highlighting - only loaded on this page %>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
 <div class="admin-header">
   <div>
     <h1><%= @prompt.name %></h1>
@@ -31,6 +34,11 @@
               <%= @prompt.status %>
             </span>
           </div>
+        </div>
+
+        <div class="detail-item">
+          <label class="detail-label">Slug</label>
+          <div class="detail-value"><code><%= @prompt.slug %></code></div>
         </div>
 
         <div class="detail-item">
@@ -96,33 +104,42 @@
     </div>
     <div class="card__body">
       <p class="text-muted mb-md">Use this prompt in your Rails application:</p>
-      <pre class="code-example"># In your controller or model
-result = PromptEngine.render(:<%= @prompt.name %><% 
+      <pre class="code-example"><code class="language-ruby"># In your controller or model
+rendered = PromptEngine.render("<%= @prompt.slug %>"<% 
   if @prompt.parameters.any?
-%>, variables: {<% @prompt.parameters.ordered.each_with_index do |param, index| %>
-  <%= param.name %>: <%= param.example_value.presence || "\"value#{index + 1}\"" %>,<% end %>
-}<% else %> # No variables needed<% end %>)
+    @prompt.parameters.ordered.each_with_index do |param, index| %>,
+  <%= param.name %>: <%= param.example_value.presence || "\"value#{index + 1}\"" %><% end 
+  else %> # No variables needed<% end %>)
 
-# Access the rendered content
-rendered_content = result[:content]
+# Access the rendered values
+rendered.content         # => "Rendered prompt content"
+rendered.system_message  # => "<%= @prompt.system_message.present? ? @prompt.system_message.truncate(30) : "System message" %>"
+rendered.model          # => "<%= @prompt.model || "gpt-4" %>"
+rendered.temperature    # => <%= @prompt.temperature || "0.7" %>
+rendered.max_tokens     # => <%= @prompt.max_tokens || "1000" %>
 
-# Access other prompt settings
-model = result[:model]              # => "<%= @prompt.model || "gpt-4" %>"
-temperature = result[:temperature]  # => <%= @prompt.temperature || "0.7" %>
-max_tokens = result[:max_tokens]    # => <%= @prompt.max_tokens || "1000" %>
+# Direct integration with OpenAI
+client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
+response = rendered.execute_with(client)
 
-# Use with your AI service
-response = OpenAI::Client.new.chat(
-  parameters: {
-    model: model,
-    messages: [
-      { role: "system", content: result[:system_message] },
-      { role: "user", content: rendered_content }
-    ],
-    temperature: temperature,
-    max_tokens: max_tokens
-  }
-)</pre>
+# Or use explicit parameters
+response = client.chat(parameters: rendered.to_openai_params)
+
+# With additional options (tools, functions, etc.)
+response = rendered.execute_with(client,
+  tools: [...],
+  response_format: { type: "json_object" }
+)
+
+# Override model settings at runtime
+rendered = PromptEngine.render("<%= @prompt.slug %>"<% 
+  if @prompt.parameters.any?
+    @prompt.parameters.ordered.each_with_index do |param, index| %>,
+  <%= param.name %>: <%= param.example_value.presence || "\"value#{index + 1}\"" %><% end 
+  end %>,
+  model: "gpt-4-turbo",
+  temperature: 0.9
+)</code></pre>
     </div>
   </div>
 
@@ -295,3 +312,7 @@ response = OpenAI::Client.new.chat(
 <div class="form__actions mt-lg">
   <%= link_to "Back to Prompts", prompts_path, class: "btn btn--secondary btn--medium" %>
 </div>
+
+<%# Prism.js JavaScript - loaded at the end of the page %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-ruby.min.js"></script>
