@@ -8,7 +8,8 @@ module ActivePrompt
     class NotFoundError < APIError; end
     
     def initialize(api_key: nil)
-      @api_key = api_key || Rails.application.credentials.dig(:openai, :api_key)
+      # Try to get API key from: 1) parameter, 2) Settings, 3) Rails credentials
+      @api_key = api_key || fetch_api_key_from_settings || Rails.application.credentials.dig(:openai, :api_key)
       raise AuthenticationError, "OpenAI API key not configured" if @api_key.blank?
     end
     
@@ -56,6 +57,12 @@ module ActivePrompt
     end
     
     private
+    
+    def fetch_api_key_from_settings
+      ActivePrompt::Setting.instance.openai_api_key
+    rescue ActiveRecord::RecordNotFound
+      nil
+    end
     
     def post(path, body)
       uri = URI("#{BASE_URL}#{path}")

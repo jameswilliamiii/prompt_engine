@@ -45,6 +45,13 @@ module ActivePrompt
     end
     
     def run
+      # Check if API key is available
+      unless api_key_configured?
+        redirect_to prompt_eval_set_path(@prompt, @eval_set), 
+          alert: "OpenAI API key not configured. Please configure it in Settings or contact your administrator."
+        return
+      end
+      
       # Create new eval run with current prompt version
       @eval_run = @eval_set.eval_runs.create!(
         prompt_version: @prompt.current_version
@@ -56,7 +63,8 @@ module ActivePrompt
         redirect_to prompt_eval_run_path(@prompt, @eval_run), notice: "Evaluation started successfully"
       rescue ActivePrompt::OpenAiEvalsClient::AuthenticationError => e
         @eval_run.update!(status: :failed, error_message: e.message)
-        redirect_to prompt_eval_set_path(@prompt, @eval_set), alert: "Authentication failed: Please check your OpenAI API key configuration"
+        redirect_to prompt_eval_set_path(@prompt, @eval_set), 
+          alert: "Authentication failed: Please check your OpenAI API key in Settings"
       rescue ActivePrompt::OpenAiEvalsClient::RateLimitError => e
         @eval_run.update!(status: :failed, error_message: e.message)
         redirect_to prompt_eval_set_path(@prompt, @eval_set), alert: "Rate limit exceeded: Please try again later"
@@ -71,6 +79,10 @@ module ActivePrompt
       end
     end
     
+    protected
+    
+    helper_method :api_key_configured?
+    
     private
     
     def set_prompt
@@ -83,6 +95,15 @@ module ActivePrompt
     
     def eval_set_params
       params.require(:eval_set).permit(:name, :description)
+    end
+    
+    def api_key_configured?
+      # Check if OpenAI API key is available from Settings or Rails credentials
+      settings = ActivePrompt::Setting.instance
+      settings.openai_configured? || Rails.application.credentials.dig(:openai, :api_key).present?
+    rescue ActiveRecord::RecordNotFound
+      # If settings record doesn't exist, check Rails credentials
+      Rails.application.credentials.dig(:openai, :api_key).present?
     end
   end
 end
