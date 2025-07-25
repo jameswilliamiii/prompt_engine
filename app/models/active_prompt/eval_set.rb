@@ -8,7 +8,7 @@ module ActivePrompt
       exact_match: "Exact Match",
       regex: "Regular Expression",
       contains: "Contains Text",
-      json_schema: "JSON Schema"
+      json_schema: "JSON Match (Exact)"
     }.freeze
     
     validates :name, presence: true

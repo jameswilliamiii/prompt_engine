@@ -218,11 +218,15 @@ module ActivePrompt
           reference: "{{ item.expected_output }}"
         }]
       when 'json_schema'
+        # OpenAI doesn't support json_schema_check directly
+        # For MVP, we'll just verify the output is valid JSON format
+        # and matches the expected output exactly
         [{
-          type: "json_schema_check",
-          name: "JSON schema validation",
+          type: "string_check",
+          name: "JSON format validation",
           input: "{{ sample.output_text }}",
-          schema: @eval_set.grader_config['schema']
+          operation: "eq",
+          reference: "{{ item.expected_output }}"
         }]
       else
         # Default to exact match
@@ -250,5 +254,6 @@ module ActivePrompt
         "string"
       end
     end
+    
   end
 end
