@@ -8,8 +8,9 @@ module ActivePrompt
       g.factory_bot dir: "spec/factories"
     end
 
-    # Ensure services directory is in the autoload paths
-    # config.autoload_paths += %W[#{config.root}/app/services]
+    # Ensure services and clients directories are in the autoload paths
+    config.autoload_paths += %W[#{config.root}/app/services]
+    config.autoload_paths += %W[#{config.root}/app/clients]
 
     # Ensure engine's migrations are available to the host app
     # This is the standard Rails engine pattern

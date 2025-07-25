@@ -26,6 +26,11 @@
   color: var(--color-danger);
 }
 
+.form__required {
+  color: var(--color-danger);
+  margin-left: var(--spacing-xs);
+}
+
 /* Form Input Base */
 .form__input,
 .form__textarea,
@@ -93,6 +98,34 @@
 .form__group--error .form__select:focus {
   border-color: var(--color-danger);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* HTML5 Validation States */
+.form__input:invalid,
+.form__textarea:invalid,
+.form__select:invalid {
+  border-color: var(--color-danger);
+}
+
+.form__input:invalid:focus,
+.form__textarea:invalid:focus,
+.form__select:invalid:focus {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form__input:valid:focus,
+.form__textarea:valid:focus,
+.form__select:valid:focus {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* Disable validation styles until user interacts */
+.form__input:not(:focus):invalid,
+.form__textarea:not(:focus):invalid,
+.form__select:not(:focus):invalid {
+  border-color: var(--color-gray-300);
 }
 
 /* Form Actions */

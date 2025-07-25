@@ -1,3 +1,5 @@
+require_relative '../clients/active_prompt/open_ai_evals_client'
+
 module ActivePrompt
   class EvaluationRunner
     def initialize(eval_run)
@@ -5,7 +7,7 @@ module ActivePrompt
       @eval_set = eval_run.eval_set
       @prompt_version = eval_run.prompt_version
       @prompt = @prompt_version.prompt
-      @client = OpenAIEvalsClient.new
+      @client = OpenAiEvalsClient.new
     end
     
     def execute

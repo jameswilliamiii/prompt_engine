@@ -1,0 +1,151 @@
+<div class="admin-header">
+  <div>
+    <h1><%= @eval_set.name %></h1>
+    <% if @eval_set.description.present? %>
+      <p class="text-muted"><%= @eval_set.description %></p>
+    <% end %>
+  </div>
+  <div class="btn-group">
+    <%= link_to "Back to Eval Sets", prompt_eval_sets_path(@prompt), class: "btn btn--secondary btn--medium" %>
+    <%= link_to "Add Test Case", new_prompt_eval_set_test_case_path(@prompt, @eval_set), class: "btn btn--secondary btn--medium" %>
+    <%= button_to "Run Evaluation", run_prompt_eval_set_path(@prompt, @eval_set), 
+        method: :post, 
+        class: "btn btn--primary btn--medium",
+        id: "run-evaluation-btn",
+        data: { 
+          disable_with: "Running Evaluation...", 
+          confirm: @test_cases.any? ? nil : "No test cases defined. Are you sure you want to run an empty evaluation?" 
+        } %>
+    <%= link_to "Edit", edit_prompt_eval_set_path(@prompt, @eval_set), class: "btn btn--secondary btn--medium" %>
+  </div>
+</div>
+
+<div class="card mb-lg">
+  <div class="card__header">
+    <h3 class="card__title">Test Cases</h3>
+    <div class="card__actions">
+      <%= link_to "Add Test Case", new_prompt_eval_set_test_case_path(@prompt, @eval_set), class: "btn btn--secondary btn--small" %>
+    </div>
+  </div>
+  <div class="card__body">
+    <% if @test_cases.any? %>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Input Variables</th>
+              <th>Expected Output</th>
+              <th class="table__actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @test_cases.each do |test_case| %>
+              <tr>
+                <td>
+                  <div class="table__primary">
+                    <%= test_case.description || "Test case ##{test_case.id}" %>
+                  </div>
+                </td>
+                <td>
+                  <code class="code-inline">
+                    <%= truncate(test_case.input_variables.to_json, length: 100) %>
+                  </code>
+                </td>
+                <td>
+                  <code class="code-inline">
+                    <%= truncate(test_case.expected_output, length: 100) %>
+                  </code>
+                </td>
+                <td class="table__actions">
+                  <%= link_to "Edit", edit_prompt_eval_set_test_case_path(@prompt, @eval_set, test_case), 
+                      class: "btn btn--secondary btn--small" %>
+                  <%= button_to "Delete", prompt_eval_set_test_case_path(@prompt, @eval_set, test_case), 
+                      method: :delete, 
+                      data: { confirm: "Are you sure you want to delete this test case?" }, 
+                      class: "btn btn--danger btn--small" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="table-empty">
+        <p class="text-muted">No test cases added yet.</p>
+        <%= link_to "Add Your First Test Case", new_prompt_eval_set_test_case_path(@prompt, @eval_set), 
+            class: "btn btn--primary btn--medium" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card__header">
+    <h3 class="card__title">Recent Evaluation Runs</h3>
+  </div>
+  <div class="card__body">
+    <% if @recent_runs.any? %>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Run Date</th>
+              <th>Prompt Version</th>
+              <th>Status</th>
+              <th>Results</th>
+              <th class="table__actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @recent_runs.each do |run| %>
+              <tr>
+                <td>
+                  <div class="table__primary">
+                    <%= run.created_at.strftime("%b %d, %Y %I:%M %p") %>
+                  </div>
+                  <span class="table__secondary"><%= time_ago_in_words(run.created_at) %> ago</span>
+                </td>
+                <td>
+                  <span class="table__badge table__badge--info">v<%= run.prompt_version.version_number %></span>
+                </td>
+                <td>
+                  <span class="table__badge table__badge--<%= run.status %>">
+                    <%= run.status.humanize %>
+                  </span>
+                </td>
+                <td>
+                  <% if run.total_count > 0 %>
+                    <div class="table__metric">
+                      <span class="table__metric-value"><%= run.passed_count %> / <%= run.total_count %></span>
+                      <span class="table__metric-unit">passed</span>
+                    </div>
+                    <span class="table__secondary">
+                      <%= number_to_percentage((run.passed_count.to_f / run.total_count * 100), precision: 0) %> success rate
+                    </span>
+                  <% else %>
+                    <span class="table__secondary text-muted">—</span>
+                  <% end %>
+                </td>
+                <td class="table__actions">
+                  <%= link_to "View Results", prompt_eval_run_path(@prompt, run), 
+                      class: "btn btn--secondary btn--small" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="table-empty">
+        <p class="text-muted">No evaluation runs yet.</p>
+        <% if @test_cases.any? %>
+          <%= button_to "Run Your First Evaluation", run_prompt_eval_set_path(@prompt, @eval_set), 
+              method: :post, class: "btn btn--primary btn--medium" %>
+        <% else %>
+          <p class="text-muted">Add test cases before running evaluations.</p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

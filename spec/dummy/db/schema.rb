@@ -10,7 +10,52 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_24_171323) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_25_032740) do
+  create_table "active_prompt_eval_results", force: :cascade do |t|
+    t.integer "eval_run_id", null: false
+    t.integer "test_case_id", null: false
+    t.text "actual_output"
+    t.boolean "passed", default: false
+    t.integer "execution_time_ms"
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["eval_run_id"], name: "index_active_prompt_eval_results_on_eval_run_id"
+    t.index ["test_case_id"], name: "index_active_prompt_eval_results_on_test_case_id"
+  end
+
+  create_table "active_prompt_eval_runs", force: :cascade do |t|
+    t.integer "eval_set_id", null: false
+    t.integer "prompt_version_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.integer "total_count", default: 0
+    t.integer "passed_count", default: 0
+    t.integer "failed_count", default: 0
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "openai_run_id"
+    t.string "openai_file_id"
+    t.string "report_url"
+    t.index ["eval_set_id"], name: "index_active_prompt_eval_runs_on_eval_set_id"
+    t.index ["openai_run_id"], name: "index_active_prompt_eval_runs_on_openai_run_id"
+    t.index ["prompt_version_id"], name: "index_active_prompt_eval_runs_on_prompt_version_id"
+  end
+
+  create_table "active_prompt_eval_sets", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.integer "prompt_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "openai_eval_id"
+    t.index ["openai_eval_id"], name: "index_active_prompt_eval_sets_on_openai_eval_id"
+    t.index ["prompt_id", "name"], name: "index_active_prompt_eval_sets_on_prompt_id_and_name", unique: true
+    t.index ["prompt_id"], name: "index_active_prompt_eval_sets_on_prompt_id"
+  end
+
   create_table "active_prompt_parameters", force: :cascade do |t|
     t.integer "prompt_id", null: false
     t.string "name", null: false
@@ -88,7 +133,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_24_171323) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "active_prompt_test_cases", force: :cascade do |t|
+    t.integer "eval_set_id", null: false
+    t.json "input_variables", default: {}, null: false
+    t.text "expected_output", null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["eval_set_id"], name: "index_active_prompt_test_cases_on_eval_set_id"
+  end
+
+  add_foreign_key "active_prompt_eval_results", "active_prompt_eval_runs", column: "eval_run_id"
+  add_foreign_key "active_prompt_eval_results", "active_prompt_test_cases", column: "test_case_id"
+  add_foreign_key "active_prompt_eval_runs", "active_prompt_eval_sets", column: "eval_set_id"
+  add_foreign_key "active_prompt_eval_runs", "active_prompt_prompt_versions", column: "prompt_version_id"
+  add_foreign_key "active_prompt_eval_sets", "active_prompt_prompts", column: "prompt_id"
   add_foreign_key "active_prompt_parameters", "active_prompt_prompts", column: "prompt_id"
   add_foreign_key "active_prompt_playground_run_results", "active_prompt_prompt_versions", column: "prompt_version_id"
   add_foreign_key "active_prompt_prompt_versions", "active_prompt_prompts", column: "prompt_id"
+  add_foreign_key "active_prompt_test_cases", "active_prompt_eval_sets", column: "eval_set_id"
 end

@@ -1,0 +1,16 @@
+<% if object.errors.any? %>
+  <div class="form__errors" role="alert">
+    <h3 class="form__errors-title">
+      <% if object.errors.count == 1 %>
+        1 error prevented this <%= object.class.name.demodulize.underscore.humanize.downcase %> from being saved:
+      <% else %>
+        <%= object.errors.count %> errors prevented this <%= object.class.name.demodulize.underscore.humanize.downcase %> from being saved:
+      <% end %>
+    </h3>
+    <ul class="form__errors-list">
+      <% object.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

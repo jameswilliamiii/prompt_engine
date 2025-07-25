@@ -4,6 +4,7 @@ module ActivePrompt
 
     belongs_to :prompt, class_name: "ActivePrompt::Prompt", counter_cache: :versions_count
     has_many :playground_run_results, class_name: "ActivePrompt::PlaygroundRunResult", dependent: :destroy
+    has_many :eval_runs, class_name: "ActivePrompt::EvalRun", dependent: :destroy
 
     validates :version_number, presence: true,
               numericality: { greater_than: 0 },

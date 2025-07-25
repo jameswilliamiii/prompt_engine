@@ -31,6 +31,23 @@ config.active_record.encryption.key_derivation_salt = 'development' * 4
 
 For production, use `rails db:encryption:init` to generate secure keys.
 
+### Configure API Keys
+
+ActivePrompt requires API keys for AI providers. See [API Credentials Setup](docs/API_CREDENTIALS.md) for detailed configuration instructions.
+
+Quick setup:
+```bash
+rails credentials:edit
+```
+
+Add your API keys:
+```yaml
+openai:
+  api_key: sk-your-openai-api-key
+anthropic:
+  api_key: sk-ant-your-anthropic-api-key
+```
+
 ### Mount the Engine
 
 In your `config/routes.rb`:

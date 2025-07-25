@@ -1,0 +1,41 @@
+<div class="admin-header">
+  <div>
+    <h1>New Evaluation Set</h1>
+    <p class="text-muted">Create a new evaluation set for <%= @prompt.name %></p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card__body">
+    <%= form_with model: [@prompt, @eval_set], url: prompt_eval_sets_path(@prompt), local: true do |form| %>
+      <%= render 'active_prompt/shared/form_errors', object: @eval_set %>
+
+      <div class="form__group">
+        <%= form.label :name, class: "form__label" %>
+        <span class="form__required">*</span>
+        <%= form.text_field :name, 
+            class: "form__input", 
+            placeholder: "e.g., Customer Support Responses", 
+            required: true,
+            minlength: 3,
+            maxlength: 255,
+            pattern: "[A-Za-z0-9 _-]+",
+            title: "Name can contain letters, numbers, spaces, hyphens, and underscores" %>
+        <p class="form__help">A descriptive name for this evaluation set (3-255 characters)</p>
+      </div>
+
+      <div class="form__group">
+        <%= form.label :description, class: "form__label" %>
+        <%= form.text_area :description, class: "form__input", rows: 3, 
+            placeholder: "e.g., Tests various customer support scenarios to ensure consistent and helpful responses" %>
+        <p class="form__help">Optional description of what this evaluation set tests</p>
+      </div>
+
+      <div class="form__actions">
+        <%= form.submit "Create Evaluation Set", class: "btn btn--primary btn--medium", 
+            data: { disable_with: "Creating..." } %>
+        <%= link_to "Cancel", prompt_eval_sets_path(@prompt), class: "btn btn--secondary btn--medium" %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -16,8 +16,9 @@ module ActivePrompt
       @test_case = @eval_set.test_cases.build(test_case_params)
       
       if @test_case.save
-        redirect_to prompt_eval_set_path(@prompt, @eval_set)
+        redirect_to prompt_eval_set_path(@prompt, @eval_set), notice: "Test case was successfully created."
       else
+        flash.now[:alert] = "Please fix the errors below."
         render :new
       end
     end
@@ -27,15 +28,16 @@ module ActivePrompt
     
     def update
       if @test_case.update(test_case_params)
-        redirect_to prompt_eval_set_path(@prompt, @eval_set)
+        redirect_to prompt_eval_set_path(@prompt, @eval_set), notice: "Test case was successfully updated."
       else
+        flash.now[:alert] = "Please fix the errors below."
         render :edit
       end
     end
     
     def destroy
       @test_case.destroy
-      redirect_to prompt_eval_set_path(@prompt, @eval_set)
+      redirect_to prompt_eval_set_path(@prompt, @eval_set), notice: "Test case was successfully deleted."
     end
     
     private
