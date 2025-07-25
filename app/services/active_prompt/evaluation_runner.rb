@@ -1,4 +1,4 @@
-require_relative '../clients/active_prompt/open_ai_evals_client'
+# Client is autoloaded by Rails
 
 module ActivePrompt
   class EvaluationRunner
