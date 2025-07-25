@@ -28,7 +28,13 @@ ActivePrompt::Engine.routes.draw do
       member do
         post :run
       end
-      resources :test_cases, except: [:index, :show]
+      resources :test_cases, except: [:index, :show] do
+        collection do
+          get :import
+          post :import_preview
+          post :import_create
+        end
+      end
     end
     resources :eval_runs, only: [:show]
   end

@@ -4,6 +4,14 @@
     <% if @eval_set.description.present? %>
       <p class="text-muted"><%= @eval_set.description %></p>
     <% end %>
+    <p class="text-muted">
+      <strong>Grader Type:</strong> <%= @eval_set.grader_type_display %>
+      <% if @eval_set.grader_type == 'regex' && @eval_set.grader_config['pattern'].present? %>
+        <br><strong>Pattern:</strong> <code><%= @eval_set.grader_config['pattern'] %></code>
+      <% elsif @eval_set.grader_type == 'json_schema' && @eval_set.grader_config['schema'].present? %>
+        <br><strong>Schema:</strong> <code><%= @eval_set.grader_config['schema'].to_json.truncate(100) %></code>
+      <% end %>
+    </p>
   </div>
   <div class="btn-group">
     <%= link_to "Back to Eval Sets", prompt_eval_sets_path(@prompt), class: "btn btn--secondary btn--medium" %>
@@ -30,6 +38,7 @@
   <div class="card__header">
     <h3 class="card__title">Test Cases</h3>
     <div class="card__actions">
+      <%= link_to "Import", import_prompt_eval_set_test_cases_path(@prompt, @eval_set), class: "btn btn--secondary btn--small" %>
       <%= link_to "Add Test Case", new_prompt_eval_set_test_case_path(@prompt, @eval_set), class: "btn btn--secondary btn--small" %>
     </div>
   </div>
@@ -79,8 +88,12 @@
     <% else %>
       <div class="table-empty">
         <p class="text-muted">No test cases added yet.</p>
-        <%= link_to "Add Your First Test Case", new_prompt_eval_set_test_case_path(@prompt, @eval_set), 
-            class: "btn btn--primary btn--medium" %>
+        <div class="btn-group">
+          <%= link_to "Import Test Cases", import_prompt_eval_set_test_cases_path(@prompt, @eval_set), 
+              class: "btn btn--secondary btn--medium" %>
+          <%= link_to "Add Your First Test Case", new_prompt_eval_set_test_case_path(@prompt, @eval_set), 
+              class: "btn btn--primary btn--medium" %>
+        </div>
       </div>
     <% end %>
   </div>

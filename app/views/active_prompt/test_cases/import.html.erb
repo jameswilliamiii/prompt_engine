@@ -1,0 +1,92 @@
+<div class="admin-header">
+  <div>
+    <h1>Import Test Cases</h1>
+    <p class="text-muted">Import multiple test cases from a CSV or JSON file</p>
+  </div>
+  <div class="btn-group">
+    <%= link_to "Back to Eval Set", prompt_eval_set_path(@prompt, @eval_set), class: "btn btn--secondary btn--medium" %>
+  </div>
+</div>
+
+<% if flash[:alert] %>
+  <div class="alert alert--danger mb-lg">
+    <%= flash[:alert] %>
+  </div>
+<% end %>
+
+<div class="card mb-lg">
+  <div class="card__header">
+    <h3 class="card__title">File Format Requirements</h3>
+  </div>
+  <div class="card__body">
+    <div class="mb-md">
+      <h4 class="mb-sm">CSV Format</h4>
+      <p class="text-muted mb-sm">
+        Your CSV file should have columns for each prompt parameter plus an 'expected_output' column.
+        An optional 'description' column can be included.
+      </p>
+      <div class="code-block mb-md">
+        <pre><code><% if @prompt.parameters.any? %><%= @prompt.parameters.pluck(:name).join(',') %>,expected_output,description
+<%= @prompt.parameters.map { |p| p.example_value || "value#{p.position}" }.join(',') %>,Expected response here,Test case description (optional)<% else %>parameter1,parameter2,expected_output,description
+value1,value2,Expected response here,Test case description (optional)<% end %></code></pre>
+      </div>
+    </div>
+    
+    <div>
+      <h4 class="mb-sm">JSON Format</h4>
+      <p class="text-muted mb-sm">
+        Your JSON file should contain an array of objects with 'input_variables' and 'expected_output' fields.
+        An optional 'description' field can be included.
+      </p>
+      <div class="code-block">
+        <pre><code>[
+  {
+    "input_variables": {<% if @prompt.parameters.any? %>
+<% @prompt.parameters.each_with_index do |param, index| %>      "<%= param.name %>": "<%= param.example_value || "value#{index + 1}" %>"<%= index < @prompt.parameters.count - 1 ? ',' : '' %>
+<% end %><% else %>
+      "parameter1": "value1",
+      "parameter2": "value2"<% end %>
+    },
+    "expected_output": "Expected response here",
+    "description": "Test case description (optional)"
+  }
+]</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= form_with url: import_preview_prompt_eval_set_test_cases_path(@prompt, @eval_set), 
+              local: true, 
+              html: { multipart: true } do |form| %>
+  <div class="card">
+    <div class="card__header">
+      <h3 class="card__title">Upload File</h3>
+    </div>
+    <div class="card__body">
+      <div class="form-group">
+        <%= form.label :file, "Select File", class: "form-label" %>
+        <%= form.file_field :file, 
+            accept: ".csv,.json", 
+            required: true,
+            class: "form-input",
+            data: { 
+              controller: "file-input",
+              action: "change->file-input#displayFileName"
+            } %>
+        <span class="form-hint">Accepts CSV or JSON files</span>
+      </div>
+      
+      <% if @prompt.parameters.any? %>
+        <div class="alert alert--info">
+          <strong>Required columns/fields:</strong>
+          <%= @prompt.parameters.pluck(:name).join(', ') %>, expected_output
+        </div>
+      <% end %>
+    </div>
+    <div class="card__footer">
+      <%= form.submit "Preview Import", class: "btn btn--primary btn--medium" %>
+      <%= link_to "Cancel", prompt_eval_set_path(@prompt, @eval_set), class: "btn btn--secondary btn--medium" %>
+    </div>
+  </div>
+<% end %>

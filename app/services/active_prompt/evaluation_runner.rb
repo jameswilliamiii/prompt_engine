@@ -66,15 +66,7 @@ module ActivePrompt
           },
           include_sample_schema: true
         },
-        testing_criteria: [
-          {
-            type: "string_check",
-            name: "Exact match",
-            input: "{{ sample.output_text }}",
-            operation: "eq",
-            reference: "{{ item.expected_output }}"
-          }
-        ]
+        testing_criteria: build_testing_criteria
       )
       
       @eval_set.update!(openai_eval_id: eval_config["id"])
@@ -197,6 +189,51 @@ module ActivePrompt
       
       # Note: Individual test results would need to be fetched separately
       # For MVP, we just store the aggregate counts
+    end
+    
+    def build_testing_criteria
+      case @eval_set.grader_type
+      when 'exact_match'
+        [{
+          type: "string_check",
+          name: "Exact match",
+          input: "{{ sample.output_text }}",
+          operation: "eq",
+          reference: "{{ item.expected_output }}"
+        }]
+      when 'regex'
+        [{
+          type: "string_check",
+          name: "Regex match",
+          input: "{{ sample.output_text }}",
+          operation: "regex",
+          reference: @eval_set.grader_config['pattern']
+        }]
+      when 'contains'
+        [{
+          type: "string_check", 
+          name: "Contains text",
+          input: "{{ sample.output_text }}",
+          operation: "contains",
+          reference: "{{ item.expected_output }}"
+        }]
+      when 'json_schema'
+        [{
+          type: "json_schema_check",
+          name: "JSON schema validation",
+          input: "{{ sample.output_text }}",
+          schema: @eval_set.grader_config['schema']
+        }]
+      else
+        # Default to exact match
+        [{
+          type: "string_check",
+          name: "Exact match",
+          input: "{{ sample.output_text }}",
+          operation: "eq",
+          reference: "{{ item.expected_output }}"
+        }]
+      end
     end
     
     def parameter_type_to_json_schema(type)

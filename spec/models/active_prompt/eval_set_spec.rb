@@ -47,6 +47,96 @@ RSpec.describe ActivePrompt::EvalSet, type: :model do
       different_prompt_eval = build(:eval_set, name: 'Basic Tests', prompt: other_prompt)
       expect(different_prompt_eval).to be_valid
     end
+    
+    it 'validates presence of grader_type' do
+      eval_set.grader_type = nil
+      expect(eval_set).not_to be_valid
+      expect(eval_set.errors[:grader_type]).to include("can't be blank")
+    end
+    
+    it 'validates inclusion of grader_type' do
+      eval_set.grader_type = 'invalid_type'
+      expect(eval_set).not_to be_valid
+      expect(eval_set.errors[:grader_type]).to include("is not included in the list")
+    end
+    
+    it 'accepts valid grader types' do
+      %w[exact_match regex contains json_schema].each do |grader_type|
+        eval_set.grader_type = grader_type
+        # Set appropriate config for grader types that require it
+        case grader_type
+        when 'regex'
+          eval_set.grader_config = { 'pattern' => '^test$' }
+        when 'json_schema'
+          eval_set.grader_config = { 'schema' => { 'type' => 'object' } }
+        end
+        expect(eval_set).to be_valid
+      end
+    end
+    
+    describe 'grader_config validation' do
+      context 'when grader_type is regex' do
+        before { eval_set.grader_type = 'regex' }
+        
+        it 'requires pattern in grader_config' do
+          eval_set.grader_config = {}
+          expect(eval_set).not_to be_valid
+          expect(eval_set.errors[:grader_config]).to include("regex pattern is required")
+        end
+        
+        it 'validates regex pattern syntax' do
+          eval_set.grader_config = { 'pattern' => '[invalid' }
+          expect(eval_set).not_to be_valid
+          expect(eval_set.errors[:grader_config]).to include(/invalid regex pattern/)
+        end
+        
+        it 'accepts valid regex pattern' do
+          eval_set.grader_config = { 'pattern' => '^Hello.*world$' }
+          expect(eval_set).to be_valid
+        end
+      end
+      
+      context 'when grader_type is json_schema' do
+        before { eval_set.grader_type = 'json_schema' }
+        
+        it 'requires schema in grader_config' do
+          eval_set.grader_config = {}
+          expect(eval_set).not_to be_valid
+          expect(eval_set.errors[:grader_config]).to include("JSON schema is required")
+        end
+        
+        it 'requires type field in schema' do
+          eval_set.grader_config = { 'schema' => { 'properties' => {} } }
+          expect(eval_set).not_to be_valid
+          expect(eval_set.errors[:grader_config]).to include("JSON schema must include a 'type' field")
+        end
+        
+        it 'accepts valid JSON schema' do
+          eval_set.grader_config = { 
+            'schema' => { 
+              'type' => 'object',
+              'properties' => { 'name' => { 'type' => 'string' } },
+              'required' => ['name']
+            }
+          }
+          expect(eval_set).to be_valid
+        end
+      end
+      
+      context 'when grader_type is exact_match or contains' do
+        it 'does not require grader_config for exact_match' do
+          eval_set.grader_type = 'exact_match'
+          eval_set.grader_config = {}
+          expect(eval_set).to be_valid
+        end
+        
+        it 'does not require grader_config for contains' do
+          eval_set.grader_type = 'contains'
+          eval_set.grader_config = {}
+          expect(eval_set).to be_valid
+        end
+      end
+    end
   end
 
   describe 'scopes' do
@@ -129,6 +219,44 @@ RSpec.describe ActivePrompt::EvalSet, type: :model do
         
         reloaded = ActivePrompt::EvalSet.find(eval_set.id)
         expect(reloaded.openai_eval_id).to eq('eval_123abc')
+      end
+    end
+    
+    describe '#grader_type_display' do
+      it 'returns human-readable grader type names' do
+        eval_set.grader_type = 'exact_match'
+        expect(eval_set.grader_type_display).to eq('Exact Match')
+        
+        eval_set.grader_type = 'regex'
+        expect(eval_set.grader_type_display).to eq('Regular Expression')
+        
+        eval_set.grader_type = 'contains'
+        expect(eval_set.grader_type_display).to eq('Contains Text')
+        
+        eval_set.grader_type = 'json_schema'
+        expect(eval_set.grader_type_display).to eq('JSON Schema')
+      end
+    end
+    
+    describe '#requires_grader_config?' do
+      it 'returns true for regex grader type' do
+        eval_set.grader_type = 'regex'
+        expect(eval_set.requires_grader_config?).to be true
+      end
+      
+      it 'returns true for json_schema grader type' do
+        eval_set.grader_type = 'json_schema'
+        expect(eval_set.requires_grader_config?).to be true
+      end
+      
+      it 'returns false for exact_match grader type' do
+        eval_set.grader_type = 'exact_match'
+        expect(eval_set.requires_grader_config?).to be false
+      end
+      
+      it 'returns false for contains grader type' do
+        eval_set.grader_type = 'contains'
+        expect(eval_set.requires_grader_config?).to be false
       end
     end
   end

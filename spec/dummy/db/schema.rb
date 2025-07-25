@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_25_032740) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_25_045440) do
   create_table "active_prompt_eval_results", force: :cascade do |t|
     t.integer "eval_run_id", null: false
     t.integer "test_case_id", null: false
@@ -51,6 +51,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_25_032740) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "openai_eval_id"
+    t.string "grader_type", default: "exact_match", null: false
+    t.json "grader_config", default: {}
+    t.index ["grader_type"], name: "index_active_prompt_eval_sets_on_grader_type"
     t.index ["openai_eval_id"], name: "index_active_prompt_eval_sets_on_openai_eval_id"
     t.index ["prompt_id", "name"], name: "index_active_prompt_eval_sets_on_prompt_id_and_name", unique: true
     t.index ["prompt_id"], name: "index_active_prompt_eval_sets_on_prompt_id"

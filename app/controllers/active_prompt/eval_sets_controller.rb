@@ -94,7 +94,7 @@ module ActivePrompt
     end
     
     def eval_set_params
-      params.require(:eval_set).permit(:name, :description)
+      params.require(:eval_set).permit(:name, :description, :grader_type, grader_config: {})
     end
     
     def api_key_configured?
