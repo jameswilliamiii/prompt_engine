@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :playground_run_result, class: 'ActivePrompt::PlaygroundRunResult' do
+  factory :playground_run_result, class: 'PromptEngine::PlaygroundRunResult' do
     association :prompt_version, factory: :prompt_version
 
     provider { "anthropic" }

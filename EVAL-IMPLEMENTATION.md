@@ -1,13 +1,18 @@
 # Evaluation System Implementation - Sprint 1 MVP
 
 ## Overview
+
 Minimal viable evaluation system that integrates with OpenAI's Evals API to:
+
 1. Create evaluation sets with test cases
 2. Submit evaluations to OpenAI's infrastructure
 3. Poll for and display results
 
 ## Key Design Decision: OpenAI Evals API Integration
-Instead of building our own evaluation infrastructure, we'll leverage OpenAI's Evals API which provides:
+
+Instead of building our own evaluation infrastructure, we'll leverage OpenAI's Evals API which
+provides:
+
 - Robust evaluation execution infrastructure
 - Built-in graders (starting with exact match)
 - Consistent metrics and reporting
@@ -17,16 +22,17 @@ Instead of building our own evaluation infrastructure, we'll leverage OpenAI's E
 
 ### 1. Data Models (Simplified)
 
-#### ActivePrompt::EvalSet
+#### PromptEngine::EvalSet
+
 ```ruby
-# app/models/active_prompt/eval_set.rb
-class ActivePrompt::EvalSet < ApplicationRecord
+# app/models/prompt_engine/eval_set.rb
+class PromptEngine::EvalSet < ApplicationRecord
   belongs_to :prompt
   has_many :test_cases, dependent: :destroy
   has_many :eval_runs, dependent: :destroy
-  
+
   validates :name, presence: true
-  
+
   # Simple fields:
   # - name: string
   # - description: text
@@ -34,16 +40,17 @@ class ActivePrompt::EvalSet < ApplicationRecord
 end
 ```
 
-#### ActivePrompt::TestCase
+#### PromptEngine::TestCase
+
 ```ruby
-# app/models/active_prompt/test_case.rb
-class ActivePrompt::TestCase < ApplicationRecord
+# app/models/prompt_engine/test_case.rb
+class PromptEngine::TestCase < ApplicationRecord
   belongs_to :eval_set
   has_many :eval_results, dependent: :destroy
-  
+
   validates :input_variables, presence: true
   validates :expected_output, presence: true
-  
+
   # Simple fields:
   # - eval_set_id: integer
   # - input_variables: json (hash of variables for prompt)
@@ -52,16 +59,17 @@ class ActivePrompt::TestCase < ApplicationRecord
 end
 ```
 
-#### ActivePrompt::EvalRun
+#### PromptEngine::EvalRun
+
 ```ruby
-# app/models/active_prompt/eval_run.rb
-class ActivePrompt::EvalRun < ApplicationRecord
+# app/models/prompt_engine/eval_run.rb
+class PromptEngine::EvalRun < ApplicationRecord
   belongs_to :eval_set
   belongs_to :prompt_version
   has_many :eval_results, dependent: :destroy
-  
+
   enum status: { pending: 0, running: 1, completed: 2, failed: 3 }
-  
+
   # Simple fields:
   # - eval_set_id: integer
   # - prompt_version_id: integer
@@ -74,13 +82,14 @@ class ActivePrompt::EvalRun < ApplicationRecord
 end
 ```
 
-#### ActivePrompt::EvalResult
+#### PromptEngine::EvalResult
+
 ```ruby
-# app/models/active_prompt/eval_result.rb
-class ActivePrompt::EvalResult < ApplicationRecord
+# app/models/prompt_engine/eval_result.rb
+class PromptEngine::EvalResult < ApplicationRecord
   belongs_to :eval_run
   belongs_to :test_case
-  
+
   # Simple fields:
   # - eval_run_id: integer
   # - test_case_id: integer
@@ -97,24 +106,24 @@ end
 # db/migrate/xxx_create_eval_tables.rb
 class CreateEvalTables < ActiveRecord::Migration[7.1]
   def change
-    create_table :active_prompt_eval_sets do |t|
+    create_table :prompt_engine_eval_sets do |t|
       t.string :name, null: false
       t.text :description
-      t.references :prompt, null: false, foreign_key: { to_table: :active_prompt_prompts }
+      t.references :prompt, null: false, foreign_key: { to_table: :prompt_engine_prompts }
       t.timestamps
     end
-    
-    create_table :active_prompt_test_cases do |t|
-      t.references :eval_set, null: false, foreign_key: { to_table: :active_prompt_eval_sets }
+
+    create_table :prompt_engine_test_cases do |t|
+      t.references :eval_set, null: false, foreign_key: { to_table: :prompt_engine_eval_sets }
       t.json :input_variables, null: false, default: {}
       t.text :expected_output, null: false
       t.text :description
       t.timestamps
     end
-    
-    create_table :active_prompt_eval_runs do |t|
-      t.references :eval_set, null: false, foreign_key: { to_table: :active_prompt_eval_sets }
-      t.references :prompt_version, null: false, foreign_key: { to_table: :active_prompt_prompt_versions }
+
+    create_table :prompt_engine_eval_runs do |t|
+      t.references :eval_set, null: false, foreign_key: { to_table: :prompt_engine_eval_sets }
+      t.references :prompt_version, null: false, foreign_key: { to_table: :prompt_engine_prompt_versions }
       t.integer :status, default: 0, null: false
       t.datetime :started_at
       t.datetime :completed_at
@@ -124,18 +133,18 @@ class CreateEvalTables < ActiveRecord::Migration[7.1]
       t.text :error_message
       t.timestamps
     end
-    
-    create_table :active_prompt_eval_results do |t|
-      t.references :eval_run, null: false, foreign_key: { to_table: :active_prompt_eval_runs }
-      t.references :test_case, null: false, foreign_key: { to_table: :active_prompt_test_cases }
+
+    create_table :prompt_engine_eval_results do |t|
+      t.references :eval_run, null: false, foreign_key: { to_table: :prompt_engine_eval_runs }
+      t.references :test_case, null: false, foreign_key: { to_table: :prompt_engine_test_cases }
       t.text :actual_output
       t.boolean :passed, default: false
       t.integer :execution_time_ms
       t.text :error_message
       t.timestamps
     end
-    
-    add_index :active_prompt_eval_sets, [:prompt_id, :name], unique: true
+
+    add_index :prompt_engine_eval_sets, [:prompt_id, :name], unique: true
   end
 end
 ```
@@ -145,15 +154,15 @@ end
 Since RubyLLM doesn't support the Evals API, we need a simple client:
 
 ```ruby
-# app/clients/active_prompt/openai_evals_client.rb
-module ActivePrompt
+# app/clients/prompt_engine/openai_evals_client.rb
+module PromptEngine
   class OpenAIEvalsClient
     BASE_URL = "https://api.openai.com/v1"
-    
+
     def initialize(api_key: nil)
       @api_key = api_key || Rails.application.credentials.openai[:api_key]
     end
-    
+
     def create_eval(name:, data_source_config:, testing_criteria:)
       post("/evals", {
         name: name,
@@ -161,60 +170,60 @@ module ActivePrompt
         testing_criteria: testing_criteria
       })
     end
-    
+
     def create_run(eval_id:, name:, data_source:)
       post("/evals/#{eval_id}/runs", {
         name: name,
         data_source: data_source
       })
     end
-    
+
     def get_run(eval_id:, run_id:)
       get("/evals/#{eval_id}/runs/#{run_id}")
     end
-    
+
     def upload_file(file_path, purpose: "evals")
       uri = URI("#{BASE_URL}/files")
       request = Net::HTTP::Post.new(uri)
       request["Authorization"] = "Bearer #{@api_key}"
-      
+
       form_data = [
         ['purpose', purpose],
         ['file', File.open(file_path)]
       ]
       request.set_form(form_data, 'multipart/form-data')
-      
+
       response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
         http.request(request)
       end
-      
+
       JSON.parse(response.body)
     end
-    
+
     private
-    
+
     def post(path, body)
       uri = URI("#{BASE_URL}#{path}")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
-      
+
       request = Net::HTTP::Post.new(uri)
       request["Authorization"] = "Bearer #{@api_key}"
       request["Content-Type"] = "application/json"
       request.body = body.to_json
-      
+
       response = http.request(request)
       JSON.parse(response.body)
     end
-    
+
     def get(path)
       uri = URI("#{BASE_URL}#{path}")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
-      
+
       request = Net::HTTP::Get.new(uri)
       request["Authorization"] = "Bearer #{@api_key}"
-      
+
       response = http.request(request)
       JSON.parse(response.body)
     end
@@ -230,13 +239,13 @@ Add fields to track OpenAI eval IDs:
 # Additional migrations needed:
 class AddOpenAIFieldsToEvals < ActiveRecord::Migration[7.1]
   def change
-    add_column :active_prompt_eval_sets, :openai_eval_id, :string
-    add_column :active_prompt_eval_runs, :openai_run_id, :string
-    add_column :active_prompt_eval_runs, :openai_file_id, :string
-    add_column :active_prompt_eval_runs, :report_url, :string
-    
-    add_index :active_prompt_eval_sets, :openai_eval_id
-    add_index :active_prompt_eval_runs, :openai_run_id
+    add_column :prompt_engine_eval_sets, :openai_eval_id, :string
+    add_column :prompt_engine_eval_runs, :openai_run_id, :string
+    add_column :prompt_engine_eval_runs, :openai_file_id, :string
+    add_column :prompt_engine_eval_runs, :report_url, :string
+
+    add_index :prompt_engine_eval_sets, :openai_eval_id
+    add_index :prompt_engine_eval_runs, :openai_run_id
   end
 end
 ```
@@ -244,8 +253,8 @@ end
 ### 5. Evaluation Runner with OpenAI Integration
 
 ```ruby
-# app/services/active_prompt/evaluation_runner.rb
-module ActivePrompt
+# app/services/prompt_engine/evaluation_runner.rb
+module PromptEngine
   class EvaluationRunner
     def initialize(eval_run)
       @eval_run = eval_run
@@ -254,37 +263,37 @@ module ActivePrompt
       @prompt = @prompt_version.prompt
       @client = OpenAIEvalsClient.new
     end
-    
+
     def execute
       @eval_run.update!(status: :running, started_at: Time.current)
-      
+
       # Step 1: Create or get OpenAI eval configuration
       ensure_openai_eval_exists
-      
+
       # Step 2: Create test data file in JSONL format
       file_id = upload_test_data
       @eval_run.update!(openai_file_id: file_id)
-      
+
       # Step 3: Create eval run on OpenAI
       openai_run = create_openai_run(file_id)
       @eval_run.update!(
         openai_run_id: openai_run["id"],
         report_url: openai_run["report_url"]
       )
-      
+
       # Step 4: Poll for results
       poll_for_results
-      
+
     rescue => e
       @eval_run.update!(status: :failed, error_message: e.message)
       raise
     end
-    
+
     private
-    
+
     def ensure_openai_eval_exists
       return if @eval_set.openai_eval_id.present?
-      
+
       # Create eval configuration on OpenAI
       eval_config = @client.create_eval(
         name: "#{@prompt.name} - #{@eval_set.name}",
@@ -310,14 +319,14 @@ module ActivePrompt
           }
         ]
       )
-      
+
       @eval_set.update!(openai_eval_id: eval_config["id"])
     end
-    
+
     def upload_test_data
       # Create temporary JSONL file
       file_path = Rails.root.join("tmp", "eval_#{@eval_run.id}.jsonl")
-      
+
       File.open(file_path, "w") do |file|
         @eval_set.test_cases.each do |test_case|
           line = {
@@ -329,16 +338,16 @@ module ActivePrompt
           file.puts(line.to_json)
         end
       end
-      
+
       # Upload to OpenAI
       response = @client.upload_file(file_path)
-      
+
       # Clean up
       File.delete(file_path)
-      
+
       response["id"]
     end
-    
+
     def create_openai_run(file_id)
       # Build message template with prompt content
       messages_template = [
@@ -347,11 +356,11 @@ module ActivePrompt
           content: @prompt_version.system_message || ""
         },
         {
-          role: "user", 
+          role: "user",
           content: build_templated_content
         }
       ]
-      
+
       @client.create_run(
         eval_id: @eval_set.openai_eval_id,
         name: "Run at #{Time.current}",
@@ -362,37 +371,37 @@ module ActivePrompt
             type: "template",
             template: messages_template
           },
-          source: { 
-            type: "file_id", 
-            id: file_id 
+          source: {
+            type: "file_id",
+            id: file_id
           }
         }
       )
     end
-    
+
     def build_templated_content
       # Convert our {{variable}} syntax to OpenAI's template syntax
       content = @prompt_version.content.dup
-      
+
       # Replace {{variable}} with {{ item.input_variables.variable }}
       content.gsub(/\{\{(\w+)\}\}/) do |match|
         variable_name = $1
         "{{ item.input_variables.#{variable_name} }}"
       end
     end
-    
+
     def poll_for_results
       max_attempts = 60  # 5 minutes with 5 second intervals
       attempts = 0
-      
+
       loop do
         attempts += 1
-        
+
         run_status = @client.get_run(
           eval_id: @eval_set.openai_eval_id,
           run_id: @eval_run.openai_run_id
         )
-        
+
         case run_status["status"]
         when "completed"
           process_results(run_status)
@@ -412,16 +421,16 @@ module ActivePrompt
             )
             break
           end
-          
+
           sleep 5
         end
       end
     end
-    
+
     def process_results(run_status)
       # Extract counts from OpenAI response
       result_counts = run_status["result_counts"] || {}
-      
+
       @eval_run.update!(
         status: :completed,
         completed_at: Time.current,
@@ -429,7 +438,7 @@ module ActivePrompt
         passed_count: result_counts["passed"] || 0,
         failed_count: result_counts["failed"] || 0
       )
-      
+
       # Note: Individual test results would need to be fetched separately
       # For MVP, we just store the aggregate counts
     end
@@ -440,58 +449,59 @@ end
 ### 6. Controllers
 
 #### EvalSetsController
+
 ```ruby
-# app/controllers/active_prompt/eval_sets_controller.rb
-module ActivePrompt
+# app/controllers/prompt_engine/eval_sets_controller.rb
+module PromptEngine
   class EvalSetsController < ApplicationController
     before_action :set_prompt
     before_action :set_eval_set, only: [:show, :edit, :update, :destroy, :run]
-    
+
     def index
       @eval_sets = @prompt.eval_sets
     end
-    
+
     def show
       @test_cases = @eval_set.test_cases
       @recent_runs = @eval_set.eval_runs.order(created_at: :desc).limit(5)
     end
-    
+
     def new
       @eval_set = @prompt.eval_sets.build
     end
-    
+
     def create
       @eval_set = @prompt.eval_sets.build(eval_set_params)
-      
+
       if @eval_set.save
         redirect_to prompt_eval_set_path(@prompt, @eval_set)
       else
         render :new
       end
     end
-    
+
     def run
       # Create new eval run with current prompt version
       @eval_run = @eval_set.eval_runs.create!(
         prompt_version: @prompt.current_version
       )
-      
+
       # Run evaluation synchronously for MVP
       EvaluationRunner.new(@eval_run).execute
-      
+
       redirect_to prompt_eval_run_path(@prompt, @eval_run)
     end
-    
+
     private
-    
+
     def set_prompt
       @prompt = Prompt.find(params[:prompt_id])
     end
-    
+
     def set_eval_set
       @eval_set = @prompt.eval_sets.find(params[:id])
     end
-    
+
     def eval_set_params
       params.require(:eval_set).permit(:name, :description)
     end
@@ -500,14 +510,15 @@ end
 ```
 
 #### TestCasesController
+
 ```ruby
-# app/controllers/active_prompt/test_cases_controller.rb
-module ActivePrompt
+# app/controllers/prompt_engine/test_cases_controller.rb
+module PromptEngine
   class TestCasesController < ApplicationController
     before_action :set_prompt
     before_action :set_eval_set
     before_action :set_test_case, only: [:edit, :update, :destroy]
-    
+
     def new
       @test_case = @eval_set.test_cases.build
       # Pre-populate with prompt's parameters
@@ -515,20 +526,20 @@ module ActivePrompt
         hash[param.name] = param.default_value
       end
     end
-    
+
     def create
       @test_case = @eval_set.test_cases.build(test_case_params)
-      
+
       if @test_case.save
         redirect_to prompt_eval_set_path(@prompt, @eval_set)
       else
         render :new
       end
     end
-    
+
     def edit
     end
-    
+
     def update
       if @test_case.update(test_case_params)
         redirect_to prompt_eval_set_path(@prompt, @eval_set)
@@ -536,26 +547,26 @@ module ActivePrompt
         render :edit
       end
     end
-    
+
     def destroy
       @test_case.destroy
       redirect_to prompt_eval_set_path(@prompt, @eval_set)
     end
-    
+
     private
-    
+
     def set_prompt
       @prompt = Prompt.find(params[:prompt_id])
     end
-    
+
     def set_eval_set
       @eval_set = @prompt.eval_sets.find(params[:eval_set_id])
     end
-    
+
     def set_test_case
       @test_case = @eval_set.test_cases.find(params[:id])
     end
-    
+
     def test_case_params
       params.require(:test_case).permit(:description, :expected_output, input_variables: {})
     end
@@ -564,24 +575,25 @@ end
 ```
 
 #### EvalRunsController
+
 ```ruby
-# app/controllers/active_prompt/eval_runs_controller.rb
-module ActivePrompt
+# app/controllers/prompt_engine/eval_runs_controller.rb
+module PromptEngine
   class EvalRunsController < ApplicationController
     before_action :set_prompt
     before_action :set_eval_run
-    
+
     def show
       # Note: Individual eval results are not fetched in MVP
       # Only aggregate counts from OpenAI are displayed
     end
-    
+
     private
-    
+
     def set_prompt
       @prompt = Prompt.find(params[:prompt_id])
     end
-    
+
     def set_eval_run
       @eval_run = EvalRun.find(params[:id])
     end
@@ -593,7 +605,7 @@ end
 
 ```ruby
 # config/routes.rb
-namespace :active_prompt do
+namespace :prompt_engine do
   resources :prompts do
     resources :eval_sets do
       member do
@@ -609,6 +621,7 @@ end
 ### 8. Views
 
 #### eval_sets/index.html.erb
+
 ```erb
 <div class="page-header">
   <h1 class="page-header__title">Evaluation Sets for <%= @prompt.name %></h1>
@@ -648,13 +661,14 @@ end
 ```
 
 #### eval_sets/show.html.erb
+
 ```erb
 <div class="page-header">
   <h1 class="page-header__title"><%= @eval_set.name %></h1>
   <div class="page-header__actions">
-    <%= link_to "Add Test Case", new_prompt_eval_set_test_case_path(@prompt, @eval_set), 
+    <%= link_to "Add Test Case", new_prompt_eval_set_test_case_path(@prompt, @eval_set),
         class: "button button--secondary" %>
-    <%= button_to "Run Evaluation", run_prompt_eval_set_path(@prompt, @eval_set), 
+    <%= button_to "Run Evaluation", run_prompt_eval_set_path(@prompt, @eval_set),
         method: :post, class: "button button--primary" %>
   </div>
 </div>
@@ -688,10 +702,10 @@ end
               </code>
             </td>
             <td>
-              <%= link_to "Edit", edit_prompt_eval_set_test_case_path(@prompt, @eval_set, test_case), 
+              <%= link_to "Edit", edit_prompt_eval_set_test_case_path(@prompt, @eval_set, test_case),
                   class: "button button--small" %>
-              <%= link_to "Delete", prompt_eval_set_test_case_path(@prompt, @eval_set, test_case), 
-                  method: :delete, data: { confirm: "Are you sure?" }, 
+              <%= link_to "Delete", prompt_eval_set_test_case_path(@prompt, @eval_set, test_case),
+                  method: :delete, data: { confirm: "Are you sure?" },
                   class: "button button--small button--danger" %>
             </td>
           </tr>
@@ -731,7 +745,7 @@ end
               </td>
               <td><%= time_ago_in_words(run.created_at) %> ago</td>
               <td>
-                <%= link_to "View Results", prompt_eval_run_path(@prompt, run), 
+                <%= link_to "View Results", prompt_eval_run_path(@prompt, run),
                     class: "button button--small" %>
               </td>
             </tr>
@@ -746,10 +760,11 @@ end
 ```
 
 #### eval_runs/show.html.erb
+
 ```erb
 <div class="page-header">
   <h1 class="page-header__title">Evaluation Run Results</h1>
-  <%= link_to "Back to Eval Set", prompt_eval_set_path(@prompt, @eval_run.eval_set), 
+  <%= link_to "Back to Eval Set", prompt_eval_set_path(@prompt, @eval_run.eval_set),
       class: "button button--secondary" %>
 </div>
 
@@ -786,7 +801,7 @@ end
       <div class="stat">
         <dt>Success Rate</dt>
         <dd>
-          <%= number_to_percentage((@eval_run.passed_count.to_f / @eval_run.total_count * 100), 
+          <%= number_to_percentage((@eval_run.passed_count.to_f / @eval_run.total_count * 100),
               precision: 1) %>
         </dd>
       </div>
@@ -794,8 +809,8 @@ end
   </div>
 </div>
 
-<!-- Note: Individual test results are not available in the MVP. 
-     OpenAI only returns aggregate counts. To see detailed results, 
+<!-- Note: Individual test results are not available in the MVP.
+     OpenAI only returns aggregate counts. To see detailed results,
      click "View OpenAI Report" above. -->
 ```
 
@@ -804,14 +819,14 @@ end
 Since we're using OpenAI's evaluation infrastructure, we need to update the eval runs view:
 
 ```erb
-<!-- app/views/active_prompt/eval_runs/show.html.erb -->
+<!-- app/views/prompt_engine/eval_runs/show.html.erb -->
 <div class="page-header">
   <h1 class="page-header__title">Evaluation Run Results</h1>
   <div class="page-header__actions">
-    <%= link_to "Back to Eval Set", prompt_eval_set_path(@prompt, @eval_run.eval_set), 
+    <%= link_to "Back to Eval Set", prompt_eval_set_path(@prompt, @eval_run.eval_set),
         class: "button button--secondary" %>
     <% if @eval_run.report_url.present? %>
-      <%= link_to "View OpenAI Report", @eval_run.report_url, 
+      <%= link_to "View OpenAI Report", @eval_run.report_url,
           target: "_blank", class: "button button--secondary" %>
     <% end %>
   </div>
@@ -851,7 +866,7 @@ Since we're using OpenAI's evaluation infrastructure, we need to update the eval
         <dt>Success Rate</dt>
         <dd>
           <% if @eval_run.total_count > 0 %>
-            <%= number_to_percentage((@eval_run.passed_count.to_f / @eval_run.total_count * 100), 
+            <%= number_to_percentage((@eval_run.passed_count.to_f / @eval_run.total_count * 100),
                 precision: 1) %>
           <% else %>
             N/A
@@ -884,10 +899,10 @@ Since we're using OpenAI's evaluation infrastructure, we need to update the eval
 
 ### 10. Add Navigation Link
 
-In `app/views/active_prompt/prompts/show.html.erb`, add a link to evaluations:
+In `app/views/prompt_engine/prompts/show.html.erb`, add a link to evaluations:
 
 ```erb
-<%= link_to "Evaluations", prompt_eval_sets_path(@prompt), 
+<%= link_to "Evaluations", prompt_eval_sets_path(@prompt),
     class: "button button--secondary" %>
 ```
 
@@ -914,6 +929,7 @@ In `app/views/active_prompt/prompts/show.html.erb`, add a link to evaluations:
 ## MVP Limitations & Considerations
 
 ### What's Included
+
 - Integration with OpenAI's Evals API
 - Exact match evaluation only (string_check grader)
 - Synchronous polling for results (with auto-refresh UI)
@@ -921,6 +937,7 @@ In `app/views/active_prompt/prompts/show.html.erb`, add a link to evaluations:
 - Link to OpenAI's detailed report
 
 ### What's NOT Included
+
 - Individual test result details (would require additional API calls)
 - Custom evaluator types beyond exact match
 - Batch operations or import/export
@@ -928,11 +945,13 @@ In `app/views/active_prompt/prompts/show.html.erb`, add a link to evaluations:
 - Local evaluation option (all evals run on OpenAI)
 
 ### API Key Requirements
+
 - Requires OpenAI API key with access to Evals API
 - Evals API may not be available on all OpenAI accounts
 - Consider rate limits and costs
 
 ### Error Handling
+
 - File upload failures
 - Eval creation failures
 - Polling timeouts

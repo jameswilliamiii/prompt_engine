@@ -14,7 +14,7 @@ puts "-" * 50
 
 # 1. Check Settings API key
 puts "\n1. Settings API Key Integration:"
-settings = ActivePrompt::Setting.instance
+settings = PromptEngine::Setting.instance
 if settings.openai_configured?
   puts "✅ OpenAI API key configured in Settings"
   puts "   Masked key: #{settings.masked_openai_api_key}"
@@ -26,7 +26,7 @@ end
 puts "\n2. Creating Prompts with Different Grader Types:"
 
 # Exact match example
-sentiment_prompt = ActivePrompt::Prompt.find_or_create_by!(name: "Sentiment Analyzer") do |p|
+sentiment_prompt = PromptEngine::Prompt.find_or_create_by!(name: "Sentiment Analyzer") do |p|
   p.content = "Analyze the sentiment of this text: {{text}}. Respond with exactly one word: positive, negative, or neutral."
   p.status = "active"
 end
@@ -38,7 +38,7 @@ exact_match_eval = sentiment_prompt.eval_sets.find_or_create_by!(name: "Exact Ma
 end
 
 # Regex example
-email_prompt = ActivePrompt::Prompt.find_or_create_by!(name: "Email Extractor") do |p|
+email_prompt = PromptEngine::Prompt.find_or_create_by!(name: "Email Extractor") do |p|
   p.content = "Extract the email address from this text: {{text}}"
   p.status = "active"
 end
@@ -47,11 +47,11 @@ email_prompt.sync_parameters!
 regex_eval = email_prompt.eval_sets.find_or_create_by!(name: "Email Format Test") do |es|
   es.description = "Tests email extraction with regex"
   es.grader_type = "regex"
-  es.grader_config = { "pattern" => '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$' }
+  es.grader_config = {"pattern" => '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'}
 end
 
 # Contains example
-summary_prompt = ActivePrompt::Prompt.find_or_create_by!(name: "Text Summarizer") do |p|
+summary_prompt = PromptEngine::Prompt.find_or_create_by!(name: "Text Summarizer") do |p|
   p.content = "Summarize this article about {{topic}}: {{article}}"
   p.status = "active"
 end
@@ -63,7 +63,7 @@ contains_eval = summary_prompt.eval_sets.find_or_create_by!(name: "Key Points Te
 end
 
 # JSON Schema example
-api_prompt = ActivePrompt::Prompt.find_or_create_by!(name: "API Response Generator") do |p|
+api_prompt = PromptEngine::Prompt.find_or_create_by!(name: "API Response Generator") do |p|
   p.content = "Generate a JSON API response for a user with name: {{name}} and role: {{role}}"
   p.status = "active"
 end
@@ -79,8 +79,8 @@ json_eval = api_prompt.eval_sets.find_or_create_by!(name: "Response Schema Test"
         "user" => {
           "type" => "object",
           "properties" => {
-            "name" => { "type" => "string" },
-            "role" => { "type" => "string" }
+            "name" => {"type" => "string"},
+            "role" => {"type" => "string"}
           },
           "required" => ["name", "role"]
         }
@@ -102,29 +102,29 @@ puts "\n3. Adding Test Cases:"
 # Add test cases for exact match
 if exact_match_eval.test_cases.empty?
   exact_match_eval.test_cases.create!([
-    { input_variables: { text: "I love this product!" }, expected_output: "positive" },
-    { input_variables: { text: "This is terrible." }, expected_output: "negative" },
-    { input_variables: { text: "It's okay, I guess." }, expected_output: "neutral" }
+    {input_variables: {text: "I love this product!"}, expected_output: "positive"},
+    {input_variables: {text: "This is terrible."}, expected_output: "negative"},
+    {input_variables: {text: "It's okay, I guess."}, expected_output: "neutral"}
   ])
 end
 
 # Add test cases for regex
 if regex_eval.test_cases.empty?
   regex_eval.test_cases.create!([
-    { input_variables: { text: "Contact me at john@example.com" }, expected_output: "john@example.com" },
-    { input_variables: { text: "Email: support@company.org" }, expected_output: "support@company.org" }
+    {input_variables: {text: "Contact me at john@example.com"}, expected_output: "john@example.com"},
+    {input_variables: {text: "Email: support@company.org"}, expected_output: "support@company.org"}
   ])
 end
 
 # Add test cases for contains
 if contains_eval.test_cases.empty?
   contains_eval.test_cases.create!([
-    { 
-      input_variables: { 
-        topic: "climate change", 
-        article: "Global temperatures are rising due to greenhouse gas emissions..." 
-      }, 
-      expected_output: "greenhouse gas" 
+    {
+      input_variables: {
+        topic: "climate change",
+        article: "Global temperatures are rising due to greenhouse gas emissions..."
+      },
+      expected_output: "greenhouse gas"
     }
   ])
 end
@@ -132,9 +132,9 @@ end
 # Add test cases for JSON schema
 if json_eval.test_cases.empty?
   json_eval.test_cases.create!([
-    { 
-      input_variables: { name: "Alice", role: "admin" }, 
-      expected_output: '{"user":{"name":"Alice","role":"admin"}}' 
+    {
+      input_variables: {name: "Alice", role: "admin"},
+      expected_output: '{"user":{"name":"Alice","role":"admin"}}'
     }
   ])
 end
@@ -150,14 +150,14 @@ puts "   Access via 'Import' button on any eval set page"
 
 # 5. Demonstrate metrics
 puts "\n5. Metrics Dashboard:"
-sentiment_eval_with_runs = ActivePrompt::EvalSet.joins(:eval_runs)
-                                              .where(eval_runs: { status: 'completed' })
-                                              .first
+sentiment_eval_with_runs = PromptEngine::EvalSet.joins(:eval_runs)
+  .where(eval_runs: {status: "completed"})
+  .first
 
 if sentiment_eval_with_runs
   puts "✅ Found eval set with completed runs: #{sentiment_eval_with_runs.name}"
   puts "   Average success rate: #{sentiment_eval_with_runs.average_success_rate}%"
-  puts "   View full metrics at: /active_prompt/prompts/#{sentiment_eval_with_runs.prompt_id}/eval_sets/#{sentiment_eval_with_runs.id}/metrics"
+  puts "   View full metrics at: /prompt_engine/prompts/#{sentiment_eval_with_runs.prompt_id}/eval_sets/#{sentiment_eval_with_runs.id}/metrics"
 else
   puts "   No completed evaluation runs yet"
   puts "   Run evaluations to see metrics dashboard with:"
@@ -187,7 +187,7 @@ puts "✅ Metrics dashboard with charts"
 puts "✅ Comprehensive test coverage"
 
 puts "\nTo explore the features:"
-puts "1. Visit http://localhost:3000/active_prompt"
+puts "1. Visit http://localhost:3000/prompt_engine"
 puts "2. Click on any prompt → Evaluations"
 puts "3. Create eval sets with different grader types"
 puts "4. Import test cases or add manually"

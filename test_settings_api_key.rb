@@ -6,16 +6,16 @@
 puts "\n=== Testing Eval with Settings API Key ==="
 
 # 1. Check current Settings configuration
-settings = ActivePrompt::Setting.instance
+settings = PromptEngine::Setting.instance
 puts "\nCurrent Settings:"
 puts "OpenAI API key configured: #{settings.openai_configured?}"
 puts "Masked key: #{settings.masked_openai_api_key}" if settings.openai_configured?
 
 # 2. Test OpenAI client initialization
 begin
-  client = ActivePrompt::OpenAiEvalsClient.new
+  client = PromptEngine::OpenAiEvalsClient.new
   puts "✓ OpenAI client initialized successfully"
-rescue ActivePrompt::OpenAiEvalsClient::AuthenticationError => e
+rescue PromptEngine::OpenAiEvalsClient::AuthenticationError => e
   puts "✗ OpenAI client failed: #{e.message}"
   puts "\nTo fix this:"
   puts "1. Go to Settings in the admin interface"
@@ -25,7 +25,7 @@ rescue ActivePrompt::OpenAiEvalsClient::AuthenticationError => e
 end
 
 # 3. Find or create test data
-prompt = ActivePrompt::Prompt.find_or_create_by!(name: "Test Sentiment") do |p|
+prompt = PromptEngine::Prompt.find_or_create_by!(name: "Test Sentiment") do |p|
   p.content = "Classify sentiment: {{text}}"
   p.status = "active"
 end
@@ -36,7 +36,7 @@ end
 
 if eval_set.test_cases.empty?
   eval_set.test_cases.create!(
-    input_variables: { text: "Great product!" },
+    input_variables: {text: "Great product!"},
     expected_output: "positive"
   )
 end
@@ -47,14 +47,14 @@ puts "  Eval set: #{eval_set.name}"
 puts "  Test cases: #{eval_set.test_cases.count}"
 
 # 4. Check if we can run evaluation
-controller = ActivePrompt::EvalSetsController.new
+controller = PromptEngine::EvalSetsController.new
 controller.instance_variable_set(:@prompt, prompt)
 controller.instance_variable_set(:@eval_set, eval_set)
 
 if controller.send(:api_key_configured?)
   puts "\n✓ API key is configured and ready for evaluation!"
   puts "\nYou can now:"
-  puts "1. Visit http://localhost:3000/active_prompt/prompts/#{prompt.id}/eval_sets/#{eval_set.id}"
+  puts "1. Visit http://localhost:3000/prompt_engine/prompts/#{prompt.id}/eval_sets/#{eval_set.id}"
   puts "2. Click 'Run Evaluation' to test with the Settings API key"
 else
   puts "\n✗ API key not configured"

@@ -16,7 +16,7 @@ RSpec::Core::RakeTask.new(:spec) do |t|
 end
 
 # Add setup task shortcut
-desc "Setup ActivePrompt dummy app for development and testing"
-task setup: "app:active_prompt:setup"
+desc "Setup PromptEngine dummy app for development and testing"
+task setup: "app:prompt_engine:setup"
 
 task default: :spec

@@ -1,23 +1,23 @@
 class CreateEvalTables < ActiveRecord::Migration[7.1]
   def change
-    create_table :active_prompt_eval_sets do |t|
+    create_table :prompt_engine_eval_sets do |t|
       t.string :name, null: false
       t.text :description
-      t.references :prompt, null: false, foreign_key: { to_table: :active_prompt_prompts }
+      t.references :prompt, null: false, foreign_key: { to_table: :prompt_engine_prompts }
       t.timestamps
     end
     
-    create_table :active_prompt_test_cases do |t|
-      t.references :eval_set, null: false, foreign_key: { to_table: :active_prompt_eval_sets }
+    create_table :prompt_engine_test_cases do |t|
+      t.references :eval_set, null: false, foreign_key: { to_table: :prompt_engine_eval_sets }
       t.json :input_variables, null: false, default: {}
       t.text :expected_output, null: false
       t.text :description
       t.timestamps
     end
     
-    create_table :active_prompt_eval_runs do |t|
-      t.references :eval_set, null: false, foreign_key: { to_table: :active_prompt_eval_sets }
-      t.references :prompt_version, null: false, foreign_key: { to_table: :active_prompt_prompt_versions }
+    create_table :prompt_engine_eval_runs do |t|
+      t.references :eval_set, null: false, foreign_key: { to_table: :prompt_engine_eval_sets }
+      t.references :prompt_version, null: false, foreign_key: { to_table: :prompt_engine_prompt_versions }
       t.integer :status, default: 0, null: false
       t.datetime :started_at
       t.datetime :completed_at
@@ -28,9 +28,9 @@ class CreateEvalTables < ActiveRecord::Migration[7.1]
       t.timestamps
     end
     
-    create_table :active_prompt_eval_results do |t|
-      t.references :eval_run, null: false, foreign_key: { to_table: :active_prompt_eval_runs }
-      t.references :test_case, null: false, foreign_key: { to_table: :active_prompt_test_cases }
+    create_table :prompt_engine_eval_results do |t|
+      t.references :eval_run, null: false, foreign_key: { to_table: :prompt_engine_eval_runs }
+      t.references :test_case, null: false, foreign_key: { to_table: :prompt_engine_test_cases }
       t.text :actual_output
       t.boolean :passed, default: false
       t.integer :execution_time_ms
@@ -38,6 +38,6 @@ class CreateEvalTables < ActiveRecord::Migration[7.1]
       t.timestamps
     end
     
-    add_index :active_prompt_eval_sets, [:prompt_id, :name], unique: true
+    add_index :prompt_engine_eval_sets, [:prompt_id, :name], unique: true
   end
 end

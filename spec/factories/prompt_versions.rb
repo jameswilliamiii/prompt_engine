@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :prompt_version, class: 'ActivePrompt::PromptVersion' do
+  factory :prompt_version, class: 'PromptEngine::PromptVersion' do
     association :prompt, factory: :prompt
     # version_number is automatically set by the model
     content { "Version content" }

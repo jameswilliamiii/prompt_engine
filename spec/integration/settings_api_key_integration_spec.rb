@@ -9,20 +9,20 @@ RSpec.describe "Settings API Key Integration", type: :integration do
   describe "OpenAI client API key precedence" do
     context "when API key is set in Settings" do
       before do
-        ActivePrompt::Setting.instance.update!(openai_api_key: "sk-settings-key-123")
+        PromptEngine::Setting.instance.update!(openai_api_key: "sk-settings-key-123")
       end
       
       it "uses Settings API key over Rails credentials" do
         # Mock Rails credentials to return different key
         allow(Rails.application.credentials).to receive(:dig).with(:openai, :api_key).and_return("sk-rails-key-456")
         
-        client = ActivePrompt::OpenAiEvalsClient.new
+        client = PromptEngine::OpenAiEvalsClient.new
         # The client should use the Settings key
         expect(client.instance_variable_get(:@api_key)).to eq("sk-settings-key-123")
       end
       
       it "passes Settings API key to evaluation runner" do
-        runner = ActivePrompt::EvaluationRunner.new(eval_run)
+        runner = PromptEngine::EvaluationRunner.new(eval_run)
         client = runner.instance_variable_get(:@client)
         
         expect(client.instance_variable_get(:@api_key)).to eq("sk-settings-key-123")
@@ -31,34 +31,34 @@ RSpec.describe "Settings API Key Integration", type: :integration do
     
     context "when API key is NOT set in Settings" do
       before do
-        ActivePrompt::Setting.instance.update!(openai_api_key: nil)
+        PromptEngine::Setting.instance.update!(openai_api_key: nil)
       end
       
       it "falls back to Rails credentials" do
         allow(Rails.application.credentials).to receive(:dig).with(:openai, :api_key).and_return("sk-rails-key-456")
         
-        client = ActivePrompt::OpenAiEvalsClient.new
+        client = PromptEngine::OpenAiEvalsClient.new
         expect(client.instance_variable_get(:@api_key)).to eq("sk-rails-key-456")
       end
     end
     
     context "when no API key is available" do
       before do
-        ActivePrompt::Setting.instance.update!(openai_api_key: nil)
+        PromptEngine::Setting.instance.update!(openai_api_key: nil)
         allow(Rails.application.credentials).to receive(:dig).with(:openai, :api_key).and_return(nil)
       end
       
       it "raises authentication error" do
         expect {
-          ActivePrompt::OpenAiEvalsClient.new
-        }.to raise_error(ActivePrompt::OpenAiEvalsClient::AuthenticationError, "OpenAI API key not configured")
+          PromptEngine::OpenAiEvalsClient.new
+        }.to raise_error(PromptEngine::OpenAiEvalsClient::AuthenticationError, "OpenAI API key not configured")
       end
     end
   end
   
   describe "Playground executor API key integration" do
     let(:playground_executor) do
-      ActivePrompt::PlaygroundExecutor.new(
+      PromptEngine::PlaygroundExecutor.new(
         prompt_version: prompt_version,
         input_variables: { topic: "test" }
       )
@@ -70,7 +70,7 @@ RSpec.describe "Settings API Key Integration", type: :integration do
       end
       
       xit "uses Settings API key when available" do
-        ActivePrompt::Setting.instance.update!(openai_api_key: "sk-settings-openai")
+        PromptEngine::Setting.instance.update!(openai_api_key: "sk-settings-openai")
         allow(Rails.application.credentials).to receive(:dig).with(:openai, :api_key).and_return("sk-rails-openai")
         
         # Mock the OpenAI client
@@ -96,7 +96,7 @@ RSpec.describe "Settings API Key Integration", type: :integration do
       end
       
       xit "uses Settings API key when available" do
-        ActivePrompt::Setting.instance.update!(anthropic_api_key: "sk-ant-settings-key")
+        PromptEngine::Setting.instance.update!(anthropic_api_key: "sk-ant-settings-key")
         allow(Rails.application.credentials).to receive(:dig).with(:anthropic, :api_key).and_return("sk-ant-rails-key")
         
         # Mock the Anthropic client
@@ -119,57 +119,57 @@ RSpec.describe "Settings API Key Integration", type: :integration do
   describe "Settings update workflow" do
     it "allows updating API keys through settings and immediately uses them" do
       # Start with no API key
-      ActivePrompt::Setting.instance.update!(openai_api_key: nil)
+      PromptEngine::Setting.instance.update!(openai_api_key: nil)
       
       # Verify client can't be created
       expect {
-        ActivePrompt::OpenAiEvalsClient.new
-      }.to raise_error(ActivePrompt::OpenAiEvalsClient::AuthenticationError)
+        PromptEngine::OpenAiEvalsClient.new
+      }.to raise_error(PromptEngine::OpenAiEvalsClient::AuthenticationError)
       
       # Update settings with API key
-      ActivePrompt::Setting.instance.update!(openai_api_key: "sk-new-key-789")
+      PromptEngine::Setting.instance.update!(openai_api_key: "sk-new-key-789")
       
       # Now client should work
-      client = ActivePrompt::OpenAiEvalsClient.new
+      client = PromptEngine::OpenAiEvalsClient.new
       expect(client.instance_variable_get(:@api_key)).to eq("sk-new-key-789")
     end
     
     it "handles clearing API keys from settings" do
       # Start with API key in settings
-      ActivePrompt::Setting.instance.update!(openai_api_key: "sk-old-key")
+      PromptEngine::Setting.instance.update!(openai_api_key: "sk-old-key")
       
       # Verify client works with key
-      client = ActivePrompt::OpenAiEvalsClient.new
+      client = PromptEngine::OpenAiEvalsClient.new
       expect(client.instance_variable_get(:@api_key)).to eq("sk-old-key")
       
       # Clear settings API key to nil (not empty string)
-      ActivePrompt::Setting.instance.update!(openai_api_key: nil)
+      PromptEngine::Setting.instance.update!(openai_api_key: nil)
       
       # Set up Rails credentials as fallback
       allow(Rails.application.credentials).to receive(:dig).with(:openai, :api_key).and_return("sk-fallback-key")
       
       # Should fall back to Rails credentials
-      client2 = ActivePrompt::OpenAiEvalsClient.new
+      client2 = PromptEngine::OpenAiEvalsClient.new
       expect(client2.instance_variable_get(:@api_key)).to eq("sk-fallback-key")
     end
   end
   
   describe "Error handling with invalid API keys" do
     before do
-      ActivePrompt::Setting.instance.update!(openai_api_key: "sk-invalid-key")
+      PromptEngine::Setting.instance.update!(openai_api_key: "sk-invalid-key")
     end
     
     it "handles authentication errors gracefully in evaluation runner" do
       # Mock the client to simulate auth error
-      mock_client = instance_double(ActivePrompt::OpenAiEvalsClient)
-      allow(ActivePrompt::OpenAiEvalsClient).to receive(:new).and_return(mock_client)
+      mock_client = instance_double(PromptEngine::OpenAiEvalsClient)
+      allow(PromptEngine::OpenAiEvalsClient).to receive(:new).and_return(mock_client)
       allow(mock_client).to receive(:create_eval).and_raise(
-        ActivePrompt::OpenAiEvalsClient::AuthenticationError, "Invalid API key"
+        PromptEngine::OpenAiEvalsClient::AuthenticationError, "Invalid API key"
       )
       
-      runner = ActivePrompt::EvaluationRunner.new(eval_run)
+      runner = PromptEngine::EvaluationRunner.new(eval_run)
       
-      expect { runner.execute }.to raise_error(ActivePrompt::OpenAiEvalsClient::AuthenticationError)
+      expect { runner.execute }.to raise_error(PromptEngine::OpenAiEvalsClient::AuthenticationError)
       
       eval_run.reload
       expect(eval_run.status).to eq("failed")
@@ -180,17 +180,17 @@ RSpec.describe "Settings API Key Integration", type: :integration do
   describe "Multiple provider API keys" do
     it "manages separate API keys for different providers" do
       # Set different keys for different providers
-      ActivePrompt::Setting.instance.update!(
+      PromptEngine::Setting.instance.update!(
         openai_api_key: "sk-openai-123",
         anthropic_api_key: "sk-ant-456"
       )
       
       # Verify OpenAI client uses OpenAI key
-      openai_client = ActivePrompt::OpenAiEvalsClient.new
+      openai_client = PromptEngine::OpenAiEvalsClient.new
       expect(openai_client.instance_variable_get(:@api_key)).to eq("sk-openai-123")
       
       # Verify Anthropic operations would use Anthropic key
-      settings = ActivePrompt::Setting.instance
+      settings = PromptEngine::Setting.instance
       expect(settings.openai_api_key).to eq("sk-openai-123")
       expect(settings.anthropic_api_key).to eq("sk-ant-456")
     end

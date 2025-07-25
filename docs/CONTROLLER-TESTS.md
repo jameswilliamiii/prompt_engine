@@ -2,11 +2,14 @@
 
 ## Overview
 
-This document outlines the best practices for testing controllers in the ActivePrompt Rails engine. Since Rails 5 and RSpec 3.5, the recommended approach has shifted from controller specs to request specs, which test the full request/response cycle including routing, middleware, and views.
+This document outlines the best practices for testing controllers in the PromptEngine Rails engine.
+Since Rails 5 and RSpec 3.5, the recommended approach has shifted from controller specs to request
+specs, which test the full request/response cycle including routing, middleware, and views.
 
 ## Key Principle: Use Request Specs, Not Controller Specs
 
 Rails and RSpec now recommend using request specs instead of controller specs because:
+
 - Request specs test the full stack including routing and middleware
 - Controller specs bypass critical parts of the application
 - Performance improvements in Rails 5+ eliminated the speed advantage of controller specs
@@ -15,6 +18,7 @@ Rails and RSpec now recommend using request specs instead of controller specs be
 ## Migration from Controller Specs to Request Specs
 
 ### Before (Controller Spec - Deprecated)
+
 ```ruby
 # spec/controllers/prompts_controller_spec.rb
 RSpec.describe PromptsController, type: :controller do
@@ -28,29 +32,30 @@ end
 ```
 
 ### After (Request Spec - Recommended)
+
 ```ruby
 # spec/requests/prompts_spec.rb
 RSpec.describe "Prompts", type: :request do
-  describe "GET /active_prompt/prompts" do
+  describe "GET /prompt_engine/prompts" do
     it "returns a success response" do
-      get active_prompt.prompts_path
+      get prompt_engine.prompts_path
       expect(response).to be_successful
     end
   end
 end
 ```
 
-## ActivePrompt-Specific Testing Patterns
+## PromptEngine-Specific Testing Patterns
 
 ### 1. Engine Route Helpers
 
-Since ActivePrompt is a mountable engine, use the engine's route helpers:
+Since PromptEngine is a mountable engine, use the engine's route helpers:
 
 ```ruby
 # Use engine route helpers
-get active_prompt.prompts_path
-post active_prompt.prompt_path(prompt)
-patch active_prompt.prompt_version_path(prompt, version)
+get prompt_engine.prompts_path
+post prompt_engine.prompt_path(prompt)
+patch prompt_engine.prompt_version_path(prompt, version)
 
 # NOT plain paths
 # get "/prompts"  # Wrong - doesn't include engine mount point
@@ -59,24 +64,26 @@ patch active_prompt.prompt_version_path(prompt, version)
 ### 2. Testing CRUD Operations
 
 #### Index Action
+
 ```ruby
-describe "GET /active_prompt/prompts" do
+describe "GET /prompt_engine/prompts" do
   let!(:draft_prompt) { create(:prompt, :draft) }
-  let!(:active_prompt) { create(:prompt, :active) }
-  
+  let!(:prompt_engine) { create(:prompt, :active) }
+
   it "displays all prompts" do
-    get active_prompt.prompts_path
-    
+    get prompt_engine.prompts_path
+
     expect(response).to be_successful
     expect(response.body).to include(draft_prompt.name)
-    expect(response.body).to include(active_prompt.name)
+    expect(response.body).to include(prompt_engine.name)
   end
 end
 ```
 
 #### Create Action
+
 ```ruby
-describe "POST /active_prompt/prompts" do
+describe "POST /prompt_engine/prompts" do
   context "with valid parameters" do
     let(:valid_attributes) do
       {
@@ -86,28 +93,28 @@ describe "POST /active_prompt/prompts" do
         status: "draft"
       }
     end
-    
+
     it "creates a new prompt" do
       expect {
-        post active_prompt.prompts_path, params: { prompt: valid_attributes }
-      }.to change(ActivePrompt::Prompt, :count).by(1)
-      
-      expect(response).to redirect_to(active_prompt.prompt_path(ActivePrompt::Prompt.last))
+        post prompt_engine.prompts_path, params: { prompt: valid_attributes }
+      }.to change(PromptEngine::Prompt, :count).by(1)
+
+      expect(response).to redirect_to(prompt_engine.prompt_path(PromptEngine::Prompt.last))
       follow_redirect!
       expect(response.body).to include("Prompt was successfully created")
     end
   end
-  
+
   context "with invalid parameters" do
     let(:invalid_attributes) do
       { name: "", content: "" }
     end
-    
+
     it "does not create a new prompt" do
       expect {
-        post active_prompt.prompts_path, params: { prompt: invalid_attributes }
-      }.not_to change(ActivePrompt::Prompt, :count)
-      
+        post prompt_engine.prompts_path, params: { prompt: invalid_attributes }
+      }.not_to change(PromptEngine::Prompt, :count)
+
       expect(response).to be_unprocessable
     end
   end
@@ -115,38 +122,40 @@ end
 ```
 
 #### Update Action
+
 ```ruby
-describe "PATCH /active_prompt/prompts/:id" do
+describe "PATCH /prompt_engine/prompts/:id" do
   let(:prompt) { create(:prompt) }
-  
+
   context "with valid parameters" do
     let(:new_attributes) do
       { name: "updated_name", content: "Updated content" }
     end
-    
+
     it "updates the prompt" do
-      patch active_prompt.prompt_path(prompt), params: { prompt: new_attributes }
-      
+      patch prompt_engine.prompt_path(prompt), params: { prompt: new_attributes }
+
       prompt.reload
       expect(prompt.name).to eq("updated_name")
       expect(prompt.content).to eq("Updated content")
-      expect(response).to redirect_to(active_prompt.prompt_path(prompt))
+      expect(response).to redirect_to(prompt_engine.prompt_path(prompt))
     end
   end
 end
 ```
 
 #### Destroy Action
+
 ```ruby
-describe "DELETE /active_prompt/prompts/:id" do
+describe "DELETE /prompt_engine/prompts/:id" do
   let!(:prompt) { create(:prompt) }
-  
+
   it "destroys the prompt" do
     expect {
-      delete active_prompt.prompt_path(prompt)
-    }.to change(ActivePrompt::Prompt, :count).by(-1)
-    
-    expect(response).to redirect_to(active_prompt.prompts_path)
+      delete prompt_engine.prompt_path(prompt)
+    }.to change(PromptEngine::Prompt, :count).by(-1)
+
+    expect(response).to redirect_to(prompt_engine.prompts_path)
   end
 end
 ```
@@ -168,12 +177,12 @@ RSpec.configure do |config|
 end
 
 # In your spec
-describe "GET /active_prompt/prompts.json" do
+describe "GET /prompt_engine/prompts.json" do
   let!(:prompt) { create(:prompt) }
-  
+
   it "returns prompts as JSON" do
-    get active_prompt.prompts_path, headers: { "Accept" => "application/json" }
-    
+    get prompt_engine.prompts_path, headers: { "Accept" => "application/json" }
+
     expect(response).to be_successful
     expect(response.content_type).to match(/application\/json/)
     expect(json.first["name"]).to eq(prompt.name)
@@ -186,32 +195,32 @@ end
 ```ruby
 describe "Playground", type: :request do
   let(:prompt) { create(:prompt, content: "Hello {{name}}") }
-  
-  describe "GET /active_prompt/prompts/:id/playground" do
+
+  describe "GET /prompt_engine/prompts/:id/playground" do
     it "displays the playground interface" do
-      get active_prompt.prompt_playground_path(prompt)
-      
+      get prompt_engine.prompt_playground_path(prompt)
+
       expect(response).to be_successful
       expect(response.body).to include("Test Your Prompt")
       expect(response.body).to include(prompt.content)
     end
   end
-  
-  describe "POST /active_prompt/prompts/:id/playground/execute" do
+
+  describe "POST /prompt_engine/prompts/:id/playground/execute" do
     before do
       # Configure test API keys
-      allow(ActivePrompt).to receive(:anthropic_api_key).and_return("test-key")
+      allow(PromptEngine).to receive(:anthropic_api_key).and_return("test-key")
     end
-    
+
     it "executes the prompt with provided variables" do
       VCR.use_cassette("playground_execution") do
-        post active_prompt.prompt_playground_execute_path(prompt), 
-             params: { 
+        post prompt_engine.prompt_playground_execute_path(prompt),
+             params: {
                variables: { name: "World" },
                provider: "anthropic",
                model: "claude-3-5-sonnet"
              }
-        
+
         expect(response).to be_successful
         expect(json["success"]).to be true
         expect(json["result"]).to be_present
@@ -228,7 +237,7 @@ Ensure only permitted parameters are processed:
 ```ruby
 describe "parameter filtering" do
   it "permits only allowed attributes" do
-    post active_prompt.prompts_path, params: {
+    post prompt_engine.prompts_path, params: {
       prompt: {
         name: "test",
         content: "content",
@@ -236,8 +245,8 @@ describe "parameter filtering" do
         secret_key: "hack" # Should be filtered
       }
     }
-    
-    created_prompt = ActivePrompt::Prompt.last
+
+    created_prompt = PromptEngine::Prompt.last
     expect(created_prompt.attributes).not_to include("admin_flag", "secret_key")
   end
 end
@@ -257,14 +266,14 @@ RSpec.shared_examples "requires existing prompt" do
 end
 
 # Usage
-describe "GET /active_prompt/prompts/:id" do
-  let(:make_request) { |id| get active_prompt.prompt_path(id) }
-  
+describe "GET /prompt_engine/prompts/:id" do
+  let(:make_request) { |id| get prompt_engine.prompt_path(id) }
+
   it_behaves_like "requires existing prompt"
-  
+
   context "when prompt exists" do
     let(:prompt) { create(:prompt) }
-    
+
     it "displays the prompt" do
       make_request(prompt.id)
       expect(response).to be_successful
@@ -278,19 +287,19 @@ end
 ```ruby
 describe "flash notifications" do
   it "displays success message after creation" do
-    post active_prompt.prompts_path, params: { 
-      prompt: attributes_for(:prompt) 
+    post prompt_engine.prompts_path, params: {
+      prompt: attributes_for(:prompt)
     }
-    
+
     follow_redirect!
     expect(response.body).to include("Prompt was successfully created")
   end
-  
+
   it "displays error message on failure" do
-    post active_prompt.prompts_path, params: { 
-      prompt: { name: "" } 
+    post prompt_engine.prompts_path, params: {
+      prompt: { name: "" }
     }
-    
+
     expect(response.body).to include("error")
   end
 end
@@ -302,21 +311,21 @@ end
 describe "Version management" do
   let(:prompt) { create(:prompt) }
   let!(:version) { create(:prompt_version, prompt: prompt) }
-  
-  describe "GET /active_prompt/prompts/:id/versions" do
+
+  describe "GET /prompt_engine/prompts/:id/versions" do
     it "lists all versions" do
-      get active_prompt.prompt_versions_path(prompt)
-      
+      get prompt_engine.prompt_versions_path(prompt)
+
       expect(response).to be_successful
       expect(response.body).to include("Version #{version.version_number}")
     end
   end
-  
-  describe "POST /active_prompt/prompts/:id/versions/:version_id/restore" do
+
+  describe "POST /prompt_engine/prompts/:id/versions/:version_id/restore" do
     it "restores a previous version" do
-      post active_prompt.restore_prompt_version_path(prompt, version)
-      
-      expect(response).to redirect_to(active_prompt.prompt_path(prompt))
+      post prompt_engine.restore_prompt_version_path(prompt, version)
+
+      expect(response).to redirect_to(prompt_engine.prompt_path(prompt))
       prompt.reload
       expect(prompt.content).to eq(version.content)
     end

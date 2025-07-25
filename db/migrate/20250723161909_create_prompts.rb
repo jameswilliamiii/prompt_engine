@@ -1,6 +1,6 @@
 class CreatePrompts < ActiveRecord::Migration[8.0]
   def change
-    create_table :active_prompt_prompts do |t|
+    create_table :prompt_engine_prompts do |t|
       t.string :name
       t.text :description
       t.text :content

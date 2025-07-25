@@ -1,18 +1,22 @@
 # Sprint 6: API Integration Layer
 
 ## Sprint Goal
-Build the developer-facing API that allows host applications to easily integrate ActivePrompt, including the core render method, caching, fallbacks, and monitoring hooks.
+
+Build the developer-facing API that allows host applications to easily integrate PromptEngine,
+including the core render method, caching, fallbacks, and monitoring hooks.
 
 ## Tasks
 
 ### 1. Create Core Render Method (Priority: High)
-- [ ] Build ActivePrompt.render interface
+
+- [ ] Build PromptEngine.render interface
 - [ ] Implement prompt lookup logic
 - [ ] Add parameter validation
 - [ ] Handle version selection
 - [ ] Create response objects
 
 ### 2. Implement Caching System (Priority: High)
+
 - [ ] Design cache key structure
 - [ ] Add Rails cache integration
 - [ ] Create cache invalidation logic
@@ -20,6 +24,7 @@ Build the developer-facing API that allows host applications to easily integrate
 - [ ] Add cache hit/miss tracking
 
 ### 3. Add Fallback Support (Priority: High)
+
 - [ ] Create fallback prompt system
 - [ ] Implement fallback chains
 - [ ] Add error recovery logic
@@ -27,6 +32,7 @@ Build the developer-facing API that allows host applications to easily integrate
 - [ ] Test failure scenarios
 
 ### 4. Build Background Job Integration (Priority: Medium)
+
 - [ ] Create async render method
 - [ ] Add job queue support
 - [ ] Implement job status tracking
@@ -34,6 +40,7 @@ Build the developer-facing API that allows host applications to easily integrate
 - [ ] Handle job failures
 
 ### 5. Create Monitoring Hooks (Priority: Medium)
+
 - [ ] Add before/after callbacks
 - [ ] Create event system
 - [ ] Build instrumentation
@@ -41,6 +48,7 @@ Build the developer-facing API that allows host applications to easily integrate
 - [ ] Enable metrics collection
 
 ## Success Criteria
+
 - Simple one-line integration for developers
 - Responses are cached efficiently
 - Fallbacks provide resilience

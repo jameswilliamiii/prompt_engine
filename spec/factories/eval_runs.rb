@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :eval_run, class: 'ActivePrompt::EvalRun' do
+  factory :eval_run, class: 'PromptEngine::EvalRun' do
     association :eval_set, factory: :eval_set
     association :prompt_version, factory: :prompt_version
     status { "pending" }

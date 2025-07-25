@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :parameter, class: 'ActivePrompt::Parameter' do
+  factory :parameter, class: 'PromptEngine::Parameter' do
     sequence(:name) { |n| "param_#{n}" }
     parameter_type { 'string' }
     description { 'A test parameter' }

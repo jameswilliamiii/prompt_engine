@@ -1,12 +1,12 @@
 # desc "Explaining what the task does"
-# task :active_prompt do
+# task :prompt_engine do
 #   # Task goes here
 # end
 
-namespace :active_prompt do
+namespace :prompt_engine do
   desc "Setup dummy app for development and testing"
   task setup: :environment do
-    puts "Setting up ActivePrompt dummy app..."
+    puts "Setting up PromptEngine dummy app..."
 
     dummy_root = File.expand_path("../../spec/dummy", __dir__)
 
@@ -18,7 +18,7 @@ namespace :active_prompt do
       FileUtils.rm_f("db/test.sqlite3")
 
       # Install engine migrations
-      system("bundle exec rails active_prompt:install:migrations")
+      system("bundle exec rails prompt_engine:install:migrations")
 
       # Create and migrate databases
       system("bundle exec rails db:create")
@@ -26,7 +26,7 @@ namespace :active_prompt do
       system("RAILS_ENV=test bundle exec rails db:create")
       system("RAILS_ENV=test bundle exec rails db:migrate")
 
-      puts "✅ ActivePrompt dummy app setup complete!"
+      puts "✅ PromptEngine dummy app setup complete!"
     end
   end
 end

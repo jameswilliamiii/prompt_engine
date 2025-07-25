@@ -1,0 +1,297 @@
+<div class="admin-header">
+  <div>
+    <h1><%= @prompt.name %></h1>
+    <% if @prompt.description.present? %>
+      <p class="text-muted"><%= @prompt.description %></p>
+    <% end %>
+  </div>
+  <div class="btn-group">
+    <%= link_to "Try this Prompt", playground_prompt_path(@prompt), class: "btn btn--primary btn--medium" %>
+    <%= link_to "Test Run History", prompt_playground_run_results_path(@prompt), class: "btn btn--secondary btn--medium" %>
+    <%= link_to "Version History", prompt_versions_path(@prompt), class: "btn btn--secondary btn--medium" %>
+    <%= link_to "Evaluations", prompt_eval_sets_path(@prompt), class: "btn btn--secondary btn--medium" %>
+    <%= link_to "Edit", edit_prompt_path(@prompt), class: "btn btn--secondary btn--medium" %>
+    <%= button_to "Delete", prompt_path(@prompt), method: :delete,
+        data: { confirm: "Are you sure you want to delete this prompt?" },
+        class: "btn btn--danger btn--medium" %>
+  </div>
+</div>
+
+<div class="prompt-details">
+  <div class="card mb-lg">
+    <div class="card__header">
+      <h3 class="card__title">Configuration</h3>
+    </div>
+    <div class="card__body">
+      <div class="detail-grid">
+        <div class="detail-item">
+          <label class="detail-label">Status</label>
+          <div class="detail-value">
+            <span class="table__badge table__badge--<%= @prompt.status %>">
+              <%= @prompt.status %>
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <label class="detail-label">Model</label>
+          <div class="detail-value"><%= @prompt.model || "Not configured" %></div>
+        </div>
+
+        <div class="detail-item">
+          <label class="detail-label">Temperature</label>
+          <div class="detail-value"><%= @prompt.temperature || "Default" %></div>
+        </div>
+
+        <div class="detail-item">
+          <label class="detail-label">Max Tokens</label>
+          <div class="detail-value"><%= @prompt.max_tokens || "Default" %></div>
+        </div>
+
+        <div class="detail-item">
+          <label class="detail-label">Created</label>
+          <div class="detail-value"><%= @prompt.created_at.strftime("%B %d, %Y at %I:%M %p") %></div>
+        </div>
+
+        <div class="detail-item">
+          <label class="detail-label">Last Updated</label>
+          <div class="detail-value"><%= @prompt.updated_at.strftime("%B %d, %Y at %I:%M %p") %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <% if @prompt.parameters.any? %>
+    <div class="card mb-lg">
+      <div class="card__header">
+        <h3 class="card__title">Parameters</h3>
+      </div>
+      <div class="card__body">
+        <div class="parameters-table">
+          <% @prompt.parameters.ordered.each do |parameter| %>
+            <div class="parameter-row">
+              <div class="parameter-name"><%= parameter.name %></div>
+              <div class="parameter-details">
+                <span class="parameter-type"><%= parameter.parameter_type %></span>
+                <span class="parameter-required <%= parameter.required? ? 'required' : 'optional' %>">
+                  <%= parameter.required? ? 'Required' : 'Optional' %>
+                </span>
+                <% if parameter.default_value.present? %>
+                  <span class="parameter-default">Default: <%= parameter.default_value %></span>
+                <% end %>
+              </div>
+              <% if parameter.description.present? %>
+                <div class="parameter-description"><%= parameter.description %></div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="card mb-lg">
+    <div class="card__header">
+      <h3 class="card__title">Usage Example</h3>
+    </div>
+    <div class="card__body">
+      <p class="text-muted mb-md">Use this prompt in your Rails application:</p>
+      <pre class="code-example"># In your controller or model
+result = PromptEngine.render(:<%= @prompt.name %><% 
+  if @prompt.parameters.any?
+%>, variables: {<% @prompt.parameters.ordered.each_with_index do |param, index| %>
+  <%= param.name %>: <%= param.example_value.presence || "\"value#{index + 1}\"" %>,<% end %>
+}<% else %> # No variables needed<% end %>)
+
+# Access the rendered content
+rendered_content = result[:content]
+
+# Access other prompt settings
+model = result[:model]              # => "<%= @prompt.model || "gpt-4" %>"
+temperature = result[:temperature]  # => <%= @prompt.temperature || "0.7" %>
+max_tokens = result[:max_tokens]    # => <%= @prompt.max_tokens || "1000" %>
+
+# Use with your AI service
+response = OpenAI::Client.new.chat(
+  parameters: {
+    model: model,
+    messages: [
+      { role: "system", content: result[:system_message] },
+      { role: "user", content: rendered_content }
+    ],
+    temperature: temperature,
+    max_tokens: max_tokens
+  }
+)</pre>
+    </div>
+  </div>
+
+  <% if @prompt.system_message.present? %>
+    <div class="card mb-lg">
+      <div class="card__header">
+        <h3 class="card__title">System Message</h3>
+      </div>
+      <div class="card__body">
+        <pre class="prompt-content"><%= @prompt.system_message %></pre>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="card mb-lg">
+    <div class="card__header">
+      <h3 class="card__title">Prompt Content</h3>
+    </div>
+    <div class="card__body">
+      <pre class="prompt-content"><%= @prompt.content %></pre>
+    </div>
+  </div>
+
+  <div class="card mb-lg">
+    <div class="card__header">
+      <h3 class="card__title">Recent Test Runs</h3>
+      <div class="card__actions">
+        <%= link_to "View All", prompt_playground_run_results_path(@prompt), class: "btn btn--secondary btn--small" %>
+      </div>
+    </div>
+    <div class="card__body">
+      <% if @recent_test_runs.any? %>
+        <div class="table-container table-container--compact">
+          <table class="table table--simple">
+            <tbody>
+              <% @recent_test_runs.each do |run| %>
+                <tr>
+                  <td>
+                    <div class="table__primary"><%= run.created_at.strftime("%b %d, %Y %I:%M %p") %></div>
+                  </td>
+                  <td>
+                    <span class="table__badge table__badge--info">v<%= run.prompt_version.version_number %></span>
+                  </td>
+                  <td>
+                    <span class="table__secondary"><%= run.provider %></span>
+                  </td>
+                  <td>
+                    <span class="table__secondary"><%= run.model %></span>
+                  </td>
+                  <td>
+                    <div class="table__metric">
+                      <span class="table__metric-value"><%= run.execution_time %></span>
+                      <span class="table__metric-unit">s</span>
+                    </div>
+                  </td>
+                  <td>
+                    <% if run.token_count %>
+                      <span class="table__secondary"><%= run.token_count %> tokens</span>
+                    <% end %>
+                  </td>
+                  <td class="table__actions">
+                    <%= link_to "View Details", playground_run_result_path(run), class: "table__action" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-muted">No test runs yet. <%= link_to "Test this prompt", playground_prompt_path(@prompt) %> in the playground.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card mb-lg">
+    <div class="card__header">
+      <h3 class="card__title">Evaluation Sets</h3>
+      <div class="card__actions">
+        <%= link_to "View All", prompt_eval_sets_path(@prompt), class: "btn btn--secondary btn--small" %>
+        <%= link_to "New Evaluation Set", new_prompt_eval_set_path(@prompt), class: "btn btn--primary btn--small" %>
+      </div>
+    </div>
+    <div class="card__body">
+      <% if @eval_sets.any? %>
+        <div class="eval-sets-summary mb-md">
+          <% @eval_sets.each do |eval_set| %>
+            <div class="eval-set-summary-item">
+              <div class="eval-set-summary__header">
+                <h4 class="eval-set-summary__title">
+                  <%= link_to eval_set.name, prompt_eval_set_path(@prompt, eval_set), class: "table__link" %>
+                </h4>
+                <div class="eval-set-summary__stats">
+                  <span class="table__badge table__badge--secondary">
+                    <%= pluralize(eval_set.test_cases.count, 'test') %>
+                  </span>
+                  <% if eval_set.eval_runs.any? %>
+                    <span class="table__badge table__badge--info">
+                      <%= pluralize(eval_set.eval_runs.count, 'run') %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+              <% if eval_set.description.present? %>
+                <p class="eval-set-summary__description"><%= truncate(eval_set.description, length: 100) %></p>
+              <% end %>
+              <% latest_run = eval_set.eval_runs.order(created_at: :desc).first %>
+              <% if latest_run && latest_run.status == 'completed' && latest_run.total_count > 0 %>
+                <div class="eval-set-summary__result">
+                  Latest run: 
+                  <% success_rate = (latest_run.passed_count.to_f / latest_run.total_count * 100) %>
+                  <span class="<%= success_rate >= 80 ? 'text-success' : success_rate >= 60 ? 'text-warning' : 'text-danger' %>">
+                    <%= number_to_percentage(success_rate, precision: 1) %> passed
+                  </span>
+                  <span class="text-muted">(<%= time_ago_in_words(latest_run.created_at) %> ago)</span>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-muted">No evaluation sets yet. <%= link_to "Create an evaluation set", new_prompt_eval_set_path(@prompt) %> to start testing prompt variations.</p>
+      <% end %>
+
+      <% if @recent_eval_runs.any? %>
+        <div class="mt-lg">
+          <h4 class="mb-md">Recent Evaluation Runs</h4>
+          <div class="table-container table-container--compact">
+            <table class="table table--simple">
+              <tbody>
+                <% @recent_eval_runs.each do |run| %>
+                  <tr>
+                    <td>
+                      <div class="table__primary"><%= run.created_at.strftime("%b %d, %Y %I:%M %p") %></div>
+                    </td>
+                    <td>
+                      <%= link_to run.eval_set.name, prompt_eval_set_path(@prompt, run.eval_set), class: "table__link" %>
+                    </td>
+                    <td>
+                      <span class="table__badge table__badge--<%= run.status %>">
+                        <%= run.status.humanize %>
+                      </span>
+                    </td>
+                    <td>
+                      <% if run.status == 'completed' && run.total_count > 0 %>
+                        <% success_rate = (run.passed_count.to_f / run.total_count * 100) %>
+                        <span class="<%= success_rate >= 80 ? 'text-success' : success_rate >= 60 ? 'text-warning' : 'text-danger' %>">
+                          <%= number_to_percentage(success_rate, precision: 1) %>
+                        </span>
+                      <% else %>
+                        <span class="text-muted">—</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <%= pluralize(run.total_count, 'test') %>
+                    </td>
+                    <td class="table__actions">
+                      <%= link_to "View Details", prompt_eval_run_path(@prompt, run), class: "table__action" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="form__actions mt-lg">
+  <%= link_to "Back to Prompts", prompts_path, class: "btn btn--secondary btn--medium" %>
+</div>

@@ -1,4 +1,4 @@
-# ActivePrompt
+# PromptEngine
 
 A Rails engine for managing AI prompts with version control and secure API key storage.
 
@@ -6,13 +6,13 @@ A Rails engine for managing AI prompts with version control and secure API key s
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "active_prompt"
+gem "prompt_engine"
 ```
 
 And then execute:
 ```bash
 $ bundle
-$ rails active_prompt:install:migrations
+$ rails prompt_engine:install:migrations
 $ rails db:migrate
 ```
 
@@ -20,7 +20,7 @@ $ rails db:migrate
 
 ### Configure Encryption
 
-ActivePrompt uses Rails encryption to secure API keys. Add to your environment files:
+PromptEngine uses Rails encryption to secure API keys. Add to your environment files:
 
 ```ruby
 # config/environments/development.rb
@@ -33,7 +33,7 @@ For production, use `rails db:encryption:init` to generate secure keys.
 
 ### Configure API Keys
 
-ActivePrompt requires API keys for AI providers. See [API Credentials Setup](docs/API_CREDENTIALS.md) for detailed configuration instructions.
+PromptEngine requires API keys for AI providers. See [API Credentials Setup](docs/API_CREDENTIALS.md) for detailed configuration instructions.
 
 Quick setup:
 ```bash
@@ -53,12 +53,12 @@ anthropic:
 In your `config/routes.rb`:
 
 ```ruby
-mount ActivePrompt::Engine => "/active_prompt"
+mount PromptEngine::Engine => "/prompt_engine"
 ```
 
 ## Usage
 
-Visit `/active_prompt` to access the admin interface.
+Visit `/prompt_engine` to access the admin interface.
 
 ## Contributing
 Contribution directions go here.

@@ -1,7 +1,7 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe "Using prompts in Rails models", type: :integration do
-  # Create a sample model in the dummy app that uses ActivePrompt
+  # Create a sample model in the dummy app that uses PromptEngine
   before(:all) do
     # Define a temporary model class for testing
     class ::CustomerEmail
@@ -9,25 +9,22 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
       attr_accessor :customer_name, :product_name
 
       def generate_welcome_email
-        prompt_data = ActivePrompt.render(:welcome_email,
+        PromptEngine.render(:welcome_email,
           variables: {
             customer_name: customer_name,
             product_name: product_name
-          }
-        )
+          })
 
         # In a real app, this would call an AI service
         # For testing, we just return the rendered prompt
-        prompt_data
       end
 
       def generate_support_response(issue_description)
-        ActivePrompt.render(:support_response,
+        PromptEngine.render(:support_response,
           variables: {
             customer_name: customer_name,
             issue: issue_description
-          }
-        )
+          })
       end
     end
   end
@@ -39,7 +36,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
 
   describe "Creating and using prompts" do
     let!(:welcome_prompt) do
-      ActivePrompt::Prompt.create!(
+      PromptEngine::Prompt.create!(
         name: "welcome_email",
         content: "Write a welcome email for {{customer_name}} who just purchased {{product_name}}. Make it friendly and professional.",
         system_message: "You are a helpful customer service assistant.",
@@ -51,7 +48,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
     end
 
     let!(:support_prompt) do
-      ActivePrompt::Prompt.create!(
+      PromptEngine::Prompt.create!(
         name: "support_response",
         content: "Help {{customer_name}} with the following issue: {{issue}}",
         system_message: "You are a technical support specialist. Be helpful and concise.",
@@ -94,13 +91,13 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
       customer = CustomerEmail.new(customer_name: "Test User")
 
       expect {
-        ActivePrompt.render(:non_existent_prompt)
+        PromptEngine.render(:non_existent_prompt)
       }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
     it "only uses active prompts" do
       # Create an archived version of the same prompt
-      archived_prompt = ActivePrompt::Prompt.create!(
+      archived_prompt = PromptEngine::Prompt.create!(
         name: "welcome_email",
         content: "Old version",
         status: "archived"
@@ -119,13 +116,13 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
     end
 
     it "handles prompts without variables" do
-      simple_prompt = ActivePrompt::Prompt.create!(
+      simple_prompt = PromptEngine::Prompt.create!(
         name: "simple_greeting",
         content: "Hello! How can I help you today?",
         status: "active"
       )
 
-      result = ActivePrompt.render(:simple_greeting)
+      result = PromptEngine.render(:simple_greeting)
 
       expect(result[:content]).to eq("Hello! How can I help you today?")
     end
@@ -134,9 +131,8 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
       customer = CustomerEmail.new(customer_name: "Alice")
 
       # Don't provide product_name
-      result = ActivePrompt.render(:welcome_email,
-        variables: { customer_name: "Alice" }
-      )
+      result = PromptEngine.render(:welcome_email,
+        variables: {customer_name: "Alice"})
 
       expect(result[:content]).to include("Alice")
       expect(result[:content]).to include("{{product_name}}") # Unmatched variable preserved
@@ -166,19 +162,18 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
         private
 
         def generate_summary
-          prompt_data = ActivePrompt.render(:article_summary,
+          prompt_data = PromptEngine.render(:article_summary,
             variables: {
               title: title,
               content: content
-            }
-          )
+            })
 
           # In real usage, this would call an AI service
           self.summary = "Generated summary for: #{title}"
         end
       end
 
-      ActivePrompt::Prompt.create!(
+      PromptEngine::Prompt.create!(
         name: "article_summary",
         content: "Summarize this article titled '{{title}}': {{content}}",
         system_message: "You are a content summarizer.",

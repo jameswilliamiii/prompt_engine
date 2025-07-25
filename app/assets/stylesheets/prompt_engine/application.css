@@ -1,0 +1,22 @@
+/* PromptEngine Admin Styles
+ * 
+ * Import all component styles in the correct order
+ */
+
+@import url("foundation.css");
+@import url("layout.css");
+@import url("sidebar.css");
+@import url("buttons.css");
+@import url("forms.css");
+@import url("tables.css");
+@import url("cards.css");
+@import url("dashboard.css");
+@import url("prompts.css");
+@import url("versions.css");
+@import url("notifications.css");
+@import url("loading.css");
+@import url("comparison.css");
+@import url("evaluations.css");
+@import url("utilities.css");
+@import url("overrides.css");
+@import url("components/_test_runs.css");

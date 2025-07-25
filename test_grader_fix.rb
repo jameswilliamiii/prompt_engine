@@ -6,7 +6,7 @@
 puts "\n=== Testing Grader Types Fix ==="
 
 # Find an eval set with json_schema grader type
-json_eval = ActivePrompt::EvalSet.where(grader_type: 'json_schema').first
+json_eval = PromptEngine::EvalSet.where(grader_type: 'json_schema').first
 
 if json_eval
   puts "\nFound JSON eval set: #{json_eval.name}"
@@ -17,7 +17,7 @@ if json_eval
     prompt_version: json_eval.prompt.current_version
   )
   
-  runner = ActivePrompt::EvaluationRunner.new(eval_run)
+  runner = PromptEngine::EvaluationRunner.new(eval_run)
   
   # Test the grader configuration
   criteria = runner.send(:build_testing_criteria)
@@ -39,7 +39,7 @@ else
   puts "\nNo JSON schema eval sets found. Creating one for testing..."
   
   # Create a test prompt and eval set
-  prompt = ActivePrompt::Prompt.find_or_create_by!(name: "API Response Test") do |p|
+  prompt = PromptEngine::Prompt.find_or_create_by!(name: "API Response Test") do |p|
     p.content = "Generate a JSON response for user: {{user_name}}"
     p.status = "active"
   end

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>PromptEngine Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "prompt_engine/application", "data-turbo-track": "reload" %>
+  </head>
+
+  <body class="prompt-engine-admin">
+    <div class="admin-layout">
+      <aside class="admin-layout__sidebar">
+        <div class="admin-sidebar">
+          <div class="admin-sidebar__header">
+            <h1 class="admin-sidebar__title">PromptEngine</h1>
+            <span class="admin-sidebar__version">v<%= PromptEngine::VERSION %></span>
+          </div>
+
+          <nav class="admin-sidebar__nav">
+            <ul class="admin-nav">
+              <li class="admin-nav__item">
+                <%= link_to "Dashboard", root_path, 
+                    class: "admin-nav__link #{'admin-nav__link--active' if controller_name == 'dashboard'}" %>
+              </li>
+              <li class="admin-nav__item">
+                <%= link_to "Prompts", prompts_path, 
+                    class: "admin-nav__link #{'admin-nav__link--active' if %w[prompts versions playground].include?(controller_name)}" %>
+              </li>
+              <li class="admin-nav__item">
+                <%= link_to "Evaluations", evaluations_path, 
+                    class: "admin-nav__link #{'admin-nav__link--active' if %w[eval_sets eval_runs test_cases].include?(controller_name)}" %>
+              </li>
+              <li class="admin-nav__item">
+                <%= link_to "Test Runs", playground_run_results_path, 
+                    class: "admin-nav__link #{'admin-nav__link--active' if controller_name == 'playground_run_results'}" %>
+              </li>
+              <li class="admin-nav__item">
+                <%= link_to "Settings", edit_settings_path, 
+                    class: "admin-nav__link #{'admin-nav__link--active' if controller_name == 'settings'}" %>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </aside>
+
+      <main class="admin-layout__main">
+        <div class="admin-main">
+          <% if flash.any? %>
+            <div class="admin-notifications">
+              <% flash.each do |type, message| %>
+                <div class="admin-notification admin-notification--<%= type %>">
+                  <%= message %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+
+          <%= yield %>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

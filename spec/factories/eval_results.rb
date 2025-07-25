@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :eval_result, class: 'ActivePrompt::EvalResult' do
+  factory :eval_result, class: 'PromptEngine::EvalResult' do
     association :eval_run, factory: :eval_run
     association :test_case, factory: :test_case
     actual_output { "Artificial intelligence is a rapidly evolving field..." }

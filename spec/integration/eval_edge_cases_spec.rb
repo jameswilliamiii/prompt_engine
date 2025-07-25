@@ -102,17 +102,17 @@ RSpec.describe "Evaluation Edge Cases", type: :integration do
     
     it "shows appropriate message when trying to run" do
       # Set up API key
-      ActivePrompt::Setting.instance.update!(openai_api_key: 'sk-test-key-123')
+      PromptEngine::Setting.instance.update!(openai_api_key: 'sk-test-key-123')
       
       eval_run = empty_eval_set.eval_runs.create!(
         prompt_version: prompt_version
       )
       
-      runner = ActivePrompt::EvaluationRunner.new(eval_run)
+      runner = PromptEngine::EvaluationRunner.new(eval_run)
       
       # Mock the client
-      mock_client = instance_double(ActivePrompt::OpenAiEvalsClient)
-      allow(ActivePrompt::OpenAiEvalsClient).to receive(:new).and_return(mock_client)
+      mock_client = instance_double(PromptEngine::OpenAiEvalsClient)
+      allow(PromptEngine::OpenAiEvalsClient).to receive(:new).and_return(mock_client)
       
       # Should fail when trying to upload empty test data
       expect { runner.execute }.to raise_error
@@ -137,11 +137,11 @@ RSpec.describe "Evaluation Edge Cases", type: :integration do
     
     context "API failures" do
       let(:eval_run) { create(:eval_run, eval_set: eval_set, prompt_version: prompt_version) }
-      let(:runner) { ActivePrompt::EvaluationRunner.new(eval_run) }
+      let(:runner) { PromptEngine::EvaluationRunner.new(eval_run) }
       
       before do
-        mock_client = instance_double(ActivePrompt::OpenAiEvalsClient)
-        allow(ActivePrompt::OpenAiEvalsClient).to receive(:new).and_return(mock_client)
+        mock_client = instance_double(PromptEngine::OpenAiEvalsClient)
+        allow(PromptEngine::OpenAiEvalsClient).to receive(:new).and_return(mock_client)
         @mock_client = mock_client
       end
       
@@ -151,10 +151,10 @@ RSpec.describe "Evaluation Edge Cases", type: :integration do
         
         # Mock upload_file to fail
         allow(@mock_client).to receive(:upload_file).and_raise(
-          ActivePrompt::OpenAiEvalsClient::APIError, "File upload failed"
+          PromptEngine::OpenAiEvalsClient::APIError, "File upload failed"
         )
         
-        expect { runner.execute }.to raise_error(ActivePrompt::OpenAiEvalsClient::APIError)
+        expect { runner.execute }.to raise_error(PromptEngine::OpenAiEvalsClient::APIError)
         
         eval_run.reload
         expect(eval_run.status).to eq("failed")
@@ -163,10 +163,10 @@ RSpec.describe "Evaluation Edge Cases", type: :integration do
       
       it "handles eval creation failures" do
         allow(@mock_client).to receive(:create_eval).and_raise(
-          ActivePrompt::OpenAiEvalsClient::APIError, "Invalid eval configuration"
+          PromptEngine::OpenAiEvalsClient::APIError, "Invalid eval configuration"
         )
         
-        expect { runner.execute }.to raise_error(ActivePrompt::OpenAiEvalsClient::APIError)
+        expect { runner.execute }.to raise_error(PromptEngine::OpenAiEvalsClient::APIError)
         
         eval_run.reload
         expect(eval_run.status).to eq("failed")
@@ -177,10 +177,10 @@ RSpec.describe "Evaluation Edge Cases", type: :integration do
         allow(@mock_client).to receive(:create_eval).and_return({ "id" => "eval_123" })
         allow(@mock_client).to receive(:upload_file).and_return({ "id" => "file_123" })
         allow(@mock_client).to receive(:create_run).and_raise(
-          ActivePrompt::OpenAiEvalsClient::RateLimitError, "Rate limit exceeded"
+          PromptEngine::OpenAiEvalsClient::RateLimitError, "Rate limit exceeded"
         )
         
-        expect { runner.execute }.to raise_error(ActivePrompt::OpenAiEvalsClient::RateLimitError)
+        expect { runner.execute }.to raise_error(PromptEngine::OpenAiEvalsClient::RateLimitError)
         
         eval_run.reload
         expect(eval_run.status).to eq("failed")
@@ -227,15 +227,15 @@ RSpec.describe "Evaluation Edge Cases", type: :integration do
   
   describe "API key missing scenarios" do
     before do
-      ActivePrompt::Setting.instance.update!(openai_api_key: nil)
+      PromptEngine::Setting.instance.update!(openai_api_key: nil)
       allow(Rails.application.credentials).to receive(:dig).with(:openai, :api_key).and_return(nil)
     end
     
     it "provides clear error when trying to create client" do
       expect {
-        ActivePrompt::OpenAiEvalsClient.new
+        PromptEngine::OpenAiEvalsClient.new
       }.to raise_error(
-        ActivePrompt::OpenAiEvalsClient::AuthenticationError,
+        PromptEngine::OpenAiEvalsClient::AuthenticationError,
         "OpenAI API key not configured"
       )
     end
@@ -248,8 +248,8 @@ RSpec.describe "Evaluation Edge Cases", type: :integration do
       eval_run = eval_set.eval_runs.create!(prompt_version: prompt_version)
       
       expect {
-        ActivePrompt::EvaluationRunner.new(eval_run).execute
-      }.to raise_error(ActivePrompt::OpenAiEvalsClient::AuthenticationError)
+        PromptEngine::EvaluationRunner.new(eval_run).execute
+      }.to raise_error(PromptEngine::OpenAiEvalsClient::AuthenticationError)
     end
   end
   

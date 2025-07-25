@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe "Test Case Import", type: :system do
-  include ActivePrompt::Engine.routes.url_helpers
+  include PromptEngine::Engine.routes.url_helpers
   
   let(:prompt) { create(:prompt, name: "Greeting Prompt", content: "Hello {{name}}, you are {{age}} years old") }
   let(:eval_set) { create(:eval_set, prompt: prompt, name: "Basic Tests") }

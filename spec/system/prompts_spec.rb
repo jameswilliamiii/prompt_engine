@@ -1,4 +1,4 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe "Prompts management", type: :system do
   before do
@@ -7,11 +7,11 @@ RSpec.describe "Prompts management", type: :system do
 
   describe "Creating a new prompt" do
     it "allows users to create a new prompt with valid data" do
-      visit "/active_prompt/prompts"
+      visit "/prompt_engine/prompts"
 
       click_link "New Prompt"
 
-      expect(page).to have_current_path("/active_prompt/prompts/new")
+      expect(page).to have_current_path("/prompt_engine/prompts/new")
       expect(page).to have_content("New Prompt")
 
       fill_in "Name", with: "Customer Support Bot"
@@ -30,7 +30,7 @@ RSpec.describe "Prompts management", type: :system do
     end
 
     it "shows validation errors for invalid data" do
-      visit "/active_prompt/prompts/new"
+      visit "/prompt_engine/prompts/new"
 
       click_button "Create Prompt"
 
@@ -43,13 +43,13 @@ RSpec.describe "Prompts management", type: :system do
     let!(:prompt) { create(:prompt, name: "Original Name", content: "Original content", status: "draft") }
 
     it "allows users to edit an existing prompt" do
-      visit "/active_prompt/prompts"
+      visit "/prompt_engine/prompts"
 
       within("tr", text: "Original Name") do
         click_link "Edit"
       end
 
-      expect(page).to have_current_path("/active_prompt/prompts/#{prompt.id}/edit")
+      expect(page).to have_current_path("/prompt_engine/prompts/#{prompt.id}/edit")
       expect(page).to have_content("Edit Prompt")
 
       fill_in "Name", with: "Updated Customer Bot"
@@ -66,7 +66,7 @@ RSpec.describe "Prompts management", type: :system do
     end
 
     it "shows validation errors when updating with invalid data" do
-      visit "/active_prompt/prompts/#{prompt.id}/edit"
+      visit "/prompt_engine/prompts/#{prompt.id}/edit"
 
       fill_in "Name", with: ""
       fill_in "Prompt Content", with: ""
@@ -82,7 +82,7 @@ RSpec.describe "Prompts management", type: :system do
     let!(:prompt) { create(:prompt, name: "Prompt to Delete") }
 
     it "allows users to delete a prompt" do
-      visit "/active_prompt/prompts"
+      visit "/prompt_engine/prompts"
 
       expect(page).to have_content("Prompt to Delete")
 
@@ -95,7 +95,7 @@ RSpec.describe "Prompts management", type: :system do
     end
 
     it "shows the prompt exists before deletion" do
-      visit "/active_prompt/prompts"
+      visit "/prompt_engine/prompts"
 
       expect(page).to have_content("Prompt to Delete")
 
@@ -108,48 +108,48 @@ RSpec.describe "Prompts management", type: :system do
     let!(:prompt) { create(:prompt, name: "Navigation Test Prompt") }
 
     it "navigates from index to show page" do
-      visit "/active_prompt/prompts"
+      visit "/prompt_engine/prompts"
 
       # In the index view, the prompt name itself is the link
       click_link "Navigation Test Prompt"
 
-      expect(page).to have_current_path("/active_prompt/prompts/#{prompt.id}")
+      expect(page).to have_current_path("/prompt_engine/prompts/#{prompt.id}")
       expect(page).to have_content("Navigation Test Prompt")
       expect(page).to have_link("Edit")
       expect(page).to have_link("Back to Prompts")
     end
 
     it "navigates from show to edit page" do
-      visit "/active_prompt/prompts/#{prompt.id}"
+      visit "/prompt_engine/prompts/#{prompt.id}"
 
       click_link "Edit"
 
-      expect(page).to have_current_path("/active_prompt/prompts/#{prompt.id}/edit")
+      expect(page).to have_current_path("/prompt_engine/prompts/#{prompt.id}/edit")
       expect(page).to have_field("Name", with: "Navigation Test Prompt")
     end
 
     it "navigates back to index from show page" do
-      visit "/active_prompt/prompts/#{prompt.id}"
+      visit "/prompt_engine/prompts/#{prompt.id}"
 
       click_link "Back to Prompts"
 
-      expect(page).to have_current_path("/active_prompt/prompts")
+      expect(page).to have_current_path("/prompt_engine/prompts")
       expect(page).to have_content("Prompts")
     end
 
     it "navigates back to prompts page from edit page using cancel" do
-      visit "/active_prompt/prompts/#{prompt.id}/edit"
+      visit "/prompt_engine/prompts/#{prompt.id}/edit"
 
       click_link "Cancel"
 
       # The cancel link goes to prompts_path (index)
-      expect(page).to have_current_path("/active_prompt/prompts")
+      expect(page).to have_current_path("/prompt_engine/prompts")
     end
   end
 
   describe "Form validations" do
     it "accepts temperature values" do
-      visit "/active_prompt/prompts/new"
+      visit "/prompt_engine/prompts/new"
 
       fill_in "Name", with: "Temperature Test"
       fill_in "Prompt Content", with: "Test content"
@@ -163,7 +163,7 @@ RSpec.describe "Prompts management", type: :system do
     end
 
     it "accepts max tokens values" do
-      visit "/active_prompt/prompts/new"
+      visit "/prompt_engine/prompts/new"
 
       fill_in "Name", with: "Token Test"
       fill_in "Prompt Content", with: "Test content"
@@ -179,7 +179,7 @@ RSpec.describe "Prompts management", type: :system do
     it "validates uniqueness of prompt name" do
       existing_prompt = create(:prompt, name: "Unique Name")
 
-      visit "/active_prompt/prompts/new"
+      visit "/prompt_engine/prompts/new"
 
       fill_in "Name", with: "Unique Name"
       fill_in "Prompt Content", with: "Test content"
@@ -192,11 +192,11 @@ RSpec.describe "Prompts management", type: :system do
 
   describe "Table interactions" do
     let!(:draft_prompt) { create(:prompt, name: "Draft Prompt", status: "draft") }
-    let!(:active_prompt) { create(:prompt, name: "Active Prompt", status: "active") }
+    let!(:prompt_engine) { create(:prompt, name: "Active Prompt", status: "active") }
     let!(:archived_prompt) { create(:prompt, name: "Archived Prompt", status: "archived") }
 
     it "displays all prompts with their status badges" do
-      visit "/active_prompt/prompts"
+      visit "/prompt_engine/prompts"
 
       expect(page).to have_css(".table__badge--draft", text: "draft")
       expect(page).to have_css(".table__badge--active", text: "active")
@@ -204,7 +204,7 @@ RSpec.describe "Prompts management", type: :system do
     end
 
     it "shows prompt details in the table" do
-      visit "/active_prompt/prompts"
+      visit "/prompt_engine/prompts"
 
       within("tr", text: "Active Prompt") do
         expect(page).to have_content("Active Prompt")
@@ -219,7 +219,7 @@ RSpec.describe "Prompts management", type: :system do
     let!(:prompt) { create(:prompt) }
 
     it "displays success messages for CRUD operations" do
-      visit "/active_prompt/prompts/new"
+      visit "/prompt_engine/prompts/new"
       fill_in "Name", with: "Flash Test"
       fill_in "Prompt Content", with: "Test content"
       click_button "Create Prompt"
@@ -236,7 +236,7 @@ RSpec.describe "Prompts management", type: :system do
 
   describe "Empty state" do
     it "shows appropriate message when no prompts exist" do
-      visit "/active_prompt/prompts"
+      visit "/prompt_engine/prompts"
 
       if page.has_content?("No prompts yet")
         expect(page).to have_content("No prompts yet")

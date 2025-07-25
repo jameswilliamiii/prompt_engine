@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-# Specify your gem's dependencies in active_prompt.gemspec.
+# Specify your gem's dependencies in prompt_engine.gemspec.
 gemspec
 
 gem "puma"

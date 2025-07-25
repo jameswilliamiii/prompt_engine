@@ -1,21 +1,21 @@
-# ActivePrompt Usage Guide
+# PromptEngine Usage Guide
 
 ## Basic Usage in Rails Models
 
-ActivePrompt provides a simple API for using prompts in your Rails application:
+PromptEngine provides a simple API for using prompts in your Rails application:
 
 ```ruby
 # In any Rails model or service
 class CustomerService
   def send_welcome_email(customer)
     # Retrieve and render a prompt with variables
-    prompt_data = ActivePrompt.render(:welcome_email, 
-      variables: { 
-        customer_name: customer.name, 
+    prompt_data = PromptEngine.render(:welcome_email,
+      variables: {
+        customer_name: customer.name,
         company_name: "Your Company"
       }
     )
-    
+
     # Use the rendered prompt with your AI service
     response = OpenAI::Client.new.chat(
       model: prompt_data[:model],
@@ -26,7 +26,7 @@ class CustomerService
       temperature: prompt_data[:temperature],
       max_tokens: prompt_data[:max_tokens]
     )
-    
+
     # Process the AI response...
   end
 end
@@ -34,7 +34,7 @@ end
 
 ## Creating Prompts
 
-1. Access the admin interface at `/active_prompt`
+1. Access the admin interface at `/prompt_engine`
 2. Click "New Prompt"
 3. Fill in the prompt details:
    - **Name**: A unique identifier (e.g., "welcome_email")
@@ -47,13 +47,13 @@ end
 
 ## Variable Interpolation
 
-ActivePrompt supports variable placeholders in your prompts:
+PromptEngine supports variable placeholders in your prompts:
 
 ```ruby
 # Prompt content: "Generate a summary for {{article_title}} about {{topic}}"
 
-ActivePrompt.render(:article_summary, 
-  variables: { 
+PromptEngine.render(:article_summary,
+  variables: {
     article_title: "Rails Best Practices",
     topic: "performance optimization"
   }
@@ -63,18 +63,19 @@ ActivePrompt.render(:article_summary,
 
 ## API Reference
 
-### ActivePrompt.render
+### PromptEngine.render
 
 ```ruby
-ActivePrompt.render(prompt_name, variables: {})
+PromptEngine.render(prompt_name, variables: {})
 ```
 
 **Parameters:**
+
 - `prompt_name` (String/Symbol): The name of the prompt to render
 - `variables` (Hash): Key-value pairs for variable interpolation
 
-**Returns:**
-A hash containing:
+**Returns:** A hash containing:
+
 - `:content` - The rendered prompt with variables interpolated
 - `:system_message` - The system message with variables interpolated
 - `:model` - The AI model specified
@@ -82,6 +83,7 @@ A hash containing:
 - `:max_tokens` - The max tokens setting
 
 **Raises:**
+
 - `ActiveRecord::RecordNotFound` - If no active prompt exists with the given name
 
 ## Best Practices
@@ -93,22 +95,22 @@ A hash containing:
 
 ## Example Integration
 
-Here's a complete example of integrating ActivePrompt with a support ticket system:
+Here's a complete example of integrating PromptEngine with a support ticket system:
 
 ```ruby
 class SupportTicket < ApplicationRecord
   def generate_ai_response
-    prompt_data = ActivePrompt.render(:support_response,
+    prompt_data = PromptEngine.render(:support_response,
       variables: {
         customer_name: customer.name,
         issue_description: description,
         product_name: product.name
       }
     )
-    
+
     # Call your AI service
     ai_response = AiService.generate(prompt_data)
-    
+
     # Create a ticket response
     ticket_responses.create!(
       content: ai_response,

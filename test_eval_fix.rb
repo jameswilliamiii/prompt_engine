@@ -6,7 +6,7 @@
 puts "\n=== Testing Fixed Eval Flow ==="
 
 # Create a simple prompt for testing
-prompt = ActivePrompt::Prompt.find_or_create_by!(name: "Email Classifier") do |p|
+prompt = PromptEngine::Prompt.find_or_create_by!(name: "Email Classifier") do |p|
   p.content = "Classify this email about {{email_topic}} as 'urgent' or 'not urgent'"
   p.status = "active"
 end
@@ -15,7 +15,7 @@ end
 prompt.sync_parameters!
 
 puts "✓ Prompt: #{prompt.name}"
-puts "  Parameters: #{prompt.parameters.pluck(:name).join(', ')}"
+puts "  Parameters: #{prompt.parameters.pluck(:name).join(", ")}"
 
 # Create eval set
 eval_set = prompt.eval_sets.find_or_create_by!(name: "Email Priority Test") do |es|
@@ -28,7 +28,7 @@ eval_set.update!(openai_eval_id: nil) if eval_set.openai_eval_id.present?
 # Create test case
 if eval_set.test_cases.empty?
   eval_set.test_cases.create!(
-    input_variables: { email_topic: "server outage" },
+    input_variables: {email_topic: "server outage"},
     expected_output: "urgent",
     description: "Server outage email"
   )
@@ -37,7 +37,7 @@ end
 puts "✓ Eval set: #{eval_set.name} (#{eval_set.test_cases.count} test cases)"
 
 # Test the data format
-runner = ActivePrompt::EvaluationRunner.new(
+runner = PromptEngine::EvaluationRunner.new(
   eval_set.eval_runs.build(prompt_version: prompt.current_version)
 )
 
@@ -59,5 +59,5 @@ puts "Original: #{content}"
 puts "Converted: #{converted}"
 
 puts "\n✓ Data format should now match OpenAI's expectations!"
-puts "\nVisit http://localhost:3000/active_prompt/prompts/#{prompt.id}/eval_sets/#{eval_set.id}"
+puts "\nVisit http://localhost:3000/prompt_engine/prompts/#{prompt.id}/eval_sets/#{eval_set.id}"
 puts "to run the evaluation with the fixed format."

@@ -3,11 +3,11 @@
 # Simple test to verify eval functionality works
 # Run from spec/dummy directory with: bundle exec rails runner ../../test_eval_mvp.rb
 
-puts "\n=== Testing ActivePrompt Eval MVP ==="
+puts "\n=== Testing PromptEngine Eval MVP ==="
 puts "This will create test data and run a simulated evaluation\n"
 
 # 1. Create a test prompt
-prompt = ActivePrompt::Prompt.find_or_create_by!(name: "Sentiment Classifier") do |p|
+prompt = PromptEngine::Prompt.find_or_create_by!(name: "Sentiment Classifier") do |p|
   p.content = "Classify the sentiment of this text as positive, negative, or neutral: {{text}}"
   p.status = "active"
 end
@@ -22,12 +22,12 @@ puts "✓ Created eval set: #{eval_set.name}"
 # 3. Create test cases if needed
 if eval_set.test_cases.empty?
   [
-    { text: "I love this!", expected: "positive" },
-    { text: "This is terrible", expected: "negative" },
-    { text: "It's okay", expected: "neutral" }
+    {text: "I love this!", expected: "positive"},
+    {text: "This is terrible", expected: "negative"},
+    {text: "It's okay", expected: "neutral"}
   ].each do |test|
     eval_set.test_cases.create!(
-      input_variables: { text: test[:text] },
+      input_variables: {text: test[:text]},
       expected_output: test[:expected],
       description: test[:text]
     )
@@ -80,10 +80,10 @@ puts "\n--- Testing Routes ---"
 begin
   Rails.application.routes.url_helpers.prompt_eval_sets_path(prompt)
   puts "✓ Eval sets index route works"
-  
+
   Rails.application.routes.url_helpers.prompt_eval_set_path(prompt, eval_set)
   puts "✓ Eval set show route works"
-  
+
   Rails.application.routes.url_helpers.prompt_eval_run_path(prompt, eval_run)
   puts "✓ Eval run show route works"
 rescue => e
@@ -91,4 +91,4 @@ rescue => e
 end
 
 puts "\n=== MVP Test Complete ==="
-puts "You can now visit: http://localhost:3000/active_prompt/prompts/#{prompt.id}/eval_sets"
+puts "You can now visit: http://localhost:3000/prompt_engine/prompts/#{prompt.id}/eval_sets"

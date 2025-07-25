@@ -2,10 +2,10 @@
 puts "Seeding database..."
 
 # Clear existing data
-ActivePrompt::Prompt.destroy_all
+PromptEngine::Prompt.destroy_all
 
 # Create sample prompts
-prompt1 = ActivePrompt::Prompt.new
+prompt1 = PromptEngine::Prompt.new
 prompt1.name = "Customer Support Response"
 prompt1.description = "Generates helpful customer support responses"
 prompt1.content = "Please provide a helpful and empathetic response to the following customer inquiry: {{customer_message}}"
@@ -16,7 +16,7 @@ prompt1.max_tokens = 500
 prompt1.status = "active"
 prompt1.save!
 
-prompt2 = ActivePrompt::Prompt.new
+prompt2 = PromptEngine::Prompt.new
 prompt2.name = "Product Description Writer"
 prompt2.description = "Creates engaging product descriptions"
 prompt2.content = "Write an engaging product description for: {{product_name}}. Key features: {{features}}"
@@ -26,7 +26,7 @@ prompt2.max_tokens = 300
 prompt2.status = "active"
 prompt2.save!
 
-prompt3 = ActivePrompt::Prompt.new
+prompt3 = PromptEngine::Prompt.new
 prompt3.name = "Email Subject Line Generator"
 prompt3.description = "Generates catchy email subject lines"
 prompt3.content = "Generate 5 compelling email subject lines for: {{email_topic}}"
@@ -36,20 +36,20 @@ prompt3.max_tokens = 150
 prompt3.status = "draft"
 prompt3.save!
 
-puts "Created #{ActivePrompt::Prompt.count} sample prompts!"
+puts "Created #{PromptEngine::Prompt.count} sample prompts!"
 
 # Create evaluation sets and test cases
 puts "Creating evaluation sets and test cases..."
 
 # Eval set for Customer Support Response
-eval_set1 = ActivePrompt::EvalSet.create!(
+eval_set1 = PromptEngine::EvalSet.create!(
   prompt: prompt1,
   name: "Customer Support Quality Check",
   description: "Tests various customer support scenarios for quality and empathy"
 )
 
 # Add test cases for customer support
-ActivePrompt::TestCase.create!(
+PromptEngine::TestCase.create!(
   eval_set: eval_set1,
   input_variables: { 
     customer_message: "My order hasn't arrived and it's been 2 weeks!" 
@@ -58,7 +58,7 @@ ActivePrompt::TestCase.create!(
   description: "Delayed order complaint"
 )
 
-ActivePrompt::TestCase.create!(
+PromptEngine::TestCase.create!(
   eval_set: eval_set1,
   input_variables: { 
     customer_message: "The product I received is defective" 
@@ -67,7 +67,7 @@ ActivePrompt::TestCase.create!(
   description: "Defective product complaint"
 )
 
-ActivePrompt::TestCase.create!(
+PromptEngine::TestCase.create!(
   eval_set: eval_set1,
   input_variables: { 
     customer_message: "I'm very happy with my purchase! Thank you!" 
@@ -77,14 +77,14 @@ ActivePrompt::TestCase.create!(
 )
 
 # Eval set for Product Description Writer
-eval_set2 = ActivePrompt::EvalSet.create!(
+eval_set2 = PromptEngine::EvalSet.create!(
   prompt: prompt2,
   name: "Product Description Quality",
   description: "Tests product description generation for different product types"
 )
 
 # Add test cases for product descriptions
-ActivePrompt::TestCase.create!(
+PromptEngine::TestCase.create!(
   eval_set: eval_set2,
   input_variables: { 
     product_name: "Wireless Bluetooth Headphones",
@@ -94,7 +94,7 @@ ActivePrompt::TestCase.create!(
   description: "Electronics product"
 )
 
-ActivePrompt::TestCase.create!(
+PromptEngine::TestCase.create!(
   eval_set: eval_set2,
   input_variables: { 
     product_name: "Organic Green Tea",
@@ -105,7 +105,7 @@ ActivePrompt::TestCase.create!(
 )
 
 # Create a sample completed eval run
-completed_run = ActivePrompt::EvalRun.create!(
+completed_run = PromptEngine::EvalRun.create!(
   eval_set: eval_set1,
   prompt_version: prompt1.versions.first,
   status: "completed",
@@ -118,6 +118,6 @@ completed_run = ActivePrompt::EvalRun.create!(
   report_url: "https://platform.openai.com/evals/sample"
 )
 
-puts "Created #{ActivePrompt::EvalSet.count} evaluation sets"
-puts "Created #{ActivePrompt::TestCase.count} test cases"
-puts "Created #{ActivePrompt::EvalRun.count} sample eval runs"
+puts "Created #{PromptEngine::EvalSet.count} evaluation sets"
+puts "Created #{PromptEngine::TestCase.count} test cases"
+puts "Created #{PromptEngine::EvalRun.count} sample eval runs"

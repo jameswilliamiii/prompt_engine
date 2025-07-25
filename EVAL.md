@@ -4,19 +4,19 @@ Phase 1: Core Data Models and Infrastructure
 
 # Core evaluation models
 
-ActivePrompt::EvalSet - Groups of test cases for specific evaluation purposes - name, description,
+PromptEngine::EvalSet - Groups of test cases for specific evaluation purposes - name, description,
 prompt_id, eval_type (model_graded, programmatic, human) - has_many :test_cases - has_many
 :eval_runs - belongs_to :prompt
 
-ActivePrompt::TestCase - Individual test scenarios - eval_set_id, input (JSON), expected_output,
+PromptEngine::TestCase - Individual test scenarios - eval_set_id, input (JSON), expected_output,
 metadata (JSON) - evaluation_criteria (for LLM judge) - weight (for weighted scoring) - tags (for
 categorization)
 
-ActivePrompt::EvalRun - Execution of an evaluation set - eval_set_id, prompt_version_id, status,
+PromptEngine::EvalRun - Execution of an evaluation set - eval_set_id, prompt_version_id, status,
 started_at, completed_at - configuration (model, temperature, etc.) - aggregate_metrics (JSON) -
 has_many :eval_results
 
-ActivePrompt::EvalResult - Individual test case results - eval_run_id, test_case_id, actual_output,
+PromptEngine::EvalResult - Individual test case results - eval_run_id, test_case_id, actual_output,
 score - evaluation_details (JSON for judge reasoning) - execution_time, token_count - pass/fail
 status
 
@@ -26,18 +26,18 @@ Phase 2: Evaluation Engine
 
 # Base evaluator interface
 
-ActivePrompt::Evaluators::Base - evaluate(test_case, actual_output) - supports_batch? -
+PromptEngine::Evaluators::Base - evaluate(test_case, actual_output) - supports_batch? -
 batch_evaluate(test_cases, outputs)
 
 # Specific evaluators
 
-ActivePrompt::Evaluators::ExactMatch - Simple string comparison - what is this?
-ActivePrompt::Evaluators::RegexMatch - Pattern matching ActivePrompt::Evaluators::ContainsAll -
-Check for required elements ActivePrompt::Evaluators::JsonSchema - Validate JSON structure - what is
-this ActivePrompt::Evaluators::LlmJudge - Model-graded evaluation
-ActivePrompt::Evaluators::Similarity - Semantic similarity scoring
+PromptEngine::Evaluators::ExactMatch - Simple string comparison - what is this?
+PromptEngine::Evaluators::RegexMatch - Pattern matching PromptEngine::Evaluators::ContainsAll -
+Check for required elements PromptEngine::Evaluators::JsonSchema - Validate JSON structure - what is
+this PromptEngine::Evaluators::LlmJudge - Model-graded evaluation
+PromptEngine::Evaluators::Similarity - Semantic similarity scoring
 
-3. LLM-as-Judge Implementation ActivePrompt::LlmJudge
+3. LLM-as-Judge Implementation PromptEngine::LlmJudge
 
    - Configurable judge prompts for different criteria:
      - Accuracy/Correctness
@@ -51,7 +51,7 @@ ActivePrompt::Evaluators::Similarity - Semantic similarity scoring
 
 Phase 3: Test Case Management
 
-4. Synthetic Data Generation ActivePrompt::TestCaseGenerator
+4. Synthetic Data Generation PromptEngine::TestCaseGenerator
 
    - generate_from_prompt(prompt, count, strategy)
    - Strategies:
@@ -70,7 +70,7 @@ Phase 3: Test Case Management
 
 Phase 4: Evaluation Execution
 
-6. Runner Architecture ActivePrompt::EvaluationRunner
+6. Runner Architecture PromptEngine::EvaluationRunner
 
    simplify this for MVP
 
@@ -80,7 +80,7 @@ Phase 4: Evaluation Execution
    - Cost estimation before execution
    - Sampling strategies for large test sets
 
-7. Metrics Calculation ActivePrompt::Metrics::Calculator
+7. Metrics Calculation PromptEngine::Metrics::Calculator
 
    - Binary classification: accuracy, precision, recall, F1
    - Multi-class: macro/micro averages
@@ -181,6 +181,6 @@ Sprint 4 (Production Ready)
 - Advanced visualizations
 - Performance optimizations
 
-This comprehensive evaluation system will enable ActivePrompt users to systematically test and
+This comprehensive evaluation system will enable PromptEngine users to systematically test and
 improve their prompts, ensuring consistent quality and performance across different versions and use
 cases.

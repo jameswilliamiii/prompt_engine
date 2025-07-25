@@ -1,11 +1,11 @@
-# ActivePrompt: Product Specification
+# PromptEngine: Product Specification
 
 ## AI Prompt Management Engine for Rails Applications
 
 ### Executive Summary
 
-ActivePrompt is a mountable Rails engine that transforms how development teams manage AI prompts in
-their applications. Instead of hardcoding prompts throughout your codebase, ActivePrompt provides a
+PromptEngine is a mountable Rails engine that transforms how development teams manage AI prompts in
+their applications. Instead of hardcoding prompts throughout your codebase, PromptEngine provides a
 centralized admin interface where teams can create, version, test, and optimize their AI prompts
 without deploying code changes.
 
@@ -42,7 +42,7 @@ prompt management remains primitive:
 
 - Mount the engine with one line in routes.rb
 - Run migrations to set up the database
-- Access the admin at `/active_prompts`
+- Access the admin at `/prompt_engines`
 - Create your first prompt in under 60 seconds
 
 **Zero Configuration**
@@ -205,7 +205,7 @@ Users click "New Prompt" and see a thoughtfully designed form:
 
 ```ruby
 # In your application code
-response = ActivePrompt.render(:customer_support,
+response = PromptEngine.render(:customer_support,
   customer_name: @customer.name,
   issue: @ticket.description
 )
@@ -248,7 +248,7 @@ response = ActivePrompt.render(:customer_support,
 
 ### Future Vision
 
-ActivePrompt becomes the standard for AI prompt management in Rails applications, expanding to
+PromptEngine becomes the standard for AI prompt management in Rails applications, expanding to
 support:
 
 - Multi-language prompt variants
@@ -259,7 +259,7 @@ support:
 
 ### Summary
 
-ActivePrompt transforms AI prompt management from a development bottleneck into a competitive
+PromptEngine transforms AI prompt management from a development bottleneck into a competitive
 advantage. By providing visibility, control, and optimization capabilities in a familiar Rails admin
 interface, teams can iterate faster, reduce costs, and deliver better AI-powered features to their
 users.

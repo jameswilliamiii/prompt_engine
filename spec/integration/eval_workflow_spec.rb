@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-module ActivePrompt
+module PromptEngine
   RSpec.describe "Evaluation Workflow Integration", type: :integration do
     let!(:prompt) do
       create(:prompt,

@@ -1,4 +1,4 @@
-# ActivePrompt Development Setup
+# PromptEngine Development Setup
 
 ## Initial Setup
 
@@ -10,6 +10,7 @@ bundle exec rake setup
 ```
 
 This will:
+
 1. Install engine migrations into the dummy app
 2. Create and migrate both development and test databases
 3. Seed the development database with sample data
@@ -26,7 +27,7 @@ bundle exec rspec
 cd spec/dummy && rails s
 ```
 
-Then visit http://localhost:3000/active_prompt
+Then visit http://localhost:3000/prompt_engine
 
 ## Manual Database Setup (if needed)
 
@@ -35,7 +36,7 @@ If you prefer to set up databases manually:
 ```bash
 # Install migrations
 cd spec/dummy
-bundle exec rails active_prompt:install:migrations
+bundle exec rails prompt_engine:install:migrations
 
 # Development database
 bundle exec rails db:create
@@ -49,7 +50,8 @@ RAILS_ENV=test bundle exec rails db:migrate
 
 ## Why Manual Setup?
 
-ActivePrompt follows the Rails engine convention of requiring explicit setup. This is the same pattern used by popular engines like Devise, Solidus, and Administrate. Benefits include:
+PromptEngine follows the Rails engine convention of requiring explicit setup. This is the same
+pattern used by popular engines like Devise, Solidus, and Administrate. Benefits include:
 
 - Clear, reproducible setup steps
 - No performance overhead during development

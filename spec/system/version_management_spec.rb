@@ -1,4 +1,4 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe "Version management", type: :system do
   before do
@@ -7,26 +7,32 @@ RSpec.describe "Version management", type: :system do
 
   let!(:prompt) { create(:prompt, name: "Test Prompt", content: "Version 1 content") }
   let!(:version_1) { prompt.versions.first }
-  let!(:version_2) { prompt.update!(content: "Version 2 content"); prompt.versions.first }
-  let!(:version_3) { prompt.update!(content: "Version 3 content"); prompt.versions.first }
+  let!(:version_2) {
+    prompt.update!(content: "Version 2 content")
+    prompt.versions.first
+  }
+  let!(:version_3) {
+    prompt.update!(content: "Version 3 content")
+    prompt.versions.first
+  }
 
   describe "Viewing version history from prompt page" do
     it "navigates to version history from prompt show page" do
-      visit "/active_prompt/prompts/#{prompt.id}"
+      visit "/prompt_engine/prompts/#{prompt.id}"
 
       click_link "Version History"
 
-      expect(page).to have_current_path("/active_prompt/prompts/#{prompt.id}/versions")
+      expect(page).to have_current_path("/prompt_engine/prompts/#{prompt.id}/versions")
       expect(page).to have_content("Version History")
       expect(page).to have_content(prompt.name)
     end
   end
 
   describe "Version history page" do
-    before { visit "/active_prompt/prompts/#{prompt.id}/versions" }
+    before { visit "/prompt_engine/prompts/#{prompt.id}/versions" }
 
     it "displays all versions in descending order" do
-      versions = page.all('.version-item')
+      versions = page.all(".version-item")
       expect(versions.count).to eq(3)
 
       # Check order - newest first
@@ -87,25 +93,25 @@ RSpec.describe "Version management", type: :system do
 
     it "navigates back to prompt" do
       click_link "Back to Prompt"
-      expect(page).to have_current_path("/active_prompt/prompts/#{prompt.id}")
+      expect(page).to have_current_path("/prompt_engine/prompts/#{prompt.id}")
     end
   end
 
   describe "Viewing single version" do
     it "displays version details" do
-      visit "/active_prompt/prompts/#{prompt.id}/versions"
+      visit "/prompt_engine/prompts/#{prompt.id}/versions"
 
       within(".version-item", text: "Version 2") do
         click_link "View"
       end
 
-      expect(page).to have_current_path("/active_prompt/prompts/#{prompt.id}/versions/#{version_2.id}")
+      expect(page).to have_current_path("/prompt_engine/prompts/#{prompt.id}/versions/#{version_2.id}")
       expect(page).to have_content("Version 2")
       expect(page).to have_content(prompt.name)
     end
 
     it "shows complete version information" do
-      visit "/active_prompt/prompts/#{prompt.id}/versions/#{version_2.id}"
+      visit "/prompt_engine/prompts/#{prompt.id}/versions/#{version_2.id}"
 
       # Version info
       expect(page).to have_content("Version Information")
@@ -128,40 +134,40 @@ RSpec.describe "Version management", type: :system do
     end
 
     it "provides restore button for non-current versions" do
-      visit "/active_prompt/prompts/#{prompt.id}/versions/#{version_2.id}"
+      visit "/prompt_engine/prompts/#{prompt.id}/versions/#{version_2.id}"
 
       expect(page).to have_button("Restore This Version")
     end
 
     it "does not show restore button for current version" do
-      visit "/active_prompt/prompts/#{prompt.id}/versions/#{version_3.id}"
+      visit "/prompt_engine/prompts/#{prompt.id}/versions/#{version_3.id}"
 
       expect(page).not_to have_button("Restore This Version")
     end
 
     it "navigates back to version history" do
-      visit "/active_prompt/prompts/#{prompt.id}/versions/#{version_2.id}"
+      visit "/prompt_engine/prompts/#{prompt.id}/versions/#{version_2.id}"
 
       click_link "Back to History"
-      expect(page).to have_current_path("/active_prompt/prompts/#{prompt.id}/versions")
+      expect(page).to have_current_path("/prompt_engine/prompts/#{prompt.id}/versions")
     end
   end
 
   describe "Comparing versions" do
     it "compares version with previous version" do
-      visit "/active_prompt/prompts/#{prompt.id}/versions"
+      visit "/prompt_engine/prompts/#{prompt.id}/versions"
 
       within(".version-item", text: "Version 2") do
         click_link "Compare"
       end
 
-      expect(page).to have_current_path("/active_prompt/prompts/#{prompt.id}/versions/#{version_2.id}/compare")
+      expect(page).to have_current_path("/prompt_engine/prompts/#{prompt.id}/versions/#{version_2.id}/compare")
       expect(page).to have_content("Compare Versions")
       expect(page).to have_content("Version 1 → Version 2")
     end
 
     it "displays changed fields with diff visualization" do
-      visit "/active_prompt/prompts/#{prompt.id}/versions/#{version_2.id}/compare"
+      visit "/prompt_engine/prompts/#{prompt.id}/versions/#{version_2.id}/compare"
 
       # Content should be shown as changed
       within(".version-compare__section", text: "Content") do
@@ -173,7 +179,7 @@ RSpec.describe "Version management", type: :system do
     end
 
     it "shows change summaries for both versions" do
-      visit "/active_prompt/prompts/#{prompt.id}/versions/#{version_2.id}/compare"
+      visit "/prompt_engine/prompts/#{prompt.id}/versions/#{version_2.id}/compare"
 
       expect(page).to have_content("Change Description")
       expect(page).to have_content(version_1.change_description)
@@ -188,7 +194,7 @@ RSpec.describe "Version management", type: :system do
         max_tokens: version_1.max_tokens
       )
 
-      visit "/active_prompt/prompts/#{prompt.id}/versions/#{version_2.id}/compare"
+      visit "/prompt_engine/prompts/#{prompt.id}/versions/#{version_2.id}/compare"
 
       # Should only show content section
       expect(page).to have_css(".version-compare__section", text: "Content")
@@ -201,21 +207,21 @@ RSpec.describe "Version management", type: :system do
     it "restores prompt to selected version" do
       original_content = prompt.content
 
-      visit "/active_prompt/prompts/#{prompt.id}/versions"
+      visit "/prompt_engine/prompts/#{prompt.id}/versions"
 
       within(".version-item", text: "Version 2") do
         click_button "Restore"
       end
 
       expect(page).to have_content("Prompt restored to version 2")
-      expect(page).to have_current_path("/active_prompt/prompts/#{prompt.id}")
+      expect(page).to have_current_path("/prompt_engine/prompts/#{prompt.id}")
 
       # Verify content was restored
       expect(page).to have_content("Version 2 content")
     end
 
     it "shows success flash message after restore" do
-      visit "/active_prompt/prompts/#{prompt.id}/versions"
+      visit "/prompt_engine/prompts/#{prompt.id}/versions"
 
       within(".version-item", text: "Version 2") do
         click_button "Restore"
@@ -225,12 +231,12 @@ RSpec.describe "Version management", type: :system do
     end
 
     it "can restore from version detail page" do
-      visit "/active_prompt/prompts/#{prompt.id}/versions/#{version_1.id}"
+      visit "/prompt_engine/prompts/#{prompt.id}/versions/#{version_1.id}"
 
       click_button "Restore This Version"
 
       expect(page).to have_content("Prompt restored to version 1")
-      expect(page).to have_current_path("/active_prompt/prompts/#{prompt.id}")
+      expect(page).to have_current_path("/prompt_engine/prompts/#{prompt.id}")
     end
   end
 
@@ -246,7 +252,7 @@ RSpec.describe "Version management", type: :system do
   end
 
   describe "UI elements and styling" do
-    before { visit "/active_prompt/prompts/#{prompt.id}/versions" }
+    before { visit "/prompt_engine/prompts/#{prompt.id}/versions" }
 
     it "displays timeline with proper CSS classes" do
       expect(page).to have_css(".versions-timeline")
@@ -268,10 +274,10 @@ RSpec.describe "Version management", type: :system do
 
   describe "Turbo confirmations" do
     it "includes turbo confirm data attribute on restore buttons" do
-      visit "/active_prompt/prompts/#{prompt.id}/versions"
+      visit "/prompt_engine/prompts/#{prompt.id}/versions"
 
       restore_button = find(".version-item", text: "Version 2").find("button", text: "Restore")
-      expect(restore_button['data-turbo-confirm']).to eq("Are you sure you want to restore this version?")
+      expect(restore_button["data-turbo-confirm"]).to eq("Are you sure you want to restore this version?")
     end
   end
 end

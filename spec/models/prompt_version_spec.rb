@@ -1,13 +1,13 @@
 require 'rails_helper'
 
-module ActivePrompt
+module PromptEngine
   RSpec.describe PromptVersion, type: :model do
     describe 'associations' do
       it 'belongs to a prompt' do
         version = PromptVersion.new
         association = version.class.reflect_on_association(:prompt)
         expect(association.macro).to eq(:belongs_to)
-        expect(association.options[:class_name]).to eq('ActivePrompt::Prompt')
+        expect(association.options[:class_name]).to eq('PromptEngine::Prompt')
       end
     end
 

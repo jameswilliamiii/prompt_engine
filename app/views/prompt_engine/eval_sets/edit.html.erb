@@ -1,0 +1,111 @@
+<div class="admin-header">
+  <div>
+    <h1>Edit Evaluation Set</h1>
+    <p class="text-muted">Update evaluation set details</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card__body">
+    <%= form_with model: [@prompt, @eval_set], url: prompt_eval_set_path(@prompt, @eval_set), local: true do |form| %>
+      <%= render 'prompt_engine/shared/form_errors', object: @eval_set %>
+
+      <div class="form__group">
+        <%= form.label :name, class: "form__label" %>
+        <%= form.text_field :name, class: "form__input", required: true %>
+        <p class="form__help">A descriptive name for this evaluation set</p>
+      </div>
+
+      <div class="form__group">
+        <%= form.label :description, class: "form__label" %>
+        <%= form.text_area :description, class: "form__input", rows: 3 %>
+        <p class="form__help">Optional description of what this evaluation set tests</p>
+      </div>
+
+      <div class="form__group">
+        <%= form.label :grader_type, "Grader Type", class: "form__label" %>
+        <span class="form__required">*</span>
+        <%= form.select :grader_type,
+            options_for_select(PromptEngine::EvalSet::GRADER_TYPES.map { |k, v| [v, k] }, @eval_set.grader_type),
+            { include_blank: false },
+            { class: "form__input", id: "grader-type-select",
+              data: { controller: "grader-config", action: "change->grader-config#toggleConfig" } } %>
+        <p class="form__help">Select how the expected output should be compared to the actual output</p>
+      </div>
+
+      <div id="grader-config-fields" class="form__group" style="display: none;">
+        <label class="form__label">Grader Configuration</label>
+
+        <div id="regex-config" class="grader-config-section" style="display: none;">
+          <%= form.label :grader_config_pattern, "Regular Expression Pattern", class: "form__label" %>
+          <span class="form__required">*</span>
+          <%= text_field_tag "eval_set[grader_config][pattern]",
+              @eval_set.grader_config&.dig('pattern'),
+              class: "form__input",
+              placeholder: "e.g., ^Hello.*world$",
+              data: { grader_config_field: "regex" } %>
+          <p class="form__help">Enter a valid regular expression pattern to match against the output</p>
+        </div>
+
+        <div id="json-schema-config" class="grader-config-section" style="display: none;">
+          <%= form.label :grader_config_schema, "JSON Schema", class: "form__label" %>
+          <span class="form__required">*</span>
+          <%= text_area_tag "eval_set[grader_config][schema]",
+              @eval_set.grader_config&.dig('schema')&.to_json,
+              rows: 8,
+              class: "form__input",
+              placeholder: '{ "type": "object", "properties": { "name": { "type": "string" } }, "required": ["name"] }',
+              data: { grader_config_field: "json_schema" } %>
+          <p class="form__help">Note: Currently validates exact JSON match. Full schema validation coming soon.</p>
+        </div>
+      </div>
+
+      <div class="form__actions">
+        <%= form.submit "Update Evaluation Set", class: "btn btn--primary btn--medium",
+            data: { disable_with: "Updating..." } %>
+        <%= link_to "Cancel", prompt_eval_set_path(@prompt, @eval_set), class: "btn btn--secondary btn--medium" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="mt-lg">
+  <%= button_to "Delete Evaluation Set", prompt_eval_set_path(@prompt, @eval_set), 
+      method: :delete,
+      data: { confirm: "Are you sure you want to delete this evaluation set? This will also delete all test cases and evaluation runs." },
+      class: "btn btn--danger btn--medium" %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const graderTypeSelect = document.getElementById('grader-type-select');
+    const graderConfigFields = document.getElementById('grader-config-fields');
+    const regexConfig = document.getElementById('regex-config');
+    const jsonSchemaConfig = document.getElementById('json-schema-config');
+
+    function toggleGraderConfig() {
+      const selectedGrader = graderTypeSelect.value;
+
+      // Hide all config sections first
+      regexConfig.style.display = 'none';
+      jsonSchemaConfig.style.display = 'none';
+
+      // Show appropriate config section based on grader type
+      if (selectedGrader === 'regex') {
+        graderConfigFields.style.display = 'block';
+        regexConfig.style.display = 'block';
+      } else if (selectedGrader === 'json_schema') {
+        graderConfigFields.style.display = 'block';
+        jsonSchemaConfig.style.display = 'block';
+      } else {
+        graderConfigFields.style.display = 'none';
+      }
+    }
+
+    // Add event listener
+    graderTypeSelect.addEventListener('change', toggleGraderConfig);
+
+    // Initialize on page load
+    toggleGraderConfig();
+  });
+</script>

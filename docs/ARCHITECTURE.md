@@ -1,19 +1,21 @@
-# ActivePrompt Architecture
+# PromptEngine Architecture
 
 ## Overview
 
-ActivePrompt is a Rails mountable engine that provides centralized AI prompt management for Rails applications. It enables teams to create, version, test, and optimize AI prompts through an admin interface without requiring code deployments.
+PromptEngine is a Rails mountable engine that provides centralized AI prompt management for Rails
+applications. It enables teams to create, version, test, and optimize AI prompts through an admin
+interface without requiring code deployments.
 
 ## System Architecture
 
 ### Engine Structure
 
-ActivePrompt follows Rails engine conventions with complete isolation:
+PromptEngine follows Rails engine conventions with complete isolation:
 
-- **Namespace**: All components under `ActivePrompt` module
-- **Database**: Tables prefixed with `active_prompt_`
-- **Assets**: Isolated under `app/assets/active_prompt/`
-- **Routes**: Mounted at configurable path (e.g., `/active_prompt`)
+- **Namespace**: All components under `PromptEngine` module
+- **Database**: Tables prefixed with `prompt_engine_`
+- **Assets**: Isolated under `app/assets/prompt_engine/`
+- **Routes**: Mounted at configurable path (e.g., `/prompt_engine`)
 
 ### Technology Stack
 
@@ -29,10 +31,12 @@ ActivePrompt follows Rails engine conventions with complete isolation:
 
 ### Models
 
-#### Prompt (`ActivePrompt::Prompt`)
+#### Prompt (`PromptEngine::Prompt`)
+
 The central model for prompt management:
 
 **Attributes**:
+
 - `name`: Unique identifier for prompts
 - `description`: Human-readable description
 - `content`: The actual prompt template with `{{variables}}`
@@ -43,21 +47,25 @@ The central model for prompt management:
 - `versions_count`: Counter cache for versions
 
 **Key Features**:
+
 - Automatic versioning on content/system message changes
 - Variable extraction and parameter synchronization
 - Render method with variable substitution
 - Status-based scoping
 
 **Associations**:
+
 ```ruby
 has_many :versions, dependent: :destroy
 has_many :parameters, dependent: :destroy
 ```
 
-#### PromptVersion (`ActivePrompt::PromptVersion`)
+#### PromptVersion (`PromptEngine::PromptVersion`)
+
 Immutable snapshots of prompts:
 
 **Attributes**:
+
 - `prompt_id`: Reference to parent prompt
 - `version_number`: Sequential version number
 - `content`: Snapshot of prompt content
@@ -67,15 +75,18 @@ Immutable snapshots of prompts:
 - `created_by`: User who created the version
 
 **Key Features**:
+
 - Automatic version numbering
 - Restoration capability
 - Change tracking
 - Immutable after creation
 
-#### Parameter (`ActivePrompt::Parameter`)
+#### Parameter (`PromptEngine::Parameter`)
+
 Defines expected variables in prompts:
 
 **Attributes**:
+
 - `prompt_id`: Reference to parent prompt
 - `name`: Variable name (without braces)
 - `description`: Help text for users
@@ -86,6 +97,7 @@ Defines expected variables in prompts:
 - `position`: Order in forms
 
 **Key Features**:
+
 - Type-specific form inputs
 - Validation rule enforcement
 - Default value handling
@@ -94,9 +106,11 @@ Defines expected variables in prompts:
 ### Controllers
 
 #### PromptsController
+
 Main CRUD controller for prompt management:
 
 **Actions**:
+
 - `index`: List prompts with filtering
 - `show`: Display prompt details and versions
 - `new/create`: Create new prompts
@@ -108,28 +122,34 @@ Main CRUD controller for prompt management:
 - `search`: Search prompts
 
 **Features**:
+
 - Strong parameters with nested attributes
 - Flash notifications
 - Admin layout usage
 - Parameter synchronization after save
 
 #### PlaygroundController
+
 Interactive testing interface:
 
 **Actions**:
+
 - `show`: Display testing interface
 - `execute`: Run prompt against AI provider
 
 **Features**:
+
 - Provider selection (Anthropic, OpenAI)
 - Real-time execution
 - Error handling
 - Response formatting
 
 #### VersionsController
+
 Version management interface:
 
 **Actions**:
+
 - `index`: List all versions
 - `show`: Display version details
 - `restore`: Restore previous version
@@ -138,23 +158,28 @@ Version management interface:
 ### Services
 
 #### VariableDetector
+
 Extracts and analyzes variables from prompt content:
 
 **Methods**:
+
 - `extract_variables`: Find all `{{variable}}` patterns
 - `suggest_type`: Infer type from variable name
 - `validate_variables`: Check for undefined variables
 
 **Type Inference Rules**:
+
 - Names ending in `_at`, `_on`, `date` → datetime/date
 - Names ending in `_count`, `number` → integer
 - Names ending in `_list`, `_array` → array
 - Names ending in `?`, `is_`, `has_` → boolean
 
 #### PlaygroundExecutor
+
 Handles AI provider communication:
 
 **Responsibilities**:
+
 - Provider initialization
 - API key management
 - Request formatting
@@ -162,13 +187,16 @@ Handles AI provider communication:
 - Error handling
 
 **Supported Providers**:
+
 - Anthropic Claude (claude-3-5-sonnet, etc.)
 - OpenAI GPT (gpt-4o, gpt-4o-mini, etc.)
 
 #### ParameterParser
+
 Simple template rendering:
 
 **Features**:
+
 - Variable extraction
 - Value substitution
 - Missing variable handling
@@ -178,12 +206,13 @@ Simple template rendering:
 #### Layout Structure
 
 ```
-app/views/layouts/active_prompt/
+app/views/layouts/prompt_engine/
 ├── application.html.erb     # Main engine layout
 └── admin.html.erb           # Admin interface layout
 ```
 
 **Admin Layout Features**:
+
 - Sidebar navigation
 - Flash notifications
 - Responsive design
@@ -192,7 +221,7 @@ app/views/layouts/active_prompt/
 #### Component Organization
 
 ```
-app/views/active_prompt/
+app/views/prompt_engine/
 ├── prompts/
 │   ├── index.html.erb       # Prompt listing
 │   ├── show.html.erb        # Prompt details
@@ -211,7 +240,7 @@ app/views/active_prompt/
 #### CSS Structure
 
 ```
-app/assets/stylesheets/active_prompt/
+app/assets/stylesheets/prompt_engine/
 ├── foundation.css           # Variables, reset, base styles
 ├── layout.css              # Page structure
 ├── components/
@@ -226,6 +255,7 @@ app/assets/stylesheets/active_prompt/
 #### Design System
 
 **Color Variables**:
+
 ```css
 --primary: #3b82f6;
 --secondary: #6b7280;
@@ -235,10 +265,12 @@ app/assets/stylesheets/active_prompt/
 ```
 
 **Spacing System**:
+
 - Base unit: 4px
 - Scale: 1, 2, 3, 4, 5, 6, 8, 10, 12, 16
 
 **Component Naming**:
+
 - BEM methodology: `.block__element--modifier`
 - Prefix: `ap-` for all components
 
@@ -256,7 +288,7 @@ app/assets/stylesheets/active_prompt/
 
 ### Prompt Rendering Flow
 
-1. Host app calls `ActivePrompt.render(:name, variables: {})`
+1. Host app calls `PromptEngine.render(:name, variables: {})`
 2. Engine loads active prompt by name
 3. Parameters validated against schema
 4. Variables type-cast and substituted
@@ -275,7 +307,8 @@ app/assets/stylesheets/active_prompt/
 
 ### Tables
 
-#### active_prompt_prompts
+#### prompt_engine_prompts
+
 ```sql
 - id: bigint primary key
 - name: string unique not null
@@ -290,7 +323,8 @@ app/assets/stylesheets/active_prompt/
 - updated_at: datetime
 ```
 
-#### active_prompt_prompt_versions
+#### prompt_engine_prompt_versions
+
 ```sql
 - id: bigint primary key
 - prompt_id: bigint foreign key
@@ -303,7 +337,8 @@ app/assets/stylesheets/active_prompt/
 - created_at: datetime
 ```
 
-#### active_prompt_parameters
+#### prompt_engine_parameters
+
 ```sql
 - id: bigint primary key
 - prompt_id: bigint foreign key
@@ -330,13 +365,13 @@ app/assets/stylesheets/active_prompt/
 
 ```ruby
 # Render a prompt
-ActivePrompt.render(:welcome_email, variables: {
+PromptEngine.render(:welcome_email, variables: {
   user_name: "John",
   product: "SaaS App"
 })
 
 # Configure providers
-ActivePrompt.configure do |config|
+PromptEngine.configure do |config|
   config.anthropic_api_key = "..."
   config.openai_api_key = "..."
 end
@@ -345,17 +380,20 @@ end
 ### Internal APIs
 
 #### Prompt Retrieval
+
 ```ruby
-prompt = ActivePrompt::Prompt.active.find_by!(name: "welcome_email")
+prompt = PromptEngine::Prompt.active.find_by!(name: "welcome_email")
 ```
 
 #### Version Management
+
 ```ruby
 prompt.versions.create!(change_description: "Updated tone")
 prompt.restore_version!(version_number: 3)
 ```
 
 #### Parameter Handling
+
 ```ruby
 prompt.sync_parameters!
 prompt.validate_variables(provided_variables)
@@ -364,16 +402,19 @@ prompt.validate_variables(provided_variables)
 ## Security Considerations
 
 ### Authentication & Authorization
+
 - Engine assumes host app handles authentication
 - No built-in user management
 - Relies on host app's admin area protection
 
 ### API Key Management
+
 - Keys stored in Rails credentials
 - Never exposed in UI
 - Validated before provider initialization
 
 ### Input Validation
+
 - Strong parameters in controllers
 - Type validation for parameters
 - SQL injection prevention via ActiveRecord
@@ -382,16 +423,19 @@ prompt.validate_variables(provided_variables)
 ## Performance Optimizations
 
 ### Database
+
 - Indexed lookups on prompt names
 - Counter caches for versions
 - Efficient version ordering
 
 ### Caching Strategy
+
 - Prompt rendering cacheable by host app
 - Version history pagination
 - Parameter validation results
 
 ### Asset Pipeline
+
 - Propshaft for fast asset serving
 - Minimal JavaScript (Stimulus where needed)
 - CSS organized by component
@@ -420,6 +464,7 @@ spec/
 ```
 
 ### Testing Approach
+
 - Unit tests for models and services
 - Controller specs for request handling
 - System specs for user workflows
@@ -428,6 +473,7 @@ spec/
 ## Development Workflow
 
 ### Local Development
+
 ```bash
 # Setup
 bundle install
@@ -442,6 +488,7 @@ bundle exec rspec
 ```
 
 ### Engine Development
+
 - Make changes in main engine directory
 - Test in dummy app
 - Run full test suite
@@ -453,13 +500,13 @@ bundle exec rspec
 
 ```ruby
 # Gemfile
-gem 'active_prompt'
+gem 'prompt_engine'
 
 # routes.rb
-mount ActivePrompt::Engine => "/admin/prompts"
+mount PromptEngine::Engine => "/admin/prompts"
 
 # In your code
-result = ActivePrompt.render(:email_template, 
+result = PromptEngine.render(:email_template,
   variables: { name: "User" }
 )
 ```
@@ -468,13 +515,13 @@ result = ActivePrompt.render(:email_template,
 
 ```ruby
 # Custom configuration
-ActivePrompt.configure do |config|
+PromptEngine.configure do |config|
   config.default_model = "gpt-4o"
   config.default_temperature = 0.7
 end
 
 # Async rendering (planned)
-ActivePrompt.render_async(:prompt_name, 
+PromptEngine.render_async(:prompt_name,
   variables: {},
   callback: ->(result) { process_result(result) }
 )
@@ -485,24 +532,28 @@ ActivePrompt.render_async(:prompt_name,
 ### Planned Components
 
 #### Analytics System
+
 - Usage tracking per prompt
 - Cost calculation
 - Performance metrics
 - A/B testing support
 
 #### Evaluation Framework
+
 - Test case management
 - Bulk testing interface
 - Quality scoring
 - Regression detection
 
 #### Advanced API
+
 - REST endpoints
 - GraphQL support
 - Webhook notifications
 - Rate limiting
 
 #### Template System
+
 - Reusable components
 - Template inheritance
 - Partial rendering
@@ -511,18 +562,21 @@ ActivePrompt.render_async(:prompt_name,
 ## Deployment Considerations
 
 ### Requirements
+
 - Rails 8.0.2+
 - Ruby 3.0+
 - Database with JSON support
 - Redis (for planned features)
 
 ### Configuration
+
 - Environment-specific API keys
 - Database connection pooling
 - Asset precompilation
 - Migration management
 
 ### Monitoring
+
 - Prompt usage metrics
 - API call tracking
 - Error rate monitoring
@@ -530,4 +584,8 @@ ActivePrompt.render_async(:prompt_name,
 
 ## Conclusion
 
-ActivePrompt provides a robust, extensible architecture for AI prompt management within Rails applications. Its modular design, comprehensive testing, and focus on developer experience make it suitable for teams looking to centralize and optimize their AI prompt workflows. The engine's architecture supports both current features and planned enhancements while maintaining Rails best practices and conventions.
+PromptEngine provides a robust, extensible architecture for AI prompt management within Rails
+applications. Its modular design, comprehensive testing, and focus on developer experience make it
+suitable for teams looking to centralize and optimize their AI prompt workflows. The engine's
+architecture supports both current features and planned enhancements while maintaining Rails best
+practices and conventions.

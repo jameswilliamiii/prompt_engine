@@ -1,6 +1,7 @@
-# Active Record Encryption Setup for ActivePrompt
+# Active Record Encryption Setup for PromptEngine
 
-ActivePrompt uses Rails' built-in Active Record encryption to automatically encrypt API keys. No manual encryption code is needed.
+PromptEngine uses Rails' built-in Active Record encryption to automatically encrypt API keys. No
+manual encryption code is needed.
 
 ## Development Setup
 
@@ -8,7 +9,7 @@ For development, add to `spec/dummy/config/environments/development.rb`:
 
 ```ruby
 config.active_record.encryption.primary_key = 'development' * 4  # 32 bytes
-config.active_record.encryption.deterministic_key = 'development' * 4  # 32 bytes  
+config.active_record.encryption.deterministic_key = 'development' * 4  # 32 bytes
 config.active_record.encryption.key_derivation_salt = 'development' * 4  # 32 bytes
 ```
 
@@ -38,6 +39,7 @@ active_record_encryption:
 ```
 
 That's it! Rails automatically handles:
+
 - Encrypting data before saving to database
 - Decrypting data when reading from database
 - All the cryptographic complexity
@@ -54,6 +56,7 @@ end
 ```
 
 When you save a setting:
+
 ```ruby
 setting = Setting.instance
 setting.openai_api_key = "sk-abc123"  # Rails encrypts this automatically
@@ -61,6 +64,7 @@ setting.save
 ```
 
 When you read it back:
+
 ```ruby
 setting.openai_api_key  # Rails decrypts automatically, returns "sk-abc123"
 ```
@@ -78,6 +82,7 @@ config.active_record.encryption.key_derivation_salt = 'test' * 8
 ## Troubleshooting
 
 If you see "Missing Active Record encryption credential", ensure:
+
 1. You've run `rails db:encryption:init`
 2. Added keys to credentials
 3. Restarted your Rails server

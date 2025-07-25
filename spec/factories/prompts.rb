@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :prompt, class: 'ActivePrompt::Prompt' do
+  factory :prompt, class: 'PromptEngine::Prompt' do
     sequence(:name) { |n| "Test Prompt #{n}" }
     description { "A test prompt for RSpec" }
     content { "Tell me about {{topic}}" }
