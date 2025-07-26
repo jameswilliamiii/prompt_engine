@@ -3,8 +3,11 @@ module PromptEngine
     BASE_URL = "https://api.openai.com/v1"
 
     class APIError < StandardError; end
+
     class AuthenticationError < APIError; end
+
     class RateLimitError < APIError; end
+
     class NotFoundError < APIError; end
 
     def initialize(api_key: nil)
@@ -59,7 +62,7 @@ module PromptEngine
     private
 
     def fetch_api_key_from_settings
-              PromptEngine::Setting.instance.openai_api_key
+      PromptEngine::Setting.instance.openai_api_key
     rescue ActiveRecord::RecordNotFound
       nil
     end
