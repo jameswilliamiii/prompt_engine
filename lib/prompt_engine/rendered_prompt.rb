@@ -109,6 +109,5 @@ module PromptEngine
       override_info = overrides.any? ? " overrides=#{overrides.keys}" : ""
       "#<PromptEngine::RenderedPrompt prompt=#{prompt.slug}#{version_info}#{param_info}#{override_info}>"
     end
-
   end
 end
