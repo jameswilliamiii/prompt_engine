@@ -1,0 +1,1290 @@
+...................................*.....**........................................................................................................................................................................................................................................................F..*..........................................................................FF.F....................................................F..............................................................F..F....F.F.....................................****...F......FFFFFF.F...FFFFFFFF...................FFFF......................FFFF.......................
+
+Pending: (Failures listed here are expected and do not affect your suite's status)
+
+  1) Using prompts in Rails models Creating and using prompts preserves unmatched variables when variable is not provided
+     # Temporarily skipped with xit
+     # ./spec/integration/prompt_usage_spec.rb:126
+
+  2) Settings API Key Integration Playground executor API key integration with OpenAI model uses Settings API key when available
+     # Temporarily skipped with xit
+     # ./spec/integration/settings_api_key_integration_spec.rb:72
+
+  3) Settings API Key Integration Playground executor API key integration with Anthropic model uses Settings API key when available
+     # Temporarily skipped with xit
+     # ./spec/integration/settings_api_key_integration_spec.rb:98
+
+  4) PromptEngine::Prompt nested attributes allows destroying parameters through nested attributes
+     # Temporarily skipped with xit
+     # ./spec/models/prompt_spec.rb:318
+
+  5) PromptEngine::EvaluationRunner#execute with live API successfully runs evaluation against OpenAI
+     # Live API tests skipped. Set LIVE_API_TESTS=true to run
+     # ./spec/services/prompt_engine/evaluation_runner_live_spec.rb:58
+
+  6) PromptEngine::EvaluationRunner#execute with live API handles authentication errors when API key is invalid
+     # Live API tests skipped. Set LIVE_API_TESTS=true to run
+     # ./spec/services/prompt_engine/evaluation_runner_live_spec.rb:80
+
+  7) PromptEngine::EvaluationRunner OpenAI Evals API availability checks if Evals API is available for the account
+     # Live API tests skipped. Set LIVE_API_TESTS=true to run
+     # ./spec/services/prompt_engine/evaluation_runner_live_spec.rb:99
+
+  8) PromptEngine::EvaluationRunner alternative evaluation approach (without Evals API) can evaluate using regular chat completions as fallback
+     # Live API tests skipped. Set LIVE_API_TESTS=true to run
+     # ./spec/services/prompt_engine/evaluation_runner_live_spec.rb:136
+
+Failures:
+
+  1) PromptEngine::Prompt usage in Rails models when using PromptEngine.render only uses active prompts
+     Failure/Error: raise PromptEngine::RenderError, rendered_data[:error]
+
+     PromptEngine::RenderError:
+       user_name is required, company_name is required
+     # ./app/models/prompt_engine/prompt.rb:172:in 'PromptEngine::Prompt#render'
+     # ./lib/prompt_engine.rb:21:in 'PromptEngine.render'
+     # ./spec/models/prompt_spec.rb:248:in 'TestModel.generate_content'
+     # ./spec/models/prompt_spec.rb:291:in 'block (4 levels) in <top (required)>'
+
+  2) EvalSets grader types POST /prompt_engine/prompts/:prompt_id/eval_sets with regex grader type fails with invalid regex pattern
+     Failure/Error: expect(response).to have_http_status(:unprocessable_entity)
+       expected the response to have status code :unprocessable_entity (422) but it was :ok (200)
+     # ./spec/requests/prompt_engine/eval_sets_grader_types_spec.rb:55:in 'block (4 levels) in <module:PromptEngine>'
+
+  3) EvalSets grader types POST /prompt_engine/prompts/:prompt_id/eval_sets with json_schema grader type creates eval set with JSON schema
+     Failure/Error: expect(eval_set.grader_config["schema"]).to eq(schema.stringify_keys)
+
+       expected: {"properties" => {age: {type: "integer"}, name: {type: "string"}}, "required" => ["name"], "type" => "object"}
+            got: {"properties" => {"age" => {"type" => "integer"}, "name" => {"type" => "string"}}, "required" => ["name"], "type" => "object"}
+
+       (compared using ==)
+
+       Diff:
+       @@ -1,3 +1,3 @@
+       -"properties" => {age: {type: "integer"}, name: {type: "string"}},
+       +"properties" => {"age" => {"type" => "integer"}, "name" => {"type" => "string"}},
+        "required" => ["name"],
+        "type" => "object",
+     # ./spec/requests/prompt_engine/eval_sets_grader_types_spec.rb:84:in 'block (4 levels) in <module:PromptEngine>'
+
+  4) EvalSets grader types PATCH /prompt_engine/prompts/:prompt_id/eval_sets/:id clears grader_config when changing to exact_match
+     Failure/Error: expect(eval_set.grader_config).to eq({})
+
+       expected: {}
+            got: {"pattern" => "test"}
+
+       (compared using ==)
+
+       Diff:
+       @@ -0,0 +1 @@
+       +"pattern" => "test",
+     # ./spec/requests/prompt_engine/eval_sets_grader_types_spec.rb:121:in 'block (3 levels) in <module:PromptEngine>'
+
+  5) Playground POST /prompt_engine/prompts/:id/playground with valid parameters creates a PlaygroundRunResult record
+     Failure/Error: expect(result.execution_time).to be > 0
+
+       expected: > 0
+            got:   0.0
+     # ./spec/requests/prompt_engine/playground_spec.rb:112:in 'block (4 levels) in <module:PromptEngine>'
+
+  6) PromptEngine::TestCases Import POST #import_preview with CSV file parses valid CSV and shows preview
+     Failure/Error: expect(response.body).to include("2 test cases will be imported")
+
+       expected "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>PromptEngine Admin</title>\n    <meta name...n      </div>\n    </div>\n</form>\n        </div>\n      </main>\n    </div>\n  </body>\n</html>\n" to include "2 test cases will be imported"
+       Diff:
+       @@ -1 +1,163 @@
+       -2 test cases will be imported
+       +<!DOCTYPE html>
+       +<html lang="en">
+       +  <head>
+       +    <title>PromptEngine Admin</title>
+       +    <meta name="viewport" content="width=device-width, initial-scale=1">
+       +    
+       +    
+       +
+       +    <link rel="stylesheet" href="/assets/prompt_engine/application-c3a1e16d.css" data-turbo-track="reload" />
+       +  </head>
+       +
+       +  <body class="prompt-engine-admin">
+       +    <div class="admin-layout">
+       +      <aside class="admin-layout__sidebar">
+       +        <div class="admin-sidebar">
+       +          <div class="admin-sidebar__header">
+       +            <h1 class="admin-sidebar__title">PromptEngine</h1>
+       +            <div class="admin-sidebar__meta">
+       +              <span class="admin-sidebar__version">v1.0.0</span>
+       +              <a href="https://github.com/aviflombaum/prompt_engine" target="_blank" rel="noopener" class="admin-sidebar__github" title="View on GitHub">
+       +                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+       +                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+       +                </svg>
+       +              </a>
+       +            </div>
+       +          </div>
+       +
+       +          <nav class="admin-sidebar__nav">
+       +            <ul class="admin-nav">
+       +              <li class="admin-nav__item">
+       +                <a class="admin-nav__link " href="/prompt_engine/">Dashboard</a>
+       +              </li>
+       +              <li class="admin-nav__item">
+       +                <a class="admin-nav__link " href="/prompt_engine/prompts">Prompts</a>
+       +              </li>
+       +              <li class="admin-nav__item">
+       +                <a class="admin-nav__link admin-nav__link--active" href="/prompt_engine/evaluations">Evaluations</a>
+       +              </li>
+       +              <li class="admin-nav__item">
+       +                <a class="admin-nav__link " href="/prompt_engine/playground_run_results">Test Runs</a>
+       +              </li>
+       +              <li class="admin-nav__item">
+       +                <a class="admin-nav__link " href="/prompt_engine/settings/edit">Settings</a>
+       +              </li>
+       +            </ul>
+       +          </nav>
+       +
+       +          <div class="admin-sidebar__footer">
+       +            <div class="admin-sidebar__footer-content">
+       +              Made with ❤️ by <a href="https://avi.nyc" target="_blank" rel="noopener">Avi.nyc</a>
+       +            </div>
+       +            <div class="admin-sidebar__footer-sponsor">
+       +              Sponsored by <a href="https://innoventcapital.com" target="_blank" rel="noopener">Innovent Capital</a>
+       +            </div>
+       +          </div>
+       +        </div>
+       +      </aside>
+       +
+       +      <main class="admin-layout__main">
+       +        <div class="admin-main">
+       +
+       +          <div class="admin-header">
+       +  <div>
+       +    <h1>Import Preview</h1>
+       +    <p class="text-muted">Review the test cases before importing</p>
+       +  </div>
+       +  <div class="btn-group">
+       +    <a class="btn btn--secondary btn--medium" href="/prompt_engine/prompts/1/eval_sets/1/test_cases/import">Back to Import</a>
+       +  </div>
+       +</div>
+       +
+       +<div class="card mb-lg">
+       +  <div class="card__header">
+       +    <h3 class="card__title">Import Summary</h3>
+       +  </div>
+       +  <div class="card__body">
+       +    <div class="alert alert--info">
+       +      <strong>2</strong> test cases will be imported
+       +    </div>
+       +  </div>
+       +</div>
+       +
+       +<div class="card mb-lg">
+       +  <div class="card__header">
+       +    <h3 class="card__title">Preview</h3>
+       +  </div>
+       +  <div class="card__body">
+       +      <div class="table-container">
+       +        <table class="table">
+       +          <thead>
+       +            <tr>
+       +              <th>#</th>
+       +              <th>Description</th>
+       +              <th>Input Variables</th>
+       +              <th>Expected Output</th>
+       +            </tr>
+       +          </thead>
+       +          <tbody>
+       +              <tr>
+       +                <td>1</td>
+       +                <td>
+       +                  <div class="table__primary">
+       +                    Test with John
+       +                  </div>
+       +                </td>
+       +                <td>
+       +                  <code class="code-inline">
+       +                    {&quot;name&quot;:&quot;John&quot;,&quot;age&quot;:&quot;30&quot;}
+       +                  </code>
+       +                </td>
+       +                <td>
+       +                  <code class="code-inline">
+       +                    Hello John! You are 30 years old.
+       +                  </code>
+       +                </td>
+       +              </tr>
+       +              <tr>
+       +                <td>2</td>
+       +                <td>
+       +                  <div class="table__primary">
+       +                    Test with Jane
+       +                  </div>
+       +                </td>
+       +                <td>
+       +                  <code class="code-inline">
+       +                    {&quot;name&quot;:&quot;Jane&quot;,&quot;age&quot;:&quot;25&quot;}
+       +                  </code>
+       +                </td>
+       +                <td>
+       +                  <code class="code-inline">
+       +                    Hello Jane! You are 25 years old.
+       +                  </code>
+       +                </td>
+       +              </tr>
+       +          </tbody>
+       +        </table>
+       +      </div>
+       +      
+       +  </div>
+       +</div>
+       +
+       +  <form action="/prompt_engine/prompts/1/eval_sets/1/test_cases/import_create" accept-charset="UTF-8" method="post">
+       +    <div class="card">
+       +      <div class="card__header">
+       +        <h3 class="card__title">Confirm Import</h3>
+       +      </div>
+       +      <div class="card__body">
+       +        <p>
+       +          Are you sure you want to import 2 test cases?
+       +          This action cannot be undone.
+       +        </p>
+       +      </div>
+       +      <div class="card__footer">
+       +        <input type="submit" name="commit" value="Import Test Cases" class="btn btn--primary btn--medium" data-disable-with="Importing..." data-confirm="Are you sure you want to import 2 test cases?" />
+       +        <a class="btn btn--secondary btn--medium" href="/prompt_engine/prompts/1/eval_sets/1">Cancel</a>
+       +      </div>
+       +    </div>
+       +</form>
+       +        </div>
+       +      </main>
+       +    </div>
+       +  </body>
+       +</html>
+     # ./spec/requests/prompt_engine/test_cases_import_spec.rb:57:in 'block (4 levels) in <top (required)>'
+
+  7) PromptEngine::TestCases Import POST #import_preview with JSON file parses valid JSON and shows preview
+     Failure/Error: expect(response.body).to include("2 test cases will be imported")
+
+       expected "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <title>PromptEngine Admin</title>\n    <meta name...n      </div>\n    </div>\n</form>\n        </div>\n      </main>\n    </div>\n  </body>\n</html>\n" to include "2 test cases will be imported"
+       Diff:
+       @@ -1 +1,163 @@
+       -2 test cases will be imported
+       +<!DOCTYPE html>
+       +<html lang="en">
+       +  <head>
+       +    <title>PromptEngine Admin</title>
+       +    <meta name="viewport" content="width=device-width, initial-scale=1">
+       +    
+       +    
+       +
+       +    <link rel="stylesheet" href="/assets/prompt_engine/application-c3a1e16d.css" data-turbo-track="reload" />
+       +  </head>
+       +
+       +  <body class="prompt-engine-admin">
+       +    <div class="admin-layout">
+       +      <aside class="admin-layout__sidebar">
+       +        <div class="admin-sidebar">
+       +          <div class="admin-sidebar__header">
+       +            <h1 class="admin-sidebar__title">PromptEngine</h1>
+       +            <div class="admin-sidebar__meta">
+       +              <span class="admin-sidebar__version">v1.0.0</span>
+       +              <a href="https://github.com/aviflombaum/prompt_engine" target="_blank" rel="noopener" class="admin-sidebar__github" title="View on GitHub">
+       +                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+       +                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+       +                </svg>
+       +              </a>
+       +            </div>
+       +          </div>
+       +
+       +          <nav class="admin-sidebar__nav">
+       +            <ul class="admin-nav">
+       +              <li class="admin-nav__item">
+       +                <a class="admin-nav__link " href="/prompt_engine/">Dashboard</a>
+       +              </li>
+       +              <li class="admin-nav__item">
+       +                <a class="admin-nav__link " href="/prompt_engine/prompts">Prompts</a>
+       +              </li>
+       +              <li class="admin-nav__item">
+       +                <a class="admin-nav__link admin-nav__link--active" href="/prompt_engine/evaluations">Evaluations</a>
+       +              </li>
+       +              <li class="admin-nav__item">
+       +                <a class="admin-nav__link " href="/prompt_engine/playground_run_results">Test Runs</a>
+       +              </li>
+       +              <li class="admin-nav__item">
+       +                <a class="admin-nav__link " href="/prompt_engine/settings/edit">Settings</a>
+       +              </li>
+       +            </ul>
+       +          </nav>
+       +
+       +          <div class="admin-sidebar__footer">
+       +            <div class="admin-sidebar__footer-content">
+       +              Made with ❤️ by <a href="https://avi.nyc" target="_blank" rel="noopener">Avi.nyc</a>
+       +            </div>
+       +            <div class="admin-sidebar__footer-sponsor">
+       +              Sponsored by <a href="https://innoventcapital.com" target="_blank" rel="noopener">Innovent Capital</a>
+       +            </div>
+       +          </div>
+       +        </div>
+       +      </aside>
+       +
+       +      <main class="admin-layout__main">
+       +        <div class="admin-main">
+       +
+       +          <div class="admin-header">
+       +  <div>
+       +    <h1>Import Preview</h1>
+       +    <p class="text-muted">Review the test cases before importing</p>
+       +  </div>
+       +  <div class="btn-group">
+       +    <a class="btn btn--secondary btn--medium" href="/prompt_engine/prompts/1/eval_sets/1/test_cases/import">Back to Import</a>
+       +  </div>
+       +</div>
+       +
+       +<div class="card mb-lg">
+       +  <div class="card__header">
+       +    <h3 class="card__title">Import Summary</h3>
+       +  </div>
+       +  <div class="card__body">
+       +    <div class="alert alert--info">
+       +      <strong>2</strong> test cases will be imported
+       +    </div>
+       +  </div>
+       +</div>
+       +
+       +<div class="card mb-lg">
+       +  <div class="card__header">
+       +    <h3 class="card__title">Preview</h3>
+       +  </div>
+       +  <div class="card__body">
+       +      <div class="table-container">
+       +        <table class="table">
+       +          <thead>
+       +            <tr>
+       +              <th>#</th>
+       +              <th>Description</th>
+       +              <th>Input Variables</th>
+       +              <th>Expected Output</th>
+       +            </tr>
+       +          </thead>
+       +          <tbody>
+       +              <tr>
+       +                <td>1</td>
+       +                <td>
+       +                  <div class="table__primary">
+       +                    Test with John
+       +                  </div>
+       +                </td>
+       +                <td>
+       +                  <code class="code-inline">
+       +                    {&quot;name&quot;:&quot;John&quot;,&quot;age&quot;:&quot;30&quot;}
+       +                  </code>
+       +                </td>
+       +                <td>
+       +                  <code class="code-inline">
+       +                    Hello John! You are 30 years old.
+       +                  </code>
+       +                </td>
+       +              </tr>
+       +              <tr>
+       +                <td>2</td>
+       +                <td>
+       +                  <div class="table__primary">
+       +                    Test case #2
+       +                  </div>
+       +                </td>
+       +                <td>
+       +                  <code class="code-inline">
+       +                    {&quot;name&quot;:&quot;Jane&quot;,&quot;age&quot;:&quot;25&quot;}
+       +                  </code>
+       +                </td>
+       +                <td>
+       +                  <code class="code-inline">
+       +                    Hello Jane! You are 25 years old.
+       +                  </code>
+       +                </td>
+       +              </tr>
+       +          </tbody>
+       +        </table>
+       +      </div>
+       +      
+       +  </div>
+       +</div>
+       +
+       +  <form action="/prompt_engine/prompts/1/eval_sets/1/test_cases/import_create" accept-charset="UTF-8" method="post">
+       +    <div class="card">
+       +      <div class="card__header">
+       +        <h3 class="card__title">Confirm Import</h3>
+       +      </div>
+       +      <div class="card__body">
+       +        <p>
+       +          Are you sure you want to import 2 test cases?
+       +          This action cannot be undone.
+       +        </p>
+       +      </div>
+       +      <div class="card__footer">
+       +        <input type="submit" name="commit" value="Import Test Cases" class="btn btn--primary btn--medium" data-disable-with="Importing..." data-confirm="Are you sure you want to import 2 test cases?" />
+       +        <a class="btn btn--secondary btn--medium" href="/prompt_engine/prompts/1/eval_sets/1">Cancel</a>
+       +      </div>
+       +    </div>
+       +</form>
+       +        </div>
+       +      </main>
+       +    </div>
+       +  </body>
+       +</html>
+     # ./spec/requests/prompt_engine/test_cases_import_spec.rb:136:in 'block (4 levels) in <top (required)>'
+
+  8) PromptEngine::TestCases Import POST #import_create with valid session data creates test cases successfully
+     Failure/Error: post import_create_prompt_eval_set_test_cases_path(prompt, eval_set)
+
+     NoMethodError:
+       undefined method 'enabled?' for an instance of Hash
+     # ./spec/requests/prompt_engine/test_cases_import_spec.rb:241:in 'block (5 levels) in <top (required)>'
+     # ./spec/requests/prompt_engine/test_cases_import_spec.rb:242:in 'block (4 levels) in <top (required)>'
+
+  9) PromptEngine::TestCases Import POST #import_create with validation errors reports validation errors
+     Failure/Error: post import_create_prompt_eval_set_test_cases_path(prompt, eval_set)
+
+     NoMethodError:
+       undefined method 'enabled?' for an instance of Hash
+     # ./spec/requests/prompt_engine/test_cases_import_spec.rb:287:in 'block (4 levels) in <top (required)>'
+
+  10) PromptEngine::EvaluationRunner#build_testing_criteria with json_schema grader returns JSON schema validation criteria
+      Failure/Error:
+        expect(criteria).to eq([ {
+          type: "json_schema_check",
+          name: "JSON schema validation",
+          input: "{{ sample.output_text }}",
+          schema: {
+            'type' => 'object',
+            'properties' => {
+              'name' => { 'type' => 'string' }
+            },
+            'required' => [ 'name' ]
+
+        expected: [{input: "{{ sample.output_text }}", name: "JSON schema validation", schema: {"properties" => {"name"..." => {"type" => "string"}}, "required" => ["name"], "type" => "object"}, type: "json_schema_check"}]
+             got: [{input: "{{ sample.output_text }}", name: "JSON format validation", operation: "eq", reference: "{{ item.expected_output }}", type: "string_check"}]
+
+        (compared using ==)
+
+        Diff:
+        @@ -1,7 +1,5 @@
+         [{input: "{{ sample.output_text }}",
+        -  name: "JSON schema validation",
+        -  schema:
+        -   {"properties" => {"name" => {"type" => "string"}},
+        -    "required" => ["name"],
+        -    "type" => "object"},
+        -  type: "json_schema_check"}]
+        +  name: "JSON format validation",
+        +  operation: "eq",
+        +  reference: "{{ item.expected_output }}",
+        +  type: "string_check"}]
+      # ./spec/services/prompt_engine/evaluation_runner_spec.rb:79:in 'block (4 levels) in <top (required)>'
+
+  11) PromptEngine::PlaygroundExecutor#execute with successful API call returns successful response with content
+      Failure/Error: raise "An error occurred: #{error.message}"
+
+      RuntimeError:
+        An error occurred: undefined method 'double' for module RubyLLM
+      # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+      # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:90:in 'block (4 levels) in <top (required)>'
+      # ------------------
+      # --- Caused by: ---
+      # NoMethodError:
+      #   undefined method 'double' for module RubyLLM
+      #   ./spec/services/prompt_engine/playground_executor_spec.rb:61:in 'RubyLLM.configure'
+
+  12) PromptEngine::PlaygroundExecutor#execute with successful API call applies temperature when specified
+      Failure/Error: raise "An error occurred: #{error.message}"
+
+      RuntimeError:
+        An error occurred: undefined method 'double' for module RubyLLM
+      # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+      # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:102:in 'block (4 levels) in <top (required)>'
+      # ------------------
+      # --- Caused by: ---
+      # NoMethodError:
+      #   undefined method 'double' for module RubyLLM
+      #   ./spec/services/prompt_engine/playground_executor_spec.rb:61:in 'RubyLLM.configure'
+
+  13) PromptEngine::PlaygroundExecutor#execute with successful API call applies system message when present
+      Failure/Error: raise "An error occurred: #{error.message}"
+
+      RuntimeError:
+        An error occurred: undefined method 'double' for module RubyLLM
+      # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+      # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:108:in 'block (4 levels) in <top (required)>'
+      # ------------------
+      # --- Caused by: ---
+      # NoMethodError:
+      #   undefined method 'double' for module RubyLLM
+      #   ./spec/services/prompt_engine/playground_executor_spec.rb:61:in 'RubyLLM.configure'
+
+  14) PromptEngine::PlaygroundExecutor#execute with successful API call replaces parameters in prompt content
+      Failure/Error: raise "An error occurred: #{error.message}"
+
+      RuntimeError:
+        An error occurred: undefined method 'double' for module RubyLLM
+      # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+      # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:114:in 'block (4 levels) in <top (required)>'
+      # ------------------
+      # --- Caused by: ---
+      # NoMethodError:
+      #   undefined method 'double' for module RubyLLM
+      #   ./spec/services/prompt_engine/playground_executor_spec.rb:61:in 'RubyLLM.configure'
+
+  15) PromptEngine::PlaygroundExecutor#execute with successful API call with response containing token information calculates total token count
+      Failure/Error: raise "An error occurred: #{error.message}"
+
+      RuntimeError:
+        An error occurred: undefined method 'double' for module RubyLLM
+      # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+      # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:127:in 'block (5 levels) in <top (required)>'
+      # ------------------
+      # --- Caused by: ---
+      # NoMethodError:
+      #   undefined method 'double' for module RubyLLM
+      #   ./spec/services/prompt_engine/playground_executor_spec.rb:61:in 'RubyLLM.configure'
+
+  16) PromptEngine::PlaygroundExecutor#execute with successful API call with string response handles string response correctly
+      Failure/Error: raise "An error occurred: #{error.message}"
+
+      RuntimeError:
+        An error occurred: undefined method 'double' for module RubyLLM
+      # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+      # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:137:in 'block (5 levels) in <top (required)>'
+      # ------------------
+      # --- Caused by: ---
+      # NoMethodError:
+      #   undefined method 'double' for module RubyLLM
+      #   ./spec/services/prompt_engine/playground_executor_spec.rb:61:in 'RubyLLM.configure'
+
+  17) PromptEngine::PlaygroundExecutor#execute with Anthropic provider uses Claude model
+      Failure/Error: raise "An error occurred: #{error.message}"
+
+      RuntimeError:
+        An error occurred: undefined method 'double' for module RubyLLM
+      # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+      # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:179:in 'block (4 levels) in <top (required)>'
+      # ------------------
+      # --- Caused by: ---
+      # NoMethodError:
+      #   undefined method 'double' for module RubyLLM
+      #   ./spec/services/prompt_engine/playground_executor_spec.rb:61:in 'RubyLLM.configure'
+
+  18) PromptEngine::PlaygroundExecutor#execute with API errors handles unauthorized errors
+      Failure/Error: expect { executor.execute }.to raise_error(RuntimeError, "Invalid API key")
+
+        expected RuntimeError with "Invalid API key", got #<RuntimeError: An error occurred: undefined method 'double' for module RubyLLM> with backtrace:
+          # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+          # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+          # ./spec/services/prompt_engine/playground_executor_spec.rb:236:in 'block (5 levels) in <top (required)>'
+          # ./spec/services/prompt_engine/playground_executor_spec.rb:236:in 'block (4 levels) in <top (required)>'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:236:in 'block (4 levels) in <top (required)>'
+
+  19) PromptEngine::PlaygroundExecutor#execute with API errors handles rate limit errors
+      Failure/Error: expect { executor.execute }.to raise_error(RuntimeError, "Rate limit exceeded. Please try again later.")
+
+        expected RuntimeError with "Rate limit exceeded. Please try again later.", got #<RuntimeError: An error occurred: undefined method 'double' for module RubyLLM> with backtrace:
+          # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+          # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+          # ./spec/services/prompt_engine/playground_executor_spec.rb:245:in 'block (5 levels) in <top (required)>'
+          # ./spec/services/prompt_engine/playground_executor_spec.rb:245:in 'block (4 levels) in <top (required)>'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:245:in 'block (4 levels) in <top (required)>'
+
+  20) PromptEngine::PlaygroundExecutor#execute with API errors handles network errors
+      Failure/Error: expect { executor.execute }.to raise_error(RuntimeError, "Network error. Please check your connection and try again.")
+
+        expected RuntimeError with "Network error. Please check your connection and try again.", got #<RuntimeError: An error occurred: undefined method 'double' for module RubyLLM> with backtrace:
+          # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+          # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+          # ./spec/services/prompt_engine/playground_executor_spec.rb:254:in 'block (5 levels) in <top (required)>'
+          # ./spec/services/prompt_engine/playground_executor_spec.rb:254:in 'block (4 levels) in <top (required)>'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:254:in 'block (4 levels) in <top (required)>'
+
+  21) PromptEngine::PlaygroundExecutor#execute with API errors handles generic errors
+      Failure/Error: expect { executor.execute }.to raise_error(RuntimeError, "An error occurred: Something went wrong")
+
+        expected RuntimeError with "An error occurred: Something went wrong", got #<RuntimeError: An error occurred: undefined method 'double' for module RubyLLM> with backtrace:
+          # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+          # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+          # ./spec/services/prompt_engine/playground_executor_spec.rb:260:in 'block (5 levels) in <top (required)>'
+          # ./spec/services/prompt_engine/playground_executor_spec.rb:260:in 'block (4 levels) in <top (required)>'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:260:in 'block (4 levels) in <top (required)>'
+
+  22) PromptEngine::PlaygroundExecutor#execute with API errors handles errors with unauthorized message
+      Failure/Error: expect { executor.execute }.to raise_error(RuntimeError, "Invalid API key")
+
+        expected RuntimeError with "Invalid API key", got #<RuntimeError: An error occurred: undefined method 'double' for module RubyLLM> with backtrace:
+          # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+          # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+          # ./spec/services/prompt_engine/playground_executor_spec.rb:266:in 'block (5 levels) in <top (required)>'
+          # ./spec/services/prompt_engine/playground_executor_spec.rb:266:in 'block (4 levels) in <top (required)>'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:266:in 'block (4 levels) in <top (required)>'
+
+  23) PromptEngine::PlaygroundExecutor#execute with API errors handles errors with rate limit message
+      Failure/Error: expect { executor.execute }.to raise_error(RuntimeError, "Rate limit exceeded. Please try again later.")
+
+        expected RuntimeError with "Rate limit exceeded. Please try again later.", got #<RuntimeError: An error occurred: undefined method 'double' for module RubyLLM> with backtrace:
+          # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+          # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+          # ./spec/services/prompt_engine/playground_executor_spec.rb:272:in 'block (5 levels) in <top (required)>'
+          # ./spec/services/prompt_engine/playground_executor_spec.rb:272:in 'block (4 levels) in <top (required)>'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:272:in 'block (4 levels) in <top (required)>'
+
+  24) PromptEngine::PlaygroundExecutor#execute with prompt without optional fields does not apply temperature when not present
+      Failure/Error: raise "An error occurred: #{error.message}"
+
+      RuntimeError:
+        An error occurred: undefined method 'double' for module RubyLLM
+      # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+      # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:305:in 'block (4 levels) in <top (required)>'
+      # ------------------
+      # --- Caused by: ---
+      # NoMethodError:
+      #   undefined method 'double' for module RubyLLM
+      #   ./spec/services/prompt_engine/playground_executor_spec.rb:61:in 'RubyLLM.configure'
+
+  25) PromptEngine::PlaygroundExecutor#execute with prompt without optional fields does not apply system message when not present
+      Failure/Error: raise "An error occurred: #{error.message}"
+
+      RuntimeError:
+        An error occurred: undefined method 'double' for module RubyLLM
+      # ./app/services/prompt_engine/playground_executor.rb:119:in 'PromptEngine::PlaygroundExecutor#handle_error'
+      # ./app/services/prompt_engine/playground_executor.rb:72:in 'PromptEngine::PlaygroundExecutor#execute'
+      # ./spec/services/prompt_engine/playground_executor_spec.rb:311:in 'block (4 levels) in <top (required)>'
+      # ------------------
+      # --- Caused by: ---
+      # NoMethodError:
+      #   undefined method 'double' for module RubyLLM
+      #   ./spec/services/prompt_engine/playground_executor_spec.rb:61:in 'RubyLLM.configure'
+
+  26) Evaluation Workflow complete workflow with UI creates eval set, adds test cases, runs evaluation, and displays results
+      Failure/Error: click_link "Evaluations"
+
+      Capybara::Ambiguous:
+        Ambiguous match, found 2 elements matching visible link "Evaluations"
+      # ./spec/system/eval_workflow_spec.rb:32:in 'block (3 levels) in <top (required)>'
+
+  27) Evaluation Workflow error handling in UI displays authentication error gracefully
+      Failure/Error: click_button "Run Evaluation"
+
+      Capybara::ElementNotFound:
+        Unable to find button "Run Evaluation" that is not disabled
+      # ./spec/system/eval_workflow_spec.rb:126:in 'block (3 levels) in <top (required)>'
+
+  28) Evaluation Workflow error handling in UI displays rate limit error gracefully
+      Failure/Error: click_button "Run Evaluation"
+
+      Capybara::ElementNotFound:
+        Unable to find button "Run Evaluation" that is not disabled
+      # ./spec/system/eval_workflow_spec.rb:137:in 'block (3 levels) in <top (required)>'
+
+  29) Evaluation Workflow error handling in UI displays general API errors
+      Failure/Error: click_button "Run Evaluation"
+
+      Capybara::ElementNotFound:
+        Unable to find button "Run Evaluation" that is not disabled
+      # ./spec/system/eval_workflow_spec.rb:147:in 'block (3 levels) in <top (required)>'
+
+  30) Test Case Import User imports test cases from CSV file
+      Got 0 failures and 2 other errors:
+
+      30.1) Failure/Error: visit prompt_eval_set_path(prompt, eval_set)
+
+            WebMock::NetConnectNotAllowedError:
+              Real HTTP connections are disabled. Unregistered request: GET http://127.0.0.1:57562/__identify__ with headers {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}
+
+              You can stub this request with the following snippet:
+
+              stub_request(:get, "http://127.0.0.1:57562/__identify__").
+                with(
+                  headers: {
+              	  'Accept'=>'*/*',
+              	  'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              	  'User-Agent'=>'Ruby'
+                  }).
+                to_return(status: 200, body: "", headers: {})
+
+              ============================================================
+            # ./spec/system/test_case_import_spec.rb:30:in 'block (2 levels) in <top (required)>'
+
+      30.2) Failure/Error: raise WebMock::NetConnectNotAllowedError.new(request_signature)
+
+            WebMock::NetConnectNotAllowedError:
+              Real HTTP connections are disabled. Unregistered request: GET http://127.0.0.1:57563/__identify__ with headers {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}
+
+              You can stub this request with the following snippet:
+
+              stub_request(:get, "http://127.0.0.1:57563/__identify__").
+                with(
+                  headers: {
+              	  'Accept'=>'*/*',
+              	  'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              	  'User-Agent'=>'Ruby'
+                  }).
+                to_return(status: 200, body: "", headers: {})
+
+              ============================================================
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:120:in 'Net::HTTP#request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/net-http-0.6.0/lib/net/http.rb:1990:in 'Net::HTTP#get'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server.rb:56:in 'block in Capybara::Server#responsive?'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:130:in 'Net::HTTP#start_without_connect'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:157:in 'Net::HTTP#start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/net-http-0.6.0/lib/net/http.rb:1070:in 'Net::HTTP.start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server/checker.rb:36:in 'Capybara::Server::Checker#make_request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server/checker.rb:28:in 'Capybara::Server::Checker#http_request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server/checker.rb:14:in 'Capybara::Server::Checker#request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server.rb:56:in 'Capybara::Server#responsive?'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server.rb:73:in 'Capybara::Server#boot'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/session.rb:95:in 'Capybara::Session#initialize'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara.rb:422:in 'Class#new'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara.rb:422:in 'block in Capybara.session_pool'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara.rb:317:in 'Capybara.current_session'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/dsl.rb:46:in 'Capybara::DSL#page'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/screenshot_helper.rb:116:in 'ActionDispatch::SystemTesting::TestHelpers::ScreenshotHelper#save_image'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/screenshot_helper.rb:46:in 'ActionDispatch::SystemTesting::TestHelpers::ScreenshotHelper#take_screenshot'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/screenshot_helper.rb:56:in 'ActionDispatch::SystemTesting::TestHelpers::ScreenshotHelper#take_failed_screenshot'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/setup_and_teardown.rb:10:in 'ActionDispatch::SystemTesting::TestHelpers::SetupAndTeardown#before_teardown'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/example/system_example_group.rb:164:in 'Method#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/example/system_example_group.rb:164:in 'block (2 levels) in <module:SystemExampleGroup>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:372:in 'RSpec::Core::Hooks::AfterHook#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:529:in 'block in RSpec::Core::Hooks::HookCollections#run_owned_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in 'Array#each'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in 'RSpec::Core::Hooks::HookCollections#run_owned_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:615:in 'block in RSpec::Core::Hooks::HookCollections#run_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in 'Array#each'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in 'RSpec::Core::Hooks::HookCollections#run_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:485:in 'RSpec::Core::Hooks::HookCollections#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:518:in 'RSpec::Core::Example#run_after_example'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:283:in 'block in RSpec::Core::Example#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in 'block in RSpec::Core::Example#with_around_and_singleton_context_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in 'block in RSpec::Core::Example#with_around_example_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in 'block in RSpec::Core::Hooks::HookCollections#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:626:in 'block in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/example/system_example_group.rb:174:in 'block (2 levels) in <module:SystemExampleGroup>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in 'RSpec::Core::Hooks::AroundHook#execute_with'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in 'block (2 levels) in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/adapters.rb:75:in 'block (2 levels) in <module:MinitestLifecycleAdapter>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in 'RSpec::Core::Hooks::AroundHook#execute_with'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in 'block (2 levels) in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/rspec.rb:39:in 'block (2 levels) in <top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in 'RSpec::Core::Hooks::AroundHook#execute_with'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in 'block (2 levels) in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:629:in 'RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in 'RSpec::Core::Hooks::HookCollections#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in 'RSpec::Core::Example#with_around_example_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in 'RSpec::Core::Example#with_around_and_singleton_context_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:259:in 'RSpec::Core::Example#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:653:in 'block in RSpec::Core::ExampleGroup.run_examples'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in 'Array#map'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in 'RSpec::Core::ExampleGroup.run_examples'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:614:in 'RSpec::Core::ExampleGroup.run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in 'block (3 levels) in RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in 'Array#map'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in 'block (2 levels) in RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/configuration.rb:2097:in 'RSpec::Core::Configuration#with_suite_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:116:in 'block in RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/reporter.rb:74:in 'RSpec::Core::Reporter#report'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:115:in 'RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:89:in 'RSpec::Core::Runner#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:71:in 'RSpec::Core::Runner.run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:45:in 'RSpec::Core::Runner.invoke'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/exe/rspec:4:in '<top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/rspec:25:in 'Kernel#load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/rspec:25:in '<top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli/exec.rb:59:in 'Kernel.load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli/exec.rb:59:in 'Bundler::CLI::Exec#kernel_load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli/exec.rb:23:in 'Bundler::CLI::Exec#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli.rb:452:in 'Bundler::CLI#exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor/command.rb:28:in 'Bundler::Thor::Command#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor/invocation.rb:127:in 'Bundler::Thor::Invocation#invoke_command'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor.rb:538:in 'Bundler::Thor.dispatch'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli.rb:35:in 'Bundler::CLI.dispatch'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor/base.rb:584:in 'Bundler::Thor::Base::ClassMethods#start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli.rb:29:in 'Bundler::CLI.start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/bundler-2.6.9/exe/bundle:28:in 'block in <top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/friendly_errors.rb:117:in 'Bundler.with_friendly_errors'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/bundler-2.6.9/exe/bundle:20:in '<top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/bundle:25:in 'Kernel#load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/bundle:25:in '<main>'
+            # 
+            #   Showing full backtrace because every line was filtered out.
+            #   See docs for RSpec::Configuration#backtrace_exclusion_patterns and
+            #   RSpec::Configuration#backtrace_inclusion_patterns for more information.
+
+  31) Test Case Import User imports test cases from JSON file
+      Got 0 failures and 2 other errors:
+
+      31.1) Failure/Error: visit prompt_eval_set_path(prompt, eval_set)
+
+            WebMock::NetConnectNotAllowedError:
+              Real HTTP connections are disabled. Unregistered request: GET http://127.0.0.1:57564/__identify__ with headers {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}
+
+              You can stub this request with the following snippet:
+
+              stub_request(:get, "http://127.0.0.1:57564/__identify__").
+                with(
+                  headers: {
+              	  'Accept'=>'*/*',
+              	  'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              	  'User-Agent'=>'Ruby'
+                  }).
+                to_return(status: 200, body: "", headers: {})
+
+              ============================================================
+            # ./spec/system/test_case_import_spec.rb:88:in 'block (2 levels) in <top (required)>'
+
+      31.2) Failure/Error: raise WebMock::NetConnectNotAllowedError.new(request_signature)
+
+            WebMock::NetConnectNotAllowedError:
+              Real HTTP connections are disabled. Unregistered request: GET http://127.0.0.1:57565/__identify__ with headers {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}
+
+              You can stub this request with the following snippet:
+
+              stub_request(:get, "http://127.0.0.1:57565/__identify__").
+                with(
+                  headers: {
+              	  'Accept'=>'*/*',
+              	  'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              	  'User-Agent'=>'Ruby'
+                  }).
+                to_return(status: 200, body: "", headers: {})
+
+              ============================================================
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:120:in 'Net::HTTP#request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/net-http-0.6.0/lib/net/http.rb:1990:in 'Net::HTTP#get'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server.rb:56:in 'block in Capybara::Server#responsive?'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:130:in 'Net::HTTP#start_without_connect'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:157:in 'Net::HTTP#start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/net-http-0.6.0/lib/net/http.rb:1070:in 'Net::HTTP.start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server/checker.rb:36:in 'Capybara::Server::Checker#make_request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server/checker.rb:28:in 'Capybara::Server::Checker#http_request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server/checker.rb:14:in 'Capybara::Server::Checker#request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server.rb:56:in 'Capybara::Server#responsive?'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server.rb:73:in 'Capybara::Server#boot'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/session.rb:95:in 'Capybara::Session#initialize'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara.rb:422:in 'Class#new'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara.rb:422:in 'block in Capybara.session_pool'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara.rb:317:in 'Capybara.current_session'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/dsl.rb:46:in 'Capybara::DSL#page'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/screenshot_helper.rb:116:in 'ActionDispatch::SystemTesting::TestHelpers::ScreenshotHelper#save_image'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/screenshot_helper.rb:46:in 'ActionDispatch::SystemTesting::TestHelpers::ScreenshotHelper#take_screenshot'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/screenshot_helper.rb:56:in 'ActionDispatch::SystemTesting::TestHelpers::ScreenshotHelper#take_failed_screenshot'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/setup_and_teardown.rb:10:in 'ActionDispatch::SystemTesting::TestHelpers::SetupAndTeardown#before_teardown'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/example/system_example_group.rb:164:in 'Method#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/example/system_example_group.rb:164:in 'block (2 levels) in <module:SystemExampleGroup>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:372:in 'RSpec::Core::Hooks::AfterHook#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:529:in 'block in RSpec::Core::Hooks::HookCollections#run_owned_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in 'Array#each'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in 'RSpec::Core::Hooks::HookCollections#run_owned_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:615:in 'block in RSpec::Core::Hooks::HookCollections#run_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in 'Array#each'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in 'RSpec::Core::Hooks::HookCollections#run_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:485:in 'RSpec::Core::Hooks::HookCollections#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:518:in 'RSpec::Core::Example#run_after_example'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:283:in 'block in RSpec::Core::Example#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in 'block in RSpec::Core::Example#with_around_and_singleton_context_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in 'block in RSpec::Core::Example#with_around_example_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in 'block in RSpec::Core::Hooks::HookCollections#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:626:in 'block in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/example/system_example_group.rb:174:in 'block (2 levels) in <module:SystemExampleGroup>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in 'RSpec::Core::Hooks::AroundHook#execute_with'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in 'block (2 levels) in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/adapters.rb:75:in 'block (2 levels) in <module:MinitestLifecycleAdapter>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in 'RSpec::Core::Hooks::AroundHook#execute_with'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in 'block (2 levels) in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/rspec.rb:39:in 'block (2 levels) in <top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in 'RSpec::Core::Hooks::AroundHook#execute_with'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in 'block (2 levels) in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:629:in 'RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in 'RSpec::Core::Hooks::HookCollections#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in 'RSpec::Core::Example#with_around_example_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in 'RSpec::Core::Example#with_around_and_singleton_context_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:259:in 'RSpec::Core::Example#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:653:in 'block in RSpec::Core::ExampleGroup.run_examples'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in 'Array#map'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in 'RSpec::Core::ExampleGroup.run_examples'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:614:in 'RSpec::Core::ExampleGroup.run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in 'block (3 levels) in RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in 'Array#map'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in 'block (2 levels) in RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/configuration.rb:2097:in 'RSpec::Core::Configuration#with_suite_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:116:in 'block in RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/reporter.rb:74:in 'RSpec::Core::Reporter#report'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:115:in 'RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:89:in 'RSpec::Core::Runner#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:71:in 'RSpec::Core::Runner.run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:45:in 'RSpec::Core::Runner.invoke'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/exe/rspec:4:in '<top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/rspec:25:in 'Kernel#load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/rspec:25:in '<top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli/exec.rb:59:in 'Kernel.load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli/exec.rb:59:in 'Bundler::CLI::Exec#kernel_load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli/exec.rb:23:in 'Bundler::CLI::Exec#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli.rb:452:in 'Bundler::CLI#exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor/command.rb:28:in 'Bundler::Thor::Command#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor/invocation.rb:127:in 'Bundler::Thor::Invocation#invoke_command'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor.rb:538:in 'Bundler::Thor.dispatch'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli.rb:35:in 'Bundler::CLI.dispatch'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor/base.rb:584:in 'Bundler::Thor::Base::ClassMethods#start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli.rb:29:in 'Bundler::CLI.start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/bundler-2.6.9/exe/bundle:28:in 'block in <top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/friendly_errors.rb:117:in 'Bundler.with_friendly_errors'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/bundler-2.6.9/exe/bundle:20:in '<top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/bundle:25:in 'Kernel#load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/bundle:25:in '<main>'
+            # 
+            #   Showing full backtrace because every line was filtered out.
+            #   See docs for RSpec::Configuration#backtrace_exclusion_patterns and
+            #   RSpec::Configuration#backtrace_inclusion_patterns for more information.
+
+  32) Test Case Import User sees error for invalid file format
+      Got 0 failures and 2 other errors:
+
+      32.1) Failure/Error: visit prompt_eval_set_path(prompt, eval_set)
+
+            WebMock::NetConnectNotAllowedError:
+              Real HTTP connections are disabled. Unregistered request: GET http://127.0.0.1:57566/__identify__ with headers {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}
+
+              You can stub this request with the following snippet:
+
+              stub_request(:get, "http://127.0.0.1:57566/__identify__").
+                with(
+                  headers: {
+              	  'Accept'=>'*/*',
+              	  'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              	  'User-Agent'=>'Ruby'
+                  }).
+                to_return(status: 200, body: "", headers: {})
+
+              ============================================================
+            # ./spec/system/test_case_import_spec.rb:109:in 'block (2 levels) in <top (required)>'
+
+      32.2) Failure/Error: raise WebMock::NetConnectNotAllowedError.new(request_signature)
+
+            WebMock::NetConnectNotAllowedError:
+              Real HTTP connections are disabled. Unregistered request: GET http://127.0.0.1:57567/__identify__ with headers {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}
+
+              You can stub this request with the following snippet:
+
+              stub_request(:get, "http://127.0.0.1:57567/__identify__").
+                with(
+                  headers: {
+              	  'Accept'=>'*/*',
+              	  'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              	  'User-Agent'=>'Ruby'
+                  }).
+                to_return(status: 200, body: "", headers: {})
+
+              ============================================================
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:120:in 'Net::HTTP#request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/net-http-0.6.0/lib/net/http.rb:1990:in 'Net::HTTP#get'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server.rb:56:in 'block in Capybara::Server#responsive?'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:130:in 'Net::HTTP#start_without_connect'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:157:in 'Net::HTTP#start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/net-http-0.6.0/lib/net/http.rb:1070:in 'Net::HTTP.start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server/checker.rb:36:in 'Capybara::Server::Checker#make_request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server/checker.rb:28:in 'Capybara::Server::Checker#http_request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server/checker.rb:14:in 'Capybara::Server::Checker#request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server.rb:56:in 'Capybara::Server#responsive?'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server.rb:73:in 'Capybara::Server#boot'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/session.rb:95:in 'Capybara::Session#initialize'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara.rb:422:in 'Class#new'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara.rb:422:in 'block in Capybara.session_pool'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara.rb:317:in 'Capybara.current_session'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/dsl.rb:46:in 'Capybara::DSL#page'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/screenshot_helper.rb:116:in 'ActionDispatch::SystemTesting::TestHelpers::ScreenshotHelper#save_image'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/screenshot_helper.rb:46:in 'ActionDispatch::SystemTesting::TestHelpers::ScreenshotHelper#take_screenshot'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/screenshot_helper.rb:56:in 'ActionDispatch::SystemTesting::TestHelpers::ScreenshotHelper#take_failed_screenshot'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/setup_and_teardown.rb:10:in 'ActionDispatch::SystemTesting::TestHelpers::SetupAndTeardown#before_teardown'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/example/system_example_group.rb:164:in 'Method#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/example/system_example_group.rb:164:in 'block (2 levels) in <module:SystemExampleGroup>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:372:in 'RSpec::Core::Hooks::AfterHook#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:529:in 'block in RSpec::Core::Hooks::HookCollections#run_owned_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in 'Array#each'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in 'RSpec::Core::Hooks::HookCollections#run_owned_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:615:in 'block in RSpec::Core::Hooks::HookCollections#run_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in 'Array#each'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in 'RSpec::Core::Hooks::HookCollections#run_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:485:in 'RSpec::Core::Hooks::HookCollections#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:518:in 'RSpec::Core::Example#run_after_example'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:283:in 'block in RSpec::Core::Example#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in 'block in RSpec::Core::Example#with_around_and_singleton_context_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in 'block in RSpec::Core::Example#with_around_example_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in 'block in RSpec::Core::Hooks::HookCollections#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:626:in 'block in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/example/system_example_group.rb:174:in 'block (2 levels) in <module:SystemExampleGroup>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in 'RSpec::Core::Hooks::AroundHook#execute_with'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in 'block (2 levels) in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/adapters.rb:75:in 'block (2 levels) in <module:MinitestLifecycleAdapter>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in 'RSpec::Core::Hooks::AroundHook#execute_with'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in 'block (2 levels) in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/rspec.rb:39:in 'block (2 levels) in <top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in 'RSpec::Core::Hooks::AroundHook#execute_with'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in 'block (2 levels) in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:629:in 'RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in 'RSpec::Core::Hooks::HookCollections#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in 'RSpec::Core::Example#with_around_example_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in 'RSpec::Core::Example#with_around_and_singleton_context_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:259:in 'RSpec::Core::Example#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:653:in 'block in RSpec::Core::ExampleGroup.run_examples'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in 'Array#map'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in 'RSpec::Core::ExampleGroup.run_examples'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:614:in 'RSpec::Core::ExampleGroup.run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in 'block (3 levels) in RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in 'Array#map'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in 'block (2 levels) in RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/configuration.rb:2097:in 'RSpec::Core::Configuration#with_suite_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:116:in 'block in RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/reporter.rb:74:in 'RSpec::Core::Reporter#report'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:115:in 'RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:89:in 'RSpec::Core::Runner#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:71:in 'RSpec::Core::Runner.run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:45:in 'RSpec::Core::Runner.invoke'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/exe/rspec:4:in '<top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/rspec:25:in 'Kernel#load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/rspec:25:in '<top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli/exec.rb:59:in 'Kernel.load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli/exec.rb:59:in 'Bundler::CLI::Exec#kernel_load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli/exec.rb:23:in 'Bundler::CLI::Exec#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli.rb:452:in 'Bundler::CLI#exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor/command.rb:28:in 'Bundler::Thor::Command#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor/invocation.rb:127:in 'Bundler::Thor::Invocation#invoke_command'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor.rb:538:in 'Bundler::Thor.dispatch'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli.rb:35:in 'Bundler::CLI.dispatch'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor/base.rb:584:in 'Bundler::Thor::Base::ClassMethods#start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli.rb:29:in 'Bundler::CLI.start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/bundler-2.6.9/exe/bundle:28:in 'block in <top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/friendly_errors.rb:117:in 'Bundler.with_friendly_errors'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/bundler-2.6.9/exe/bundle:20:in '<top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/bundle:25:in 'Kernel#load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/bundle:25:in '<main>'
+            # 
+            #   Showing full backtrace because every line was filtered out.
+            #   See docs for RSpec::Configuration#backtrace_exclusion_patterns and
+            #   RSpec::Configuration#backtrace_inclusion_patterns for more information.
+
+  33) Test Case Import User cancels import at preview stage
+      Got 0 failures and 2 other errors:
+
+      33.1) Failure/Error: visit import_prompt_eval_set_test_cases_path(prompt, eval_set)
+
+            WebMock::NetConnectNotAllowedError:
+              Real HTTP connections are disabled. Unregistered request: GET http://127.0.0.1:57568/__identify__ with headers {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}
+
+              You can stub this request with the following snippet:
+
+              stub_request(:get, "http://127.0.0.1:57568/__identify__").
+                with(
+                  headers: {
+              	  'Accept'=>'*/*',
+              	  'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              	  'User-Agent'=>'Ruby'
+                  }).
+                to_return(status: 200, body: "", headers: {})
+
+              ============================================================
+            # ./spec/system/test_case_import_spec.rb:135:in 'block (2 levels) in <top (required)>'
+
+      33.2) Failure/Error: raise WebMock::NetConnectNotAllowedError.new(request_signature)
+
+            WebMock::NetConnectNotAllowedError:
+              Real HTTP connections are disabled. Unregistered request: GET http://127.0.0.1:57569/__identify__ with headers {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}
+
+              You can stub this request with the following snippet:
+
+              stub_request(:get, "http://127.0.0.1:57569/__identify__").
+                with(
+                  headers: {
+              	  'Accept'=>'*/*',
+              	  'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              	  'User-Agent'=>'Ruby'
+                  }).
+                to_return(status: 200, body: "", headers: {})
+
+              ============================================================
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:120:in 'Net::HTTP#request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/net-http-0.6.0/lib/net/http.rb:1990:in 'Net::HTTP#get'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server.rb:56:in 'block in Capybara::Server#responsive?'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:130:in 'Net::HTTP#start_without_connect'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:157:in 'Net::HTTP#start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/net-http-0.6.0/lib/net/http.rb:1070:in 'Net::HTTP.start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server/checker.rb:36:in 'Capybara::Server::Checker#make_request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server/checker.rb:28:in 'Capybara::Server::Checker#http_request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server/checker.rb:14:in 'Capybara::Server::Checker#request'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server.rb:56:in 'Capybara::Server#responsive?'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/server.rb:73:in 'Capybara::Server#boot'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/session.rb:95:in 'Capybara::Session#initialize'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara.rb:422:in 'Class#new'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara.rb:422:in 'block in Capybara.session_pool'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara.rb:317:in 'Capybara.current_session'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/capybara-3.40.0/lib/capybara/dsl.rb:46:in 'Capybara::DSL#page'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/screenshot_helper.rb:116:in 'ActionDispatch::SystemTesting::TestHelpers::ScreenshotHelper#save_image'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/screenshot_helper.rb:46:in 'ActionDispatch::SystemTesting::TestHelpers::ScreenshotHelper#take_screenshot'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/screenshot_helper.rb:56:in 'ActionDispatch::SystemTesting::TestHelpers::ScreenshotHelper#take_failed_screenshot'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/actionpack-8.0.2/lib/action_dispatch/system_testing/test_helpers/setup_and_teardown.rb:10:in 'ActionDispatch::SystemTesting::TestHelpers::SetupAndTeardown#before_teardown'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/example/system_example_group.rb:164:in 'Method#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/example/system_example_group.rb:164:in 'block (2 levels) in <module:SystemExampleGroup>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:372:in 'RSpec::Core::Hooks::AfterHook#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:529:in 'block in RSpec::Core::Hooks::HookCollections#run_owned_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in 'Array#each'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in 'RSpec::Core::Hooks::HookCollections#run_owned_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:615:in 'block in RSpec::Core::Hooks::HookCollections#run_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in 'Array#each'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in 'RSpec::Core::Hooks::HookCollections#run_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:485:in 'RSpec::Core::Hooks::HookCollections#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:518:in 'RSpec::Core::Example#run_after_example'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:283:in 'block in RSpec::Core::Example#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in 'block in RSpec::Core::Example#with_around_and_singleton_context_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in 'block in RSpec::Core::Example#with_around_example_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in 'block in RSpec::Core::Hooks::HookCollections#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:626:in 'block in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/example/system_example_group.rb:174:in 'block (2 levels) in <module:SystemExampleGroup>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in 'RSpec::Core::Hooks::AroundHook#execute_with'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in 'block (2 levels) in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-rails-7.1.1/lib/rspec/rails/adapters.rb:75:in 'block (2 levels) in <module:MinitestLifecycleAdapter>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in 'RSpec::Core::Hooks::AroundHook#execute_with'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in 'block (2 levels) in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/webmock-3.25.1/lib/webmock/rspec.rb:39:in 'block (2 levels) in <top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'BasicObject#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in 'RSpec::Core::Example#instance_exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in 'RSpec::Core::Hooks::AroundHook#execute_with'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in 'block (2 levels) in RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in 'RSpec::Core::Example::Procsy#call'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:629:in 'RSpec::Core::Hooks::HookCollections#run_around_example_hooks_for'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in 'RSpec::Core::Hooks::HookCollections#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in 'RSpec::Core::Example#with_around_example_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in 'RSpec::Core::Example#with_around_and_singleton_context_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:259:in 'RSpec::Core::Example#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:653:in 'block in RSpec::Core::ExampleGroup.run_examples'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in 'Array#map'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in 'RSpec::Core::ExampleGroup.run_examples'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:614:in 'RSpec::Core::ExampleGroup.run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in 'block (3 levels) in RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in 'Array#map'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in 'block (2 levels) in RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/configuration.rb:2097:in 'RSpec::Core::Configuration#with_suite_hooks'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:116:in 'block in RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/reporter.rb:74:in 'RSpec::Core::Reporter#report'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:115:in 'RSpec::Core::Runner#run_specs'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:89:in 'RSpec::Core::Runner#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:71:in 'RSpec::Core::Runner.run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:45:in 'RSpec::Core::Runner.invoke'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/rspec-core-3.13.5/exe/rspec:4:in '<top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/rspec:25:in 'Kernel#load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/rspec:25:in '<top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli/exec.rb:59:in 'Kernel.load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli/exec.rb:59:in 'Bundler::CLI::Exec#kernel_load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli/exec.rb:23:in 'Bundler::CLI::Exec#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli.rb:452:in 'Bundler::CLI#exec'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor/command.rb:28:in 'Bundler::Thor::Command#run'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor/invocation.rb:127:in 'Bundler::Thor::Invocation#invoke_command'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor.rb:538:in 'Bundler::Thor.dispatch'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli.rb:35:in 'Bundler::CLI.dispatch'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/vendor/thor/lib/thor/base.rb:584:in 'Bundler::Thor::Base::ClassMethods#start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/cli.rb:29:in 'Bundler::CLI.start'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/bundler-2.6.9/exe/bundle:28:in 'block in <top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/site_ruby/3.4.0/bundler/friendly_errors.rb:117:in 'Bundler.with_friendly_errors'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/lib/ruby/gems/3.4.0/gems/bundler-2.6.9/exe/bundle:20:in '<top (required)>'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/bundle:25:in 'Kernel#load'
+            # /Users/avi/.asdf/installs/ruby/3.4.3/bin/bundle:25:in '<main>'
+            # 
+            #   Showing full backtrace because every line was filtered out.
+            #   See docs for RSpec::Configuration#backtrace_exclusion_patterns and
+            #   RSpec::Configuration#backtrace_inclusion_patterns for more information.
+
+Finished in 5.6 seconds (files took 0.7763 seconds to load)
+641 examples, 33 failures, 8 pending
+
+Failed examples:
+
+rspec ./spec/models/prompt_spec.rb:283 # PromptEngine::Prompt usage in Rails models when using PromptEngine.render only uses active prompts
+rspec ./spec/requests/prompt_engine/eval_sets_grader_types_spec.rb:44 # EvalSets grader types POST /prompt_engine/prompts/:prompt_id/eval_sets with regex grader type fails with invalid regex pattern
+rspec ./spec/requests/prompt_engine/eval_sets_grader_types_spec.rb:61 # EvalSets grader types POST /prompt_engine/prompts/:prompt_id/eval_sets with json_schema grader type creates eval set with JSON schema
+rspec ./spec/requests/prompt_engine/eval_sets_grader_types_spec.rb:108 # EvalSets grader types PATCH /prompt_engine/prompts/:prompt_id/eval_sets/:id clears grader_config when changing to exact_match
+rspec ./spec/requests/prompt_engine/playground_spec.rb:101 # Playground POST /prompt_engine/prompts/:id/playground with valid parameters creates a PlaygroundRunResult record
+rspec ./spec/requests/prompt_engine/test_cases_import_spec.rb:52 # PromptEngine::TestCases Import POST #import_preview with CSV file parses valid CSV and shows preview
+rspec ./spec/requests/prompt_engine/test_cases_import_spec.rb:131 # PromptEngine::TestCases Import POST #import_preview with JSON file parses valid JSON and shows preview
+rspec ./spec/requests/prompt_engine/test_cases_import_spec.rb:239 # PromptEngine::TestCases Import POST #import_create with valid session data creates test cases successfully
+rspec ./spec/requests/prompt_engine/test_cases_import_spec.rb:286 # PromptEngine::TestCases Import POST #import_create with validation errors reports validation errors
+rspec ./spec/services/prompt_engine/evaluation_runner_spec.rb:78 # PromptEngine::EvaluationRunner#build_testing_criteria with json_schema grader returns JSON schema validation criteria
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:89 # PromptEngine::PlaygroundExecutor#execute with successful API call returns successful response with content
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:99 # PromptEngine::PlaygroundExecutor#execute with successful API call applies temperature when specified
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:105 # PromptEngine::PlaygroundExecutor#execute with successful API call applies system message when present
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:111 # PromptEngine::PlaygroundExecutor#execute with successful API call replaces parameters in prompt content
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:126 # PromptEngine::PlaygroundExecutor#execute with successful API call with response containing token information calculates total token count
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:136 # PromptEngine::PlaygroundExecutor#execute with successful API call with string response handles string response correctly
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:178 # PromptEngine::PlaygroundExecutor#execute with Anthropic provider uses Claude model
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:230 # PromptEngine::PlaygroundExecutor#execute with API errors handles unauthorized errors
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:239 # PromptEngine::PlaygroundExecutor#execute with API errors handles rate limit errors
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:248 # PromptEngine::PlaygroundExecutor#execute with API errors handles network errors
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:257 # PromptEngine::PlaygroundExecutor#execute with API errors handles generic errors
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:263 # PromptEngine::PlaygroundExecutor#execute with API errors handles errors with unauthorized message
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:269 # PromptEngine::PlaygroundExecutor#execute with API errors handles errors with rate limit message
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:302 # PromptEngine::PlaygroundExecutor#execute with prompt without optional fields does not apply temperature when not present
+rspec ./spec/services/prompt_engine/playground_executor_spec.rb:308 # PromptEngine::PlaygroundExecutor#execute with prompt without optional fields does not apply system message when not present
+rspec ./spec/system/eval_workflow_spec.rb:22 # Evaluation Workflow complete workflow with UI creates eval set, adds test cases, runs evaluation, and displays results
+rspec ./spec/system/eval_workflow_spec.rb:121 # Evaluation Workflow error handling in UI displays authentication error gracefully
+rspec ./spec/system/eval_workflow_spec.rb:132 # Evaluation Workflow error handling in UI displays rate limit error gracefully
+rspec ./spec/system/eval_workflow_spec.rb:142 # Evaluation Workflow error handling in UI displays general API errors
+rspec ./spec/system/test_case_import_spec.rb:16 # Test Case Import User imports test cases from CSV file
+rspec ./spec/system/test_case_import_spec.rb:71 # Test Case Import User imports test cases from JSON file
+rspec ./spec/system/test_case_import_spec.rb:108 # Test Case Import User sees error for invalid file format
+rspec ./spec/system/test_case_import_spec.rb:129 # Test Case Import User cancels import at preview stage
+
+Coverage report generated for RSpec to /Users/avi/Development/code/PromptEngine-swarm/prompt_engine/coverage.
+Line Coverage: 84.62% (957 / 1131)
+Branch Coverage: 77.27% (238 / 308)
+Stopped processing SimpleCov as a previous error not related to SimpleCov has been detected

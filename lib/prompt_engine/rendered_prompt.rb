@@ -1,14 +1,14 @@
 module PromptEngine
   class RenderedPrompt
     attr_reader :prompt, :content, :system_message, :model,
-                :temperature, :max_tokens, :variables_used, :overrides,
+                :temperature, :max_tokens, :overrides,
                 :version_number
 
     def initialize(prompt, rendered_data, overrides = {})
       @prompt = prompt
       @content = rendered_data[:content]
       @system_message = rendered_data[:system_message]
-      @variables_used = rendered_data[:parameters_used]
+      @parameters = rendered_data[:parameters_used] || {}
       @overrides = overrides
       @version_number = rendered_data[:version_number]
 
@@ -66,6 +66,28 @@ module PromptEngine
       end
     end
 
+    # Parameter access methods
+    def parameters
+      @parameters
+    end
+
+    def parameter(key)
+      @parameters[key.to_s]
+    end
+
+    def parameter_names
+      @parameters.keys
+    end
+
+    def parameter_values
+      @parameters.values
+    end
+
+    # Check if a parameter exists
+    def parameter?(key)
+      @parameters.key?(key.to_s)
+    end
+
     # Convenience methods
     def to_h
       {
@@ -76,13 +98,17 @@ module PromptEngine
         max_tokens: max_tokens,
         messages: messages,
         overrides: overrides,
-        version_number: version_number
+        version_number: version_number,
+        parameters: parameters
       }
     end
 
     def inspect
       version_info = version_number ? " version=#{version_number}" : ""
-      "#<PromptEngine::RenderedPrompt prompt=#{prompt.slug}#{version_info} variables=#{variables_used.keys} overrides=#{overrides.keys}>"
+      param_info = parameter_names.any? ? " parameters=#{parameter_names}" : ""
+      override_info = overrides.any? ? " overrides=#{overrides.keys}" : ""
+      "#<PromptEngine::RenderedPrompt prompt=#{prompt.slug}#{version_info}#{param_info}#{override_info}>"
     end
+
   end
 end

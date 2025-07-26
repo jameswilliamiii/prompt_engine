@@ -54,7 +54,7 @@ RSpec.describe "PromptEngine::TestCases Import", type: :request do
 
         expect(response).to have_http_status(:success)
         expect(response.body).to include("Import Preview")
-        expect(response.body).to include("2 test cases will be imported")
+        expect(response.body).to include("<strong>2</strong> test cases will be imported")
         expect(response.body).to include("Test with John")
         expect(response.body).to include("Test with Jane")
       end
@@ -133,7 +133,7 @@ RSpec.describe "PromptEngine::TestCases Import", type: :request do
 
         expect(response).to have_http_status(:success)
         expect(response.body).to include("Import Preview")
-        expect(response.body).to include("2 test cases will be imported")
+        expect(response.body).to include("<strong>2</strong> test cases will be imported")
         expect(response.body).to include("Test with John")
       end
 
