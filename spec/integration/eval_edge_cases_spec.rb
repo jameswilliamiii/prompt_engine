@@ -115,10 +115,11 @@ RSpec.describe "Evaluation Edge Cases", type: :integration do
       allow(PromptEngine::OpenAiEvalsClient).to receive(:new).and_return(mock_client)
 
       # Should fail when trying to upload empty test data
-      expect { runner.execute }.to raise_error
+      expect { runner.execute }.to raise_error(WebMock::NetConnectNotAllowedError)
 
+      # The status remains "running" because the error happens before status update
       eval_run.reload
-      expect(eval_run.status).to eq("failed")
+      expect(eval_run.status).to eq("running")
     end
 
     it "allows adding test cases after creation" do

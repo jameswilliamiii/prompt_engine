@@ -3,6 +3,7 @@ PATH
   specs:
     prompt_engine (1.0.0)
       bcrypt
+      csv (~> 3.3)
       rails
       ruby_llm
       sqlite3
@@ -104,6 +105,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
+    csv (3.3.5)
     date (3.4.1)
     diff-lcs (1.6.2)
     docile (1.4.1)

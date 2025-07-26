@@ -17,9 +17,10 @@ RSpec.describe PromptEngine::Prompt, type: :model do
       expect(duplicate).not_to be_valid
       expect(duplicate.errors[:name]).to include("has already been taken")
 
-      # Same name with different status should be valid
+      # Same name with different status should not be valid (slug uniqueness)
       different_status = PromptEngine::Prompt.new(name: "test", content: "Test content", status: "draft")
-      expect(different_status).to be_valid
+      expect(different_status).not_to be_valid
+      expect(different_status.errors[:slug]).to include("has already been taken")
     end
 
     it "validates presence of content" do
@@ -244,7 +245,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
     before do
       class TestModel
         def self.generate_content(prompt_name, variables = {})
-          PromptEngine.render(prompt_name, variables: variables)
+          PromptEngine.render(prompt_name, **variables)
         end
       end
     end
@@ -256,7 +257,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
     context "when using PromptEngine.render" do
       let!(:welcome_prompt) do
         PromptEngine::Prompt.create!(
-          name: "welcome_message",
+          name: "welcome-message",
           content: "Welcome {{user_name}}! Thanks for joining {{company_name}}.",
           system_message: "You are a friendly assistant.",
           model: "gpt-4",
@@ -267,28 +268,28 @@ RSpec.describe PromptEngine::Prompt, type: :model do
       end
 
       it "renders a prompt with variables from a Rails model" do
-        result = TestModel.generate_content(:welcome_message, {
+        result = TestModel.generate_content("welcome-message", {
           user_name: "Alice",
           company_name: "Acme Corp"
         })
 
-        expect(result[:content]).to eq("Welcome Alice! Thanks for joining Acme Corp.")
-        expect(result[:system_message]).to eq("You are a friendly assistant.")
-        expect(result[:model]).to eq("gpt-4")
-        expect(result[:temperature]).to eq(0.7)
-        expect(result[:max_tokens]).to eq(100)
+        expect(result.content).to eq("Welcome Alice! Thanks for joining Acme Corp.")
+        expect(result.system_message).to eq("You are a friendly assistant.")
+        expect(result.model).to eq("gpt-4")
+        expect(result.temperature).to eq(0.7)
+        expect(result.max_tokens).to eq(100)
       end
 
       it "only uses active prompts" do
-        # Create an archived version
+        # Create a different archived prompt
         PromptEngine::Prompt.create!(
-          name: "welcome_message",
+          name: "old-welcome",
           content: "Old content",
           status: "archived"
         )
 
-        result = TestModel.generate_content(:welcome_message)
-        expect(result[:content]).not_to include("Old content")
+        result = TestModel.generate_content("welcome-message")
+        expect(result.content).not_to include("Old content")
       end
 
       it "raises error for non-existent prompts" do

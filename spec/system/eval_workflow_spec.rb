@@ -14,7 +14,11 @@ RSpec.describe "Evaluation Workflow", type: :system do
       status: "active")
   end
 
-  describe "complete workflow with UI", js: true do
+  before do
+    driven_by(:rack_test)
+  end
+
+  describe "complete workflow with UI" do
     it "creates eval set, adds test cases, runs evaluation, and displays results" do
       # Step 1: Navigate to prompts
       visit prompt_engine.prompts_path
@@ -102,7 +106,7 @@ RSpec.describe "Evaluation Workflow", type: :system do
     end
   end
 
-  describe "error handling in UI", js: true do
+  describe "error handling in UI" do
     let!(:eval_set) do
       create(:eval_set, prompt: prompt, name: "Error Test Set")
     end

@@ -15,6 +15,7 @@ RSpec.describe "Prompts management", type: :system do
       expect(page).to have_content("New Prompt")
 
       fill_in "Name", with: "Customer Support Bot"
+      fill_in "Slug", with: "customer-support-bot"
       fill_in "Prompt Content", with: "You are a helpful customer support assistant. Respond to customer inquiries professionally."
       fill_in "System Message", with: "Always be polite and professional."
       select "Active", from: "Status"
@@ -53,6 +54,7 @@ RSpec.describe "Prompts management", type: :system do
       expect(page).to have_content("Edit Prompt")
 
       fill_in "Name", with: "Updated Customer Bot"
+      fill_in "Slug", with: "updated-customer-bot"
       fill_in "Prompt Content", with: "Updated content for the bot"
       select "Active", from: "Status"
       fill_in "Temperature", with: "0.8"
@@ -152,6 +154,7 @@ RSpec.describe "Prompts management", type: :system do
       visit "/prompt_engine/prompts/new"
 
       fill_in "Name", with: "Temperature Test"
+      fill_in "Slug", with: "temperature-test"
       fill_in "Prompt Content", with: "Test content"
       fill_in "Temperature", with: "1.5"
 
@@ -166,6 +169,7 @@ RSpec.describe "Prompts management", type: :system do
       visit "/prompt_engine/prompts/new"
 
       fill_in "Name", with: "Token Test"
+      fill_in "Slug", with: "token-test"
       fill_in "Prompt Content", with: "Test content"
       fill_in "Max Tokens", with: "500"
 
@@ -182,6 +186,7 @@ RSpec.describe "Prompts management", type: :system do
       visit "/prompt_engine/prompts/new"
 
       fill_in "Name", with: "Unique Name"
+      fill_in "Slug", with: "unique-name"
       fill_in "Prompt Content", with: "Test content"
 
       click_button "Create Prompt"
@@ -221,6 +226,7 @@ RSpec.describe "Prompts management", type: :system do
     it "displays success messages for CRUD operations" do
       visit "/prompt_engine/prompts/new"
       fill_in "Name", with: "Flash Test"
+      fill_in "Slug", with: "flash-test"
       fill_in "Prompt Content", with: "Test content"
       click_button "Create Prompt"
 

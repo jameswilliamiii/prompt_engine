@@ -24,13 +24,13 @@ module PromptEngine
 
     describe "GET /prompt_engine/prompts/:prompt_id/playground_run_results" do
       it "returns a successful response" do
-        get prompt_playground_run_results_path(prompt)
+        get prompt_engine.prompt_playground_run_results_path(prompt)
         expect(response).to be_successful
       end
 
       it "displays test runs for the prompt" do
-        get prompt_playground_run_results_path(prompt)
-        expect(response.body).to include("Test Run Results")
+        get prompt_engine.prompt_playground_run_results_path(prompt)
+        expect(response.body).to include("Test Run History")
         expect(response.body).to include(prompt.name)
         expect(response.body).to include(playground_run_result.provider)
       end
@@ -39,7 +39,7 @@ module PromptEngine
         before { PlaygroundRunResult.destroy_all }
 
         it "shows an empty state message" do
-          get prompt_playground_run_results_path(prompt)
+          get prompt_engine.prompt_playground_run_results_path(prompt)
           expect(response.body).to include("No test runs yet")
         end
       end
@@ -47,13 +47,13 @@ module PromptEngine
 
     describe "GET /prompt_engine/prompts/:prompt_id/versions/:version_id/playground_run_results" do
       it "returns a successful response" do
-        get prompt_version_playground_run_results_path(prompt, prompt_version)
+        get prompt_engine.prompt_version_playground_run_results_path(prompt, prompt_version)
         expect(response).to be_successful
       end
 
       it "displays test runs for the specific version" do
-        get prompt_version_playground_run_results_path(prompt, prompt_version)
-        expect(response.body).to include("Test Run Results")
+        get prompt_engine.prompt_version_playground_run_results_path(prompt, prompt_version)
+        expect(response.body).to include("Test Run History")
         expect(response.body).to include(prompt.name)
         expect(response.body).to include(playground_run_result.provider)
       end

@@ -234,7 +234,7 @@ RSpec.describe PromptEngine::EvalSet, type: :model do
         expect(eval_set.grader_type_display).to eq('Contains Text')
 
         eval_set.grader_type = 'json_schema'
-        expect(eval_set.grader_type_display).to eq('JSON Schema')
+        expect(eval_set.grader_type_display).to eq('JSON Match (Exact)')
       end
     end
 

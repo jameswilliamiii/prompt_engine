@@ -7,7 +7,7 @@ module PromptEngine
     describe "POST /prompt_engine/prompts/:prompt_id/eval_sets" do
       context "with exact_match grader type" do
         it "creates eval set without grader_config" do
-          post prompt_eval_sets_path(prompt), params: {
+          post prompt_engine.prompt_eval_sets_path(prompt), params: {
             eval_set: {
               name: "Exact Match Tests",
               description: "Test exact match grading",
@@ -15,7 +15,7 @@ module PromptEngine
             }
           }
 
-          expect(response).to redirect_to(prompt_eval_set_path(prompt, EvalSet.last))
+          expect(response).to redirect_to(prompt_engine.prompt_eval_set_path(prompt, EvalSet.last))
           eval_set = EvalSet.last
           expect(eval_set.grader_type).to eq("exact_match")
           expect(eval_set.grader_config).to eq({})
@@ -24,7 +24,7 @@ module PromptEngine
 
       context "with regex grader type" do
         it "creates eval set with regex pattern" do
-          post prompt_eval_sets_path(prompt), params: {
+          post prompt_engine.prompt_eval_sets_path(prompt), params: {
             eval_set: {
               name: "Regex Tests",
               description: "Test regex grading",
@@ -35,14 +35,14 @@ module PromptEngine
             }
           }
 
-          expect(response).to redirect_to(prompt_eval_set_path(prompt, EvalSet.last))
+          expect(response).to redirect_to(prompt_engine.prompt_eval_set_path(prompt, EvalSet.last))
           eval_set = EvalSet.last
           expect(eval_set.grader_type).to eq("regex")
           expect(eval_set.grader_config["pattern"]).to eq("^Hello.*world$")
         end
 
         it "fails with invalid regex pattern" do
-          post prompt_eval_sets_path(prompt), params: {
+          post prompt_engine.prompt_eval_sets_path(prompt), params: {
             eval_set: {
               name: "Invalid Regex Tests",
               grader_type: "regex",
@@ -68,7 +68,7 @@ module PromptEngine
             required: [ "name" ]
           }
 
-          post prompt_eval_sets_path(prompt), params: {
+          post prompt_engine.prompt_eval_sets_path(prompt), params: {
             eval_set: {
               name: "JSON Schema Tests",
               grader_type: "json_schema",
@@ -78,7 +78,7 @@ module PromptEngine
             }
           }
 
-          expect(response).to redirect_to(prompt_eval_set_path(prompt, EvalSet.last))
+          expect(response).to redirect_to(prompt_engine.prompt_eval_set_path(prompt, EvalSet.last))
           eval_set = EvalSet.last
           expect(eval_set.grader_type).to eq("json_schema")
           expect(eval_set.grader_config["schema"]).to eq(schema.stringify_keys)
@@ -90,7 +90,7 @@ module PromptEngine
       let(:eval_set) { create(:eval_set, prompt: prompt, grader_type: "exact_match") }
 
       it "updates grader type to regex with config" do
-        patch prompt_eval_set_path(prompt, eval_set), params: {
+        patch prompt_engine.prompt_eval_set_path(prompt, eval_set), params: {
           eval_set: {
             grader_type: "regex",
             grader_config: {
@@ -99,7 +99,7 @@ module PromptEngine
           }
         }
 
-        expect(response).to redirect_to(prompt_eval_set_path(prompt, eval_set))
+        expect(response).to redirect_to(prompt_engine.prompt_eval_set_path(prompt, eval_set))
         eval_set.reload
         expect(eval_set.grader_type).to eq("regex")
         expect(eval_set.grader_config["pattern"]).to eq("\\d{3}-\\d{3}-\\d{4}")
@@ -108,14 +108,14 @@ module PromptEngine
       it "clears grader_config when changing to exact_match" do
         eval_set.update!(grader_type: "regex", grader_config: { pattern: "test" })
 
-        patch prompt_eval_set_path(prompt, eval_set), params: {
+        patch prompt_engine.prompt_eval_set_path(prompt, eval_set), params: {
           eval_set: {
             grader_type: "exact_match",
             grader_config: {}
           }
         }
 
-        expect(response).to redirect_to(prompt_eval_set_path(prompt, eval_set))
+        expect(response).to redirect_to(prompt_engine.prompt_eval_set_path(prompt, eval_set))
         eval_set.reload
         expect(eval_set.grader_type).to eq("exact_match")
         expect(eval_set.grader_config).to eq({})
