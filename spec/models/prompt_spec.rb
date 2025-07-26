@@ -288,7 +288,10 @@ RSpec.describe PromptEngine::Prompt, type: :model do
           status: "archived"
         )
 
-        result = TestModel.generate_content("welcome-message")
+        result = TestModel.generate_content("welcome-message", {
+          user_name: "Test User",
+          company_name: "Test Company"
+        })
         expect(result.content).not_to include("Old content")
       end
 

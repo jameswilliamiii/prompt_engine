@@ -55,24 +55,24 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
     end
 
     before do
-      # Create a mock RubyLLM module
-      mock_ruby_llm = Module.new do
-        def self.configure
-          config = double('Config')
-          allow(config).to receive(:anthropic_api_key=)
-          allow(config).to receive(:openai_api_key=)
-          yield(config)
-        end
+      # Mock the require to prevent loading the actual gem
+      allow(executor).to receive(:require).with('ruby_llm')
 
-        def self.chat(options = {})
-          # This will be overridden in specific tests
-        end
+      # Create a config double outside the module
+      config = double('Config')
+      allow(config).to receive(:anthropic_api_key=)
+      allow(config).to receive(:openai_api_key=)
+
+      # Create a mock RubyLLM module
+      mock_ruby_llm = Module.new
+      mock_ruby_llm.define_singleton_method(:configure) do |&block|
+        block.call(config)
+      end
+      mock_ruby_llm.define_singleton_method(:chat) do |options = {}|
+        # This will be overridden in specific tests
       end
 
       stub_const("RubyLLM", mock_ruby_llm)
-
-      # Mock the require to prevent loading the actual gem
-      allow(executor).to receive(:require).with('ruby_llm')
     end
 
     context "with successful API call" do

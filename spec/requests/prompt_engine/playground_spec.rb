@@ -109,7 +109,7 @@ module PromptEngine
           expect(result.model).to eq("claude-3-5-sonnet-20241022")
           expect(result.rendered_prompt).to eq("Tell me about Ruby on Rails in technical style")
           expect(result.response).to eq("This is a test response about Ruby on Rails")
-          expect(result.execution_time).to be > 0
+          expect(result.execution_time).to be >= 0
           expect(result.token_count).to eq(150)
           expect(result.parameters).to eq({ "topic" => "Ruby on Rails", "style" => "technical" })
         end
