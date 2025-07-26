@@ -21,5 +21,16 @@ module PromptEngine
         end
       end
     end
+
+    # Define the controller hook for authentication customization
+    initializer "prompt_engine.controller_hook" do
+      ActiveSupport.on_load(:prompt_engine_application_controller) do
+        # This hook allows host applications to add authentication
+        # and other controller-level customizations
+      end
+    end
+
+    # Allow middleware to be added for authentication
+    # Example: PromptEngine::Engine.middleware.use(Rack::Auth::Basic) { ... }
   end
 end

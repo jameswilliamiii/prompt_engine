@@ -403,9 +403,15 @@ prompt.validate_variables(provided_variables)
 
 ### Authentication & Authorization
 
-- Engine assumes host app handles authentication
-- No built-in user management
-- Relies on host app's admin area protection
+- Flexible authentication system with multiple options:
+  - **HTTP Basic Auth**: Built-in with secure credential comparison
+  - **Host App Integration**: Works with Devise, custom auth systems
+  - **ActiveSupport Hooks**: For injecting custom authentication logic
+  - **Middleware Support**: For advanced authentication scenarios
+- Configuration-based authentication (`PromptEngine.configure`)
+- Can be disabled for development environments
+- Uses `ActiveSupport::SecurityUtils.secure_compare` for timing attack prevention
+- See [AUTHENTICATION.md](AUTHENTICATION.md) for implementation details
 
 ### API Key Management
 
