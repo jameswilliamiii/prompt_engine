@@ -7,6 +7,10 @@ test, and optimize their AI prompts without deploying code changes.
 [![Made with ❤️ by Avi.nyc](https://img.shields.io/badge/Made%20with%20%E2%9D%A4%EF%B8%8F%20by-Avi.nyc-ff69b4)](https://avi.nyc)
 [![Sponsored by Innovent Capital](https://img.shields.io/badge/Sponsored%20by-Innovent%20Capital-blue)](https://innoventcapital.com)
 
+## WARNING - IN ACTIVE DEVELOPMENT
+
+PromptEngine is currently being worked on actively to prepare for a proper initial version release. You can use it by including the gem sourced from the main branch of this repo however **as we make changes, we will not ensure backward compatibility.** Use at your own risk for now, but a final version should be ready in the next week.
+
 ## Why PromptEngine?
 
 - **Version Control**: Track every change to your prompts with automatic versioning
