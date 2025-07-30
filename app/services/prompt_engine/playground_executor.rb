@@ -3,7 +3,7 @@ module PromptEngine
     attr_reader :prompt, :provider, :api_key, :parameters
 
     MODELS = {
-      "anthropic" => "claude-3-5-sonnet-20241022",
+      "anthropic" => "claude-3-7",
       "openai" => "gpt-4o"
     }.freeze
 
@@ -47,18 +47,18 @@ module PromptEngine
 
       # Handle response based on its structure
       response_content = if response.respond_to?(:content)
-                          response.content
+        response.content
       elsif response.is_a?(String)
-                          response
+        response
       else
-                          response.to_s
+        response.to_s
       end
 
       # Try to get token count if available
       token_count = if response.respond_to?(:input_tokens) && response.respond_to?(:output_tokens)
-                      (response.input_tokens || 0) + (response.output_tokens || 0)
+        (response.input_tokens || 0) + (response.output_tokens || 0)
       else
-                      0 # Default if token information isn't available
+        0 # Default if token information isn't available
       end
 
       {
@@ -68,7 +68,7 @@ module PromptEngine
         model: MODELS[provider],
         provider: provider
       }
-    rescue StandardError => e
+    rescue => e
       handle_error(e)
     end
 

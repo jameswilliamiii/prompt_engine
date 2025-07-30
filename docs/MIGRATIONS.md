@@ -2,7 +2,7 @@
 
 ## Overview
 
-PromptEngine handles migrations differently for development (dummy app) and production (host app) environments to avoid duplicate migration issues.
+PromptEngine requires explicit migration installation. The engine does NOT automatically load migrations at runtime. This gives host applications full control over when migrations are added to their codebase.
 
 ## Development Setup (Dummy App)
 
@@ -13,48 +13,56 @@ bundle exec rake setup
 ```
 
 This command:
-1. Clears existing migrations and databases
-2. Installs engine migrations into the dummy app using `rails prompt_engine:install:migrations`
-3. Creates and migrates both development and test databases
-
-The engine's initializer **skips** appending migration paths for the dummy app to prevent duplicates.
+1. Drops existing databases
+2. Clears existing migrations  
+3. Installs engine migrations into the dummy app using `rails prompt_engine:install:migrations`
+4. Creates and migrates both development and test databases
+5. Seeds development database with sample data
 
 ## Production Setup (Host Application)
 
 When installing PromptEngine in a Rails application:
 
-### Option 1: Copy Migrations (Recommended)
+### Required: Install Migrations
 
 ```bash
+# IMPORTANT: You must run this before db:migrate
 bundle exec rails prompt_engine:install:migrations
 bundle exec rails db:migrate
 ```
 
-This copies migrations to your app with timestamps and `.prompt_engine.rb` suffix.
+This copies migrations to your app's `db/migrate` folder with timestamps and `.prompt_engine.rb` suffix.
 
-### Option 2: Runtime Loading
+**Note**: Unlike many Rails engines, PromptEngine does NOT automatically include its migrations. You must explicitly install them using the command above.
 
-If you prefer not to copy migrations, the engine will automatically load them at runtime.
-This happens through the engine's initializer for non-dummy applications.
+## Troubleshooting
 
-## Troubleshooting Duplicate Migrations
+### Error: "relation does not exist"
+
+If you get errors about missing tables when running `rails db:migrate`:
+- You forgot to run `rails prompt_engine:install:migrations` first
+- Run the install command, then migrate again
+
+### Duplicate Migration Errors
 
 If you encounter duplicate migration errors:
-
-1. **Check for copied migrations**: Look in your app's `db/migrate` folder for `.prompt_engine.rb` files
-2. **Remove duplicates**: If you have both copied migrations and runtime loading, remove the copied files
-3. **Consistent approach**: Choose either copying OR runtime loading, not both
+- Check your `db/migrate` folder for duplicate `.prompt_engine.rb` files
+- Remove any duplicates and run `rails db:migrate:status` to check migration state
 
 ## Technical Details
 
-The engine detects the dummy app environment and skips the migration path appending initializer to prevent Rails from seeing migrations twice. This is implemented in `lib/prompt_engine/engine.rb`:
+The engine's automatic migration loading is intentionally disabled in `lib/prompt_engine/engine.rb`:
 
 ```ruby
-initializer :append_migrations do |app|
-  unless app.root.to_s.match?(root.to_s) || app.root.to_s.include?('spec/dummy')
-    # Only append migration paths for real host apps, not the dummy app
-  end
-end
+# IMPORTANT: Migrations are NOT automatically loaded!
+# Users must explicitly install migrations using:
+#   bin/rails prompt_engine:install:migrations
+#
+# This ensures host applications have full control over when
+# engine migrations are added to their codebase.
 ```
 
-This ensures clean migration handling in all environments.
+This design choice ensures:
+- No surprise migrations when updating the gem
+- Clear visibility of what database changes are being made
+- Better control over migration timing in production deployments

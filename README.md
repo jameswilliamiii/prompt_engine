@@ -44,12 +44,13 @@ And then execute:
 ```bash
 $ bundle
 
+# IMPORTANT: You must install migrations before running db:migrate
+$ rails prompt_engine:install:migrations
 $ rails db:migrate
 $ rails prompt_engine:seed  # Optional: adds sample prompts
 ```
 
-_`$ rails prompt_engine:install:migrations`_ might be useful to but `rails db:migrate` after adding
-gem and bundling should work.
+**Note**: PromptEngine migrations are NOT automatically loaded. You must explicitly run `rails prompt_engine:install:migrations` before running `rails db:migrate`.
 
 For migration handling details, see [docs/MIGRATIONS.md](docs/MIGRATIONS.md).
 

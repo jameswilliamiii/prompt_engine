@@ -12,16 +12,21 @@ module PromptEngine
     config.autoload_paths += %W[#{config.root}/app/services]
     config.autoload_paths += %W[#{config.root}/app/clients]
 
-    # Ensure engine's migrations are available to the host app
-    # This is the standard Rails engine pattern
-    # Skip this for the dummy app to avoid duplicate migrations
-    initializer :append_migrations do |app|
-      unless app.root.to_s.match?(root.to_s) || app.root.to_s.include?('spec/dummy')
-        config.paths["db/migrate"].expanded.each do |expanded_path|
-          app.config.paths["db/migrate"] << expanded_path
-        end
-      end
-    end
+    # IMPORTANT: Migrations are NOT automatically loaded!
+    # Users must explicitly install migrations using:
+    #   bin/rails prompt_engine:install:migrations
+    #
+    # This ensures host applications have full control over when
+    # engine migrations are added to their codebase.
+    #
+    # The following initializer is intentionally disabled:
+    # initializer :append_migrations do |app|
+    #   unless app.root.to_s.match?(root.to_s) || app.root.to_s.include?('spec/dummy')
+    #     config.paths["db/migrate"].expanded.each do |expanded_path|
+    #       app.config.paths["db/migrate"] << expanded_path
+    #     end
+    #   end
+    # end
 
     # Define the controller hook for authentication customization
     initializer "prompt_engine.controller_hook" do

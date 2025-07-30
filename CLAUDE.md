@@ -36,10 +36,12 @@ Access the admin interface at `http://localhost:3000/prompt_engine`
 
 ```bash
 cd spec/dummy
-bundle exec rails prompt_engine:install:migrations  # Install engine migrations
+bundle exec rails prompt_engine:install:migrations  # REQUIRED: Install engine migrations first
 bundle exec rails db:create db:migrate db:seed      # Setup development database
 RAILS_ENV=test bundle exec rails db:create db:migrate  # Setup test database
 ```
+
+**Note**: Engine migrations are NOT automatically loaded. You must explicitly run `rails prompt_engine:install:migrations` before running `db:migrate`.
 
 ### Running Tests
 
@@ -229,6 +231,11 @@ gem 'prompt_engine'
 
 # config/routes.rb
 mount PromptEngine::Engine => "/prompt_engine"
+
+# IMPORTANT: Install migrations before running db:migrate
+# The engine does NOT automatically include migrations
+bin/rails prompt_engine:install:migrations
+bin/rails db:migrate
 
 # In your application code
 PromptEngine.render(:prompt_name, variables: { user_name: "John" })
