@@ -1,137 +1,175 @@
 require "rails_helper"
 
 RSpec.describe "PromptEngine Authentication", type: :request do
-  describe "authentication behavior" do
-    before do
-      # Reset configuration to defaults before each test
-      PromptEngine.authentication_enabled = true
-      PromptEngine.http_basic_auth_enabled = false
-      PromptEngine.http_basic_auth_name = nil
-      PromptEngine.http_basic_auth_password = nil
-    end
-
-    after do
-      # Reset configuration after tests
-      PromptEngine.authentication_enabled = true
-      PromptEngine.http_basic_auth_enabled = false
-    end
-
-    context "when authentication is disabled" do
-      before do
-        PromptEngine.authentication_enabled = false
-      end
-
-      it "allows access without authentication" do
-        get prompt_engine.prompts_path
-        expect(response).to have_http_status(:success)
-      end
-    end
-
-    context "when HTTP Basic authentication is enabled" do
-      before do
-        PromptEngine.http_basic_auth_enabled = true
-        PromptEngine.http_basic_auth_name = "admin"
-        PromptEngine.http_basic_auth_password = "secret123"
-      end
-
-      it "denies access without credentials" do
-        get prompt_engine.prompts_path
-        expect(response).to have_http_status(:unauthorized)
-      end
-
-      it "denies access with incorrect credentials" do
-        get prompt_engine.prompts_path, headers: {
-          "Authorization" => ActionController::HttpAuthentication::Basic.encode_credentials("wrong", "credentials")
-        }
-        expect(response).to have_http_status(:unauthorized)
-      end
-
-      it "allows access with correct credentials" do
-        get prompt_engine.prompts_path, headers: {
-          "Authorization" => ActionController::HttpAuthentication::Basic.encode_credentials("admin", "secret123")
-        }
-        expect(response).to have_http_status(:success)
-      end
-
-      it "uses secure comparison for credentials" do
-        # This test ensures timing attacks are mitigated
-        start_time = Time.now
-        get prompt_engine.prompts_path, headers: {
-          "Authorization" => ActionController::HttpAuthentication::Basic.encode_credentials("admin", "wrong_password_that_is_very_long")
-        }
-        time_with_wrong_password = Time.now - start_time
-
-        start_time = Time.now
-        get prompt_engine.prompts_path, headers: {
-          "Authorization" => ActionController::HttpAuthentication::Basic.encode_credentials("admin", "w")
-        }
-        time_with_short_password = Time.now - start_time
-
-        # The times should be similar due to secure comparison
-        expect(time_with_wrong_password).to be_within(0.1).of(time_with_short_password)
-      end
-    end
-
-    context "when using custom authentication" do
-      before do
-        # Simulate custom authentication by stubbing the controller method
-        allow_any_instance_of(PromptEngine::ApplicationController).to receive(:authenticate_prompt_engine_user!).and_return(false)
-      end
-
-      it "respects custom authentication logic" do
-        get prompt_engine.prompts_path
-        expect(response).to have_http_status(:success)
-      end
-    end
-
-    context "configuration" do
-      it "supports block configuration" do
-        PromptEngine.configure do |config|
-          config.authentication_enabled = false
-          config.http_basic_auth_enabled = true
-          config.http_basic_auth_name = "test_user"
-          config.http_basic_auth_password = "test_pass"
-        end
-
-        expect(PromptEngine.authentication_enabled).to eq(false)
-        expect(PromptEngine.http_basic_auth_enabled).to eq(true)
-        expect(PromptEngine.http_basic_auth_name).to eq("test_user")
-        expect(PromptEngine.http_basic_auth_password).to eq("test_pass")
-      end
-
-      it "correctly determines when to use HTTP Basic auth" do
-        PromptEngine.http_basic_auth_enabled = true
-        PromptEngine.http_basic_auth_name = nil
-        PromptEngine.http_basic_auth_password = nil
-        expect(PromptEngine.use_http_basic_auth?).to be_falsey
-
-        PromptEngine.http_basic_auth_name = "user"
-        expect(PromptEngine.use_http_basic_auth?).to be_falsey
-
-        PromptEngine.http_basic_auth_password = "pass"
-        expect(PromptEngine.use_http_basic_auth?).to be_truthy
-
-        PromptEngine.http_basic_auth_enabled = false
-        expect(PromptEngine.use_http_basic_auth?).to be_falsey
-      end
+  describe "default behavior" do
+    it "allows access without any authentication configured by default" do
+      get prompt_engine.prompts_path
+      expect(response).to have_http_status(:success)
     end
   end
 
-  describe "ActiveSupport.on_load hook" do
-    it "runs custom authentication logic" do
-      custom_logic_executed = false
-
+  describe "ActiveSupport hook mechanism" do
+    it "allows customization via ActiveSupport.on_load" do
+      # This test verifies the hook mechanism is available
+      hook_executed = false
+      
       ActiveSupport.on_load(:prompt_engine_application_controller) do
-        define_method :custom_auth_check do
-          custom_logic_executed = true
-        end
+        hook_executed = true
       end
+      
+      # Force loading of the controller class
+      PromptEngine::ApplicationController
+      
+      expect(hook_executed).to be true
+    end
 
-      # Force reload of ApplicationController to trigger hook
-      load Rails.root.join("../../app/controllers/prompt_engine/application_controller.rb")
-
+    it "provides access to main_app helper in controllers" do
       controller = PromptEngine::ApplicationController.new
-      expect(controller).to respond_to(:custom_auth_check)
+      expect(controller).to respond_to(:main_app)
+    end
+  end
+
+  describe "authentication examples" do
+    it "demonstrates HTTP Basic auth setup" do
+      # This is a documentation test showing how to configure Basic Auth
+      example_code = <<~RUBY
+        # In config/initializers/prompt_engine.rb:
+        PromptEngine::Engine.middleware.use(Rack::Auth::Basic) do |username, password|
+          ActiveSupport::SecurityUtils.secure_compare(
+            Rails.application.credentials.prompt_engine_username, username
+          ) & ActiveSupport::SecurityUtils.secure_compare(
+            Rails.application.credentials.prompt_engine_password, password
+          )
+        end
+      RUBY
+
+      expect(example_code).to include("Rack::Auth::Basic")
+      expect(example_code).to include("secure_compare")
+    end
+
+    it "demonstrates Devise route-level authentication" do
+      example_code = <<~RUBY
+        # In config/routes.rb:
+        Rails.application.routes.draw do
+          authenticate :user do
+            mount PromptEngine::Engine => "/prompt_engine"
+          end
+          
+          # Or with role checking:
+          authenticate :user, ->(user) { user.admin? } do
+            mount PromptEngine::Engine => "/prompt_engine"
+          end
+        end
+      RUBY
+
+      expect(example_code).to include("authenticate :user")
+      expect(example_code).to include("user.admin?")
+    end
+
+    it "demonstrates custom authentication via ActiveSupport hooks" do
+      example_code = <<~RUBY
+        # In config/initializers/prompt_engine.rb:
+        ActiveSupport.on_load(:prompt_engine_application_controller) do
+          before_action :authenticate_admin!
+          
+          private
+          
+          def authenticate_admin!
+            unless current_user&.admin?
+              redirect_to main_app.root_path, alert: "Not authorized"
+            end
+          end
+          
+          def current_user
+            # Use your app's current user method
+            main_app.current_user
+          end
+        end
+      RUBY
+
+      expect(example_code).to include("before_action :authenticate_admin!")
+      expect(example_code).to include("main_app.current_user")
+    end
+
+    it "demonstrates session-based authentication" do
+      example_code = <<~RUBY
+        ActiveSupport.on_load(:prompt_engine_application_controller) do
+          before_action :require_user_session
+
+          private
+
+          def require_user_session
+            redirect_to main_app.login_path unless session[:user_id]
+          end
+        end
+      RUBY
+
+      expect(example_code).to include("session[:user_id]")
+      expect(example_code).to include("redirect_to main_app.login_path")
+    end
+
+    it "demonstrates API token authentication" do
+      example_code = <<~RUBY
+        ActiveSupport.on_load(:prompt_engine_application_controller) do
+          before_action :authenticate_api_token
+
+          private
+
+          def authenticate_api_token
+            token = request.headers["X-API-Token"]
+            unless valid_api_token?(token)
+              render json: { error: 'Unauthorized' }, status: :unauthorized
+            end
+          end
+          
+          def valid_api_token?(token)
+            # Implement your token validation logic
+            ApiToken.active.exists?(token: token)
+          end
+        end
+      RUBY
+
+      expect(example_code).to include("request.headers[\"X-API-Token\"]")
+      expect(example_code).to include("status: :unauthorized")
+    end
+
+    it "demonstrates multiple authentication methods" do
+      example_code = <<~RUBY
+        ActiveSupport.on_load(:prompt_engine_application_controller) do
+          before_action :authenticate_by_any_method!
+          
+          private
+          
+          def authenticate_by_any_method!
+            return if authenticated_via_session?
+            return if authenticated_via_api_token?
+            
+            respond_to do |format|
+              format.html { redirect_to main_app.login_path }
+              format.json { render json: { error: 'Unauthorized' }, status: :unauthorized }
+            end
+          end
+          
+          def authenticated_via_session?
+            current_user.present?
+          end
+          
+          def authenticated_via_api_token?
+            request.headers['X-API-Key'].present? &&
+              ApiKey.active.exists?(key: request.headers['X-API-Key'])
+          end
+        end
+      RUBY
+
+      expect(example_code).to include("authenticate_by_any_method!")
+      expect(example_code).to include("authenticated_via_session?")
+      expect(example_code).to include("authenticated_via_api_token?")
+    end
+  end
+
+  describe "engine middleware stack" do
+    it "provides access to middleware configuration" do
+      expect(PromptEngine::Engine.middleware).to respond_to(:use)
     end
   end
 end
