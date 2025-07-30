@@ -1,7 +1,5 @@
 module PromptEngine
   class DashboardController < ApplicationController
-    layout "prompt_engine/admin"
-
     def index
       @recent_prompts = Prompt.includes(:parameters).order(updated_at: :desc).limit(5)
       @recent_test_runs = PlaygroundRunResult.includes(prompt_version: :prompt).order(created_at: :desc).limit(5)
