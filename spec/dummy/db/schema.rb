@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_30_141866) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_30_200619) do
   create_table "prompt_engine_eval_results", force: :cascade do |t|
     t.integer "eval_run_id", null: false
     t.integer "test_case_id", null: false
@@ -52,7 +52,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_30_141866) do
     t.datetime "updated_at", null: false
     t.string "openai_eval_id"
     t.string "grader_type", default: "exact_match", null: false
-    t.json "grader_config", default: {}
+    t.json "grader_config"
     t.index ["grader_type"], name: "index_prompt_engine_eval_sets_on_grader_type"
     t.index ["openai_eval_id"], name: "index_prompt_engine_eval_sets_on_openai_eval_id"
     t.index ["prompt_id", "name"], name: "index_prompt_engine_eval_sets_on_prompt_id_and_name", unique: true
@@ -133,14 +133,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_30_141866) do
   create_table "prompt_engine_settings", force: :cascade do |t|
     t.text "openai_api_key"
     t.text "anthropic_api_key"
-    t.json "preferences", default: {}
+    t.json "preferences"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "prompt_engine_test_cases", force: :cascade do |t|
     t.integer "eval_set_id", null: false
-    t.json "input_variables", default: {}, null: false
+    t.json "input_variables", null: false
     t.text "expected_output", null: false
     t.text "description"
     t.datetime "created_at", null: false

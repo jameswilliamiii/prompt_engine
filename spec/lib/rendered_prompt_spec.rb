@@ -145,5 +145,632 @@ module PromptEngine
         expect(rendered_prompt.version_number).to eq(1)
       end
     end
+
+    describe "#messages" do
+      context "with system message" do
+        let(:rendered_data) do
+          {
+            content: "Hello world",
+            system_message: "You are a helpful assistant",
+            model: "gpt-4",
+            temperature: 0.7,
+            max_tokens: 1000,
+            parameters_used: {},
+            version_number: 1
+          }
+        end
+
+        it "returns array with system and user messages in correct order" do
+          prompt_with_system = described_class.new(prompt, rendered_data)
+          messages = prompt_with_system.messages
+
+          expect(messages).to eq([
+            { role: "system", content: "You are a helpful assistant" },
+            { role: "user", content: "Hello world" }
+          ])
+        end
+
+        it "uses system message from overrides when provided" do
+          overrides_with_system = { system_message: "Override system message" }
+          prompt_with_override = described_class.new(prompt, rendered_data, overrides_with_system)
+          messages = prompt_with_override.messages
+
+          expect(messages).to eq([
+            { role: "system", content: "Override system message" },
+            { role: "user", content: "Hello world" }
+          ])
+        end
+      end
+
+      context "without system message" do
+        let(:rendered_data_no_system) do
+          {
+            content: "Hello world",
+            system_message: nil,
+            model: "gpt-4",
+            temperature: 0.7,
+            max_tokens: 1000,
+            parameters_used: {},
+            version_number: 1
+          }
+        end
+
+        it "returns array with only user message when system_message is nil" do
+          prompt_no_system = described_class.new(prompt, rendered_data_no_system)
+          messages = prompt_no_system.messages
+
+          expect(messages).to eq([
+            { role: "user", content: "Hello world" }
+          ])
+        end
+
+        it "returns array with only user message when system_message is empty string" do
+          data_empty_system = rendered_data_no_system.merge(system_message: "")
+          prompt_empty_system = described_class.new(prompt, data_empty_system)
+          messages = prompt_empty_system.messages
+
+          expect(messages).to eq([
+            { role: "user", content: "Hello world" }
+          ])
+        end
+
+        it "returns array with only user message when system_message is whitespace" do
+          data_whitespace_system = rendered_data_no_system.merge(system_message: "   ")
+          prompt_whitespace_system = described_class.new(prompt, data_whitespace_system)
+          messages = prompt_whitespace_system.messages
+
+          expect(messages).to eq([
+            { role: "user", content: "Hello world" }
+          ])
+        end
+      end
+
+      context "with different content" do
+        it "always includes the content as user message" do
+          data_with_content = rendered_data.merge(content: "Complex prompt with {{variables}}")
+          prompt_complex = described_class.new(prompt, data_with_content)
+          messages = prompt_complex.messages
+
+          expect(messages.last).to eq({ role: "user", content: "Complex prompt with {{variables}}" })
+        end
+      end
+    end
+
+    describe "#to_openai_params" do
+      context "with all parameters provided" do
+        let(:rendered_data) do
+          {
+            content: "Test prompt",
+            system_message: "You are helpful",
+            model: "gpt-4",
+            temperature: 0.7,
+            max_tokens: 1000,
+            parameters_used: {},
+            version_number: 1
+          }
+        end
+
+        it "returns OpenAI-formatted parameters with all fields" do
+          prompt_full = described_class.new(prompt, rendered_data)
+          params = prompt_full.to_openai_params
+
+          expect(params).to eq({
+            model: "gpt-4",
+            messages: [
+              { role: "system", content: "You are helpful" },
+              { role: "user", content: "Test prompt" }
+            ],
+            temperature: 0.7,
+            max_tokens: 1000
+          })
+        end
+
+        it "uses the messages method to build messages array" do
+          prompt_test = described_class.new(prompt, rendered_data)
+          expect(prompt_test).to receive(:messages).and_call_original
+          prompt_test.to_openai_params
+        end
+      end
+
+      context "with nil model" do
+        let(:rendered_data_no_model) do
+          {
+            content: "Test prompt",
+            system_message: "System",
+            model: nil,
+            temperature: 0.5,
+            max_tokens: 500,
+            parameters_used: {},
+            version_number: 1
+          }
+        end
+
+        it "defaults to gpt-4 when model is nil" do
+          prompt_no_model = described_class.new(prompt, rendered_data_no_model)
+          params = prompt_no_model.to_openai_params
+
+          expect(params[:model]).to eq("gpt-4")
+        end
+      end
+
+      context "with nil values" do
+        let(:rendered_data_with_nils) do
+          {
+            content: "Test prompt",
+            system_message: nil,
+            model: "gpt-3.5-turbo",
+            temperature: nil,
+            max_tokens: nil,
+            parameters_used: {},
+            version_number: 1
+          }
+        end
+
+        it "removes nil values with compact" do
+          prompt_with_nils = described_class.new(prompt, rendered_data_with_nils)
+          params = prompt_with_nils.to_openai_params
+
+          expect(params).to eq({
+            model: "gpt-3.5-turbo",
+            messages: [
+              { role: "user", content: "Test prompt" }
+            ]
+          })
+          expect(params).not_to have_key(:temperature)
+          expect(params).not_to have_key(:max_tokens)
+        end
+      end
+
+      context "with additional options" do
+        it "merges additional options into the parameters" do
+          prompt_test = described_class.new(prompt, rendered_data)
+          params = prompt_test.to_openai_params(
+            tools: [{ type: "function", function: { name: "test" } }],
+            stream: true,
+            response_format: { type: "json_object" }
+          )
+
+          expect(params).to include(
+            model: "gpt-4",
+            messages: anything,
+            temperature: 0.7,
+            max_tokens: 1000,
+            tools: [{ type: "function", function: { name: "test" } }],
+            stream: true,
+            response_format: { type: "json_object" }
+          )
+        end
+
+        it "allows additional options to override base parameters" do
+          prompt_test = described_class.new(prompt, rendered_data)
+          params = prompt_test.to_openai_params(
+            model: "gpt-4-turbo",
+            temperature: 0.9
+          )
+
+          expect(params[:model]).to eq("gpt-4-turbo")
+          expect(params[:temperature]).to eq(0.9)
+        end
+      end
+
+      context "with overrides from constructor" do
+        let(:test_rendered_data) do
+          {
+            content: "Test prompt",
+            system_message: "Original system",
+            model: "gpt-4",
+            temperature: 0.7,
+            max_tokens: 1000,
+            parameters_used: {},
+            version_number: 1
+          }
+        end
+
+        let(:test_overrides) do
+          {
+            model: "gpt-4-turbo",
+            temperature: 0.3,
+            max_tokens: 2000,
+            system_message: "Override system"
+          }
+        end
+
+        it "uses override values in the output" do
+          prompt_with_overrides = described_class.new(prompt, test_rendered_data, test_overrides)
+          params = prompt_with_overrides.to_openai_params
+
+          expect(params).to eq({
+            model: "gpt-4-turbo",
+            messages: [
+              { role: "system", content: "Override system" },
+              { role: "user", content: "Test prompt" }
+            ],
+            temperature: 0.3,
+            max_tokens: 2000
+          })
+        end
+      end
+    end
+
+    describe "#to_ruby_llm_params" do
+      context "with all parameters provided" do
+        let(:rendered_data) do
+          {
+            content: "Test prompt",
+            system_message: "You are helpful",
+            model: "claude-3-opus",
+            temperature: 0.7,
+            max_tokens: 1000,
+            parameters_used: {},
+            version_number: 1
+          }
+        end
+
+        it "returns RubyLLM-formatted parameters with all fields" do
+          prompt_full = described_class.new(prompt, rendered_data)
+          params = prompt_full.to_ruby_llm_params
+
+          expect(params).to eq({
+            messages: [
+              { role: "system", content: "You are helpful" },
+              { role: "user", content: "Test prompt" }
+            ],
+            model: "claude-3-opus",
+            temperature: 0.7,
+            max_tokens: 1000
+          })
+        end
+
+        it "has messages as the first key in the hash" do
+          prompt_test = described_class.new(prompt, rendered_data)
+          params = prompt_test.to_ruby_llm_params
+          
+          expect(params.keys.first).to eq(:messages)
+        end
+
+        it "uses the messages method to build messages array" do
+          prompt_test = described_class.new(prompt, rendered_data)
+          expect(prompt_test).to receive(:messages).and_call_original
+          prompt_test.to_ruby_llm_params
+        end
+      end
+
+      context "with nil model" do
+        let(:rendered_data_no_model) do
+          {
+            content: "Test prompt",
+            system_message: "System",
+            model: nil,
+            temperature: 0.5,
+            max_tokens: 500,
+            parameters_used: {},
+            version_number: 1
+          }
+        end
+
+        it "defaults to gpt-4 when model is nil" do
+          prompt_no_model = described_class.new(prompt, rendered_data_no_model)
+          params = prompt_no_model.to_ruby_llm_params
+
+          expect(params[:model]).to eq("gpt-4")
+        end
+      end
+
+      context "with nil values" do
+        let(:rendered_data_with_nils) do
+          {
+            content: "Test prompt",
+            system_message: nil,
+            model: "claude-3-sonnet",
+            temperature: nil,
+            max_tokens: nil,
+            parameters_used: {},
+            version_number: 1
+          }
+        end
+
+        it "removes nil values with compact" do
+          prompt_with_nils = described_class.new(prompt, rendered_data_with_nils)
+          params = prompt_with_nils.to_ruby_llm_params
+
+          expect(params).to eq({
+            messages: [
+              { role: "user", content: "Test prompt" }
+            ],
+            model: "claude-3-sonnet"
+          })
+          expect(params).not_to have_key(:temperature)
+          expect(params).not_to have_key(:max_tokens)
+        end
+      end
+
+      context "with additional options" do
+        let(:test_rendered_data) do
+          {
+            content: "Test prompt",
+            system_message: "You are helpful",
+            model: "claude-3-opus",
+            temperature: 0.7,
+            max_tokens: 1000,
+            parameters_used: {},
+            version_number: 1
+          }
+        end
+
+        it "merges additional options into the parameters" do
+          prompt_test = described_class.new(prompt, test_rendered_data)
+          params = prompt_test.to_ruby_llm_params(
+            stop_sequences: ["\\n\\n"],
+            top_p: 0.9,
+            metadata: { user_id: 123 }
+          )
+
+          expect(params).to include(
+            messages: anything,
+            model: "claude-3-opus",
+            temperature: 0.7,
+            max_tokens: 1000,
+            stop_sequences: ["\\n\\n"],
+            top_p: 0.9,
+            metadata: { user_id: 123 }
+          )
+        end
+
+        it "allows additional options to override base parameters" do
+          prompt_test = described_class.new(prompt, test_rendered_data)
+          params = prompt_test.to_ruby_llm_params(
+            model: "claude-3-haiku",
+            temperature: 0.2
+          )
+
+          expect(params[:model]).to eq("claude-3-haiku")
+          expect(params[:temperature]).to eq(0.2)
+        end
+      end
+
+      context "with overrides from constructor" do
+        let(:test_rendered_data) do
+          {
+            content: "Test prompt",
+            system_message: "Original system",
+            model: "claude-3-opus",
+            temperature: 0.7,
+            max_tokens: 1000,
+            parameters_used: {},
+            version_number: 1
+          }
+        end
+
+        let(:test_overrides) do
+          {
+            model: "claude-3-sonnet",
+            temperature: 0.4,
+            max_tokens: 2000,
+            system_message: "Override system"
+          }
+        end
+
+        it "uses override values in the output" do
+          prompt_with_overrides = described_class.new(prompt, test_rendered_data, test_overrides)
+          params = prompt_with_overrides.to_ruby_llm_params
+
+          expect(params).to eq({
+            messages: [
+              { role: "system", content: "Override system" },
+              { role: "user", content: "Test prompt" }
+            ],
+            model: "claude-3-sonnet",
+            temperature: 0.4,
+            max_tokens: 2000
+          })
+        end
+      end
+
+      context "compatibility with Anthropic format" do
+        it "produces the same structure as expected by Anthropic clients" do
+          prompt_test = described_class.new(prompt, rendered_data)
+          params = prompt_test.to_ruby_llm_params
+
+          # Anthropic expects the same format
+          expect(params).to have_key(:messages)
+          expect(params).to have_key(:model)
+          expect(params[:messages]).to be_an(Array)
+          expect(params[:messages].first).to have_key(:role)
+          expect(params[:messages].first).to have_key(:content)
+        end
+      end
+    end
+
+    describe "#execute_with" do
+      let(:test_rendered_data) do
+        {
+          content: "Test prompt",
+          system_message: "Test system",
+          model: "gpt-4",
+          temperature: 0.7,
+          max_tokens: 1000,
+          parameters_used: {},
+          version_number: 1
+        }
+      end
+
+      let(:rendered_prompt) { described_class.new(prompt, test_rendered_data) }
+
+      context "with OpenAI client" do
+        let(:openai_client) do
+          client_class = double("Class", name: "OpenAI::Client")
+          double("OpenAI::Client", class: client_class)
+        end
+
+        it "detects OpenAI client and calls chat with parameters key" do
+          expected_params = {
+            model: "gpt-4",
+            messages: [
+              { role: "system", content: "Test system" },
+              { role: "user", content: "Test prompt" }
+            ],
+            temperature: 0.7,
+            max_tokens: 1000
+          }
+
+          expect(openai_client).to receive(:chat).with(parameters: expected_params)
+          rendered_prompt.execute_with(openai_client)
+        end
+
+        it "passes additional options to OpenAI parameters" do
+          expect(openai_client).to receive(:chat).with(
+            parameters: hash_including(stream: true, tools: ["test"])
+          )
+          
+          rendered_prompt.execute_with(openai_client, stream: true, tools: ["test"])
+        end
+
+        it "works with different OpenAI client class names" do
+          ["OpenAI", "MyOpenAIWrapper", "CustomOpenAIClient"].each do |class_name|
+            client_class = double("Class", name: class_name)
+            client = double(class_name, class: client_class)
+            
+            expect(client).to receive(:chat).with(parameters: anything)
+            rendered_prompt.execute_with(client)
+          end
+        end
+      end
+
+      context "with Anthropic client" do
+        let(:anthropic_client) do
+          client_class = double("Class", name: "Anthropic::Client")
+          double("Anthropic::Client", class: client_class)
+        end
+
+        it "detects Anthropic client and calls chat with splatted parameters" do
+          expected_params = {
+            messages: [
+              { role: "system", content: "Test system" },
+              { role: "user", content: "Test prompt" }
+            ],
+            model: "gpt-4",
+            temperature: 0.7,
+            max_tokens: 1000
+          }
+
+          expect(anthropic_client).to receive(:chat).with(**expected_params)
+          rendered_prompt.execute_with(anthropic_client)
+        end
+
+        it "passes additional options to Anthropic parameters" do
+          expect(anthropic_client).to receive(:chat).with(
+            hash_including(stop_sequences: ["\\n"], metadata: { user: "test" })
+          )
+          
+          rendered_prompt.execute_with(anthropic_client, stop_sequences: ["\\n"], metadata: { user: "test" })
+        end
+
+        it "works with different Anthropic client class names" do
+          ["Anthropic", "AnthropicAPI", "MyAnthropicWrapper"].each do |class_name|
+            client_class = double("Class", name: class_name)
+            client = double(class_name, class: client_class)
+            
+            expect(client).to receive(:chat).with(anything)
+            rendered_prompt.execute_with(client)
+          end
+        end
+      end
+
+      context "with RubyLLM client" do
+        let(:ruby_llm_client) do
+          client_class = double("Class", name: "RubyLLM::Provider")
+          double("RubyLLM::Provider", class: client_class)
+        end
+
+        it "detects RubyLLM client and calls chat with splatted parameters" do
+          expected_params = {
+            messages: [
+              { role: "system", content: "Test system" },
+              { role: "user", content: "Test prompt" }
+            ],
+            model: "gpt-4",
+            temperature: 0.7,
+            max_tokens: 1000
+          }
+
+          expect(ruby_llm_client).to receive(:chat).with(**expected_params)
+          rendered_prompt.execute_with(ruby_llm_client)
+        end
+
+        it "passes additional options to RubyLLM parameters" do
+          expect(ruby_llm_client).to receive(:chat).with(
+            hash_including(provider_options: { api_key: "test" })
+          )
+          
+          rendered_prompt.execute_with(ruby_llm_client, provider_options: { api_key: "test" })
+        end
+
+        it "works with different RubyLLM client class names" do
+          ["RubyLLM", "RubyLLMClient", "MyRubyLLMProvider"].each do |class_name|
+            client_class = double("Class", name: class_name)
+            client = double(class_name, class: client_class)
+            
+            expect(client).to receive(:chat).with(anything)
+            rendered_prompt.execute_with(client)
+          end
+        end
+      end
+
+      context "with unknown client" do
+        let(:unknown_client) do
+          client_class = double("Class", name: "RandomAPI::Client")
+          double("RandomAPI::Client", class: client_class)
+        end
+
+        it "raises ArgumentError for unrecognized client type" do
+          expect {
+            rendered_prompt.execute_with(unknown_client)
+          }.to raise_error(ArgumentError, "Unknown client type: RandomAPI::Client")
+        end
+
+        it "includes the class name in the error message" do
+          ["SomeOtherClient", "UnknownProvider", "CustomLLM"].each do |class_name|
+            client_class = double("Class", name: class_name)
+            client = double(class_name, class: client_class)
+            
+            expect {
+              rendered_prompt.execute_with(client)
+            }.to raise_error(ArgumentError, "Unknown client type: #{class_name}")
+          end
+        end
+      end
+
+      context "integration with parameter methods" do
+        it "calls to_openai_params for OpenAI clients" do
+          client_class = double("Class", name: "OpenAI::Client")
+          client = double("OpenAI::Client", class: client_class)
+          
+          expect(rendered_prompt).to receive(:to_openai_params).with(test: true).and_call_original
+          expect(client).to receive(:chat).with(parameters: anything)
+          
+          rendered_prompt.execute_with(client, test: true)
+        end
+
+        it "calls to_ruby_llm_params for RubyLLM clients" do
+          client_class = double("Class", name: "RubyLLM::Provider")
+          client = double("RubyLLM::Provider", class: client_class)
+          
+          expect(rendered_prompt).to receive(:to_ruby_llm_params).with(test: true).and_call_original
+          expect(client).to receive(:chat).with(anything)
+          
+          rendered_prompt.execute_with(client, test: true)
+        end
+
+        it "calls to_ruby_llm_params for Anthropic clients" do
+          client_class = double("Class", name: "Anthropic::Client")
+          client = double("Anthropic::Client", class: client_class)
+          
+          expect(rendered_prompt).to receive(:to_ruby_llm_params).with(test: true).and_call_original
+          expect(client).to receive(:chat).with(anything)
+          
+          rendered_prompt.execute_with(client, test: true)
+        end
+      end
+    end
   end
 end

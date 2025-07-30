@@ -7,7 +7,7 @@ class CreatePromptEngineSettings < ActiveRecord::Migration[7.0]
       t.text :anthropic_api_key
 
       # Other settings can be added here in the future
-      t.json :preferences, default: {}
+      t.json :preferences
 
       t.timestamps
     end
