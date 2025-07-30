@@ -99,103 +99,24 @@ Rails.application.routes.draw do
 end
 ```
 
-### 4. Authentication (Optional but Recommended)
+### 4. Authentication (Recommended for Production)
 
-PromptEngine provides flexible authentication options to secure your admin interface. By default,
-authentication is enabled but not configured, allowing full access. We strongly recommend
-configuring authentication for production environments.
+PromptEngine provides flexible authentication options to secure your admin interface. Since prompt templates may contain sensitive business logic, we strongly recommend configuring authentication for production environments.
 
 #### Quick Start
 
-The simplest way to secure PromptEngine is with HTTP Basic authentication:
+Choose one of these authentication methods based on your needs:
 
-```ruby
-# config/initializers/prompt_engine.rb
-PromptEngine.configure do |config|
-  config.http_basic_auth_enabled = true
-  config.http_basic_auth_name = "admin"
-  config.http_basic_auth_password = "secure_password_here"
-end
-```
-
-For production, use Rails credentials:
-
-```bash
-rails credentials:edit
-```
-
-```yaml
-# Add to credentials file
-prompt_engine:
-  username: your_secure_username
-  password: your_secure_password
-```
-
-```ruby
-# config/initializers/prompt_engine.rb
-PromptEngine.configure do |config|
-  config.http_basic_auth_enabled = true
-  config.http_basic_auth_name = Rails.application.credentials.dig(:prompt_engine, :username)
-  config.http_basic_auth_password = Rails.application.credentials.dig(:prompt_engine, :password)
-end
-```
-
-#### Authentication Strategies
-
-##### 1. HTTP Basic Authentication
-
-Built-in support with secure credential comparison:
-
-```ruby
-# config/initializers/prompt_engine.rb
-PromptEngine.configure do |config|
-  config.authentication_enabled = true  # Default: true
-  config.http_basic_auth_enabled = true
-  config.http_basic_auth_name = ENV['PROMPT_ENGINE_USERNAME']
-  config.http_basic_auth_password = ENV['PROMPT_ENGINE_PASSWORD']
-end
-```
-
-**Security Notes:**
-
-- Uses `ActiveSupport::SecurityUtils.secure_compare` to prevent timing attacks
-- Credentials are never logged or exposed in errors
-- Empty credentials are treated as invalid
-
-##### 2. Devise Integration
-
-For Devise authentication, mount the engine within an authenticated route:
+##### Option 1: Route-level Authentication (Devise)
 
 ```ruby
 # config/routes.rb
-Rails.application.routes.draw do
-  authenticate :user, ->(user) { user.admin? } do
-    mount PromptEngine::Engine => "/prompt_engine"
-  end
+authenticate :user, ->(u) { u.admin? } do
+  mount PromptEngine::Engine => "/prompt_engine"
 end
 ```
 
-##### 3. Custom Authentication
-
-Integrate with your existing authentication system using the ActiveSupport hook:
-
-```ruby
-# config/initializers/prompt_engine.rb
-ActiveSupport.on_load(:prompt_engine_application_controller) do
-  before_action do
-    raise ActionController::RoutingError.new('Not Found') unless current_user&.admin?
-  end
-
-  def current_user
-    # Your authentication logic here
-    @current_user ||= User.find_by(id: session[:user_id])
-  end
-end
-```
-
-##### 4. Rack Middleware Authentication
-
-For advanced scenarios, add custom middleware directly to the engine:
+##### Option 2: Basic Authentication
 
 ```ruby
 # config/initializers/prompt_engine.rb
@@ -208,60 +129,47 @@ PromptEngine::Engine.middleware.use(Rack::Auth::Basic) do |username, password|
 end
 ```
 
-##### 5. Disable Authentication (Development Only)
-
-⚠️ **Warning:** Only disable authentication in development environments:
+##### Option 3: Custom Authentication
 
 ```ruby
 # config/initializers/prompt_engine.rb
-if Rails.env.development?
-  PromptEngine.configure do |config|
-    config.authentication_enabled = false
+ActiveSupport.on_load(:prompt_engine_application_controller) do
+  before_action :authenticate_admin!
+  
+  private
+  
+  def authenticate_admin!
+    redirect_to main_app.root_path unless current_user&.admin?
+  end
+  
+  def current_user
+    # Your app's current user method
+    main_app.current_user
   end
 end
 ```
 
-#### Configuration Reference
+#### Rails 8 Authentication
 
-| Setting                    | Default | Description                          |
-| -------------------------- | ------- | ------------------------------------ |
-| `authentication_enabled`   | `true`  | Master switch for all authentication |
-| `http_basic_auth_enabled`  | `false` | Enable HTTP Basic authentication     |
-| `http_basic_auth_name`     | `nil`   | Username for HTTP Basic auth         |
-| `http_basic_auth_password` | `nil`   | Password for HTTP Basic auth         |
-
-#### Testing with Authentication
-
-When writing tests, you can disable authentication:
+If using Rails 8's built-in authentication generator:
 
 ```ruby
-# spec/rails_helper.rb or test/test_helper.rb
-RSpec.configure do |config|
-  config.before(:each) do
-    PromptEngine.authentication_enabled = false
-  end
+# config/initializers/prompt_engine.rb
+ActiveSupport.on_load(:prompt_engine_application_controller) do
+  include Authentication # Rails 8's authentication concern
+  before_action :require_authentication
 end
-```
-
-Or provide credentials in your tests:
-
-```ruby
-get prompt_engine.prompts_path, headers: {
-  "Authorization" => ActionController::HttpAuthentication::Basic.encode_credentials("admin", "password")
-}
 ```
 
 #### Security Best Practices
 
 1. **Always enable authentication in production**
 2. **Use strong, unique passwords**
-3. **Store credentials securely** (Rails credentials, environment variables, or secrets management)
-4. **Use HTTPS** to encrypt authentication credentials in transit
-5. **Implement rate limiting** on your application server
-6. **Monitor access logs** for suspicious activity
+3. **Store credentials securely** (Rails credentials or environment variables)
+4. **Use HTTPS** to encrypt credentials in transit
+5. **Implement rate limiting** to prevent brute force attacks
 
-For more authentication examples and advanced configurations, see
-[AUTHENTICATION.md](docs/AUTHENTICATION.md)
+For detailed authentication documentation and more examples, see [AUTH.md](AUTH.md)
 
 ## Usage
 

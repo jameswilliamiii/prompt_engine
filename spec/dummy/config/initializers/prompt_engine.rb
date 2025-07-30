@@ -1,39 +1,34 @@
-# Example PromptEngine authentication configuration
+# PromptEngine Authentication Configuration
 #
-# Uncomment and modify the configuration below to enable authentication
+# PromptEngine doesn't require authentication by default.
+# Choose one of the authentication methods below based on your needs.
+# See AUTH.md for detailed documentation and examples.
 
-# PromptEngine.configure do |config|
-#   # Enable authentication (default: true)
-#   config.authentication_enabled = true
-#
-#   # HTTP Basic Authentication
-#   # Uncomment to enable HTTP Basic auth
-#   # config.http_basic_auth_enabled = true
-#   # config.http_basic_auth_name = "admin"
-#   # config.http_basic_auth_password = "secure_password"
-#
-#   # Or use Rails credentials for production:
-#   # config.http_basic_auth_name = Rails.application.credentials.prompt_engine_username
-#   # config.http_basic_auth_password = Rails.application.credentials.prompt_engine_password
+# Option 1: Basic Authentication (for simple deployments)
+# PromptEngine::Engine.middleware.use(Rack::Auth::Basic) do |username, password|
+#   ActiveSupport::SecurityUtils.secure_compare(
+#     Rails.application.credentials.prompt_engine_username, username
+#   ) & ActiveSupport::SecurityUtils.secure_compare(
+#     Rails.application.credentials.prompt_engine_password, password
+#   )
 # end
 
-# Custom authentication using ActiveSupport hook
-# Uncomment to add custom authentication logic
-#
+# Option 2: Custom Authentication (integrate with your app's auth system)
 # ActiveSupport.on_load(:prompt_engine_application_controller) do
-#   before_action do
-#     # Example: Check if user is authenticated via your app's auth system
-#     # raise ActionController::RoutingError.new('Not Found') unless current_user&.admin?
+#   before_action :authenticate_admin!
+#   
+#   private
+#   
+#   def authenticate_admin!
+#     redirect_to main_app.root_path unless current_user&.admin?
 #   end
-#
+#   
 #   def current_user
-#     # Your authentication logic here
-#     # @current_user ||= User.find_by(id: session[:user_id])
+#     # Your app's current user method
+#     @current_user ||= User.find_by(id: session[:user_id])
 #   end
 # end
 
-# For development/testing: Disable authentication
+# For development: No authentication
+# This is the default for the dummy app
 # WARNING: Do not use in production!
-PromptEngine.configure do |config|
-  config.authentication_enabled = false
-end

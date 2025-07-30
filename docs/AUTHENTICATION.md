@@ -1,6 +1,8 @@
 # PromptEngine Authentication Guide
 
-This guide covers all authentication options available in PromptEngine, from basic setup to advanced configurations.
+**Note: This document has been replaced by [AUTH.md](../AUTH.md) which provides updated authentication patterns following Rails best practices.**
+
+Please refer to AUTH.md for current authentication implementation guidance.
 
 ## Table of Contents
 
