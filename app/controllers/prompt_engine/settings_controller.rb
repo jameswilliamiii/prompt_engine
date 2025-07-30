@@ -1,8 +1,5 @@
 module PromptEngine
   class SettingsController < ApplicationController
-    layout "prompt_engine/admin"
-    before_action :load_settings
-
     def edit
       # Just display the form
     end

@@ -1,7 +1,5 @@
 module PromptEngine
   class EvalRunsController < ApplicationController
-    layout "prompt_engine/admin"
-
     before_action :set_prompt
     before_action :set_eval_run
 
