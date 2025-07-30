@@ -3,20 +3,20 @@ module PromptEngine
     self.table_name = "prompt_engine_prompts"
 
     has_many :versions, -> { order(version_number: :desc) },
-             class_name: "PromptEngine::PromptVersion",
-             dependent: :destroy
+      class_name: "PromptEngine::PromptVersion",
+      dependent: :destroy
     has_many :parameters, -> { ordered },
-             class_name: "PromptEngine::Parameter",
-             dependent: :destroy
+      class_name: "PromptEngine::Parameter",
+      dependent: :destroy
     has_many :eval_sets,
-             class_name: "PromptEngine::EvalSet",
-             dependent: :destroy
+      class_name: "PromptEngine::EvalSet",
+      dependent: :destroy
 
     attr_accessor :change_summary
 
-    validates :name, presence: true, uniqueness: { scope: :status }
+    validates :name, presence: true, uniqueness: {scope: :status}
     validates :content, presence: true
-    validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9-]+\z/ }
+    validates :slug, presence: true, uniqueness: true, format: {with: /\A[a-z0-9-]+\z/}
 
     accepts_nested_attributes_for :parameters, allow_destroy: true
 
@@ -101,11 +101,11 @@ module PromptEngine
     end
 
     def render_with_params(provided_params = {})
-              detector = PromptEngine::VariableDetector.new(content)
+      detector = PromptEngine::VariableDetector.new(content)
 
       # Validate all required parameters are provided
       validation = validate_parameters(provided_params)
-      return { error: validation[:errors].join(", ") } unless validation[:valid]
+      return {error: validation[:errors].join(", ")} unless validation[:valid]
 
       # Cast parameters to their correct types, including defaults
       casted_params = {}
@@ -201,7 +201,7 @@ module PromptEngine
 
     # Class method for finding by slug
     def self.find_by_slug!(slug)
-      find_by!(slug: slug, status: "active")
+      find_by!(slug: slug)
     end
 
     private
@@ -229,7 +229,7 @@ module PromptEngine
         temperature: temperature,
         max_tokens: max_tokens,
         metadata: metadata,
-        change_description: "Updated: #{(saved_changes.keys & VERSIONED_ATTRIBUTES).join(', ')}"
+        change_description: "Updated: #{(saved_changes.keys & VERSIONED_ATTRIBUTES).join(", ")}"
       )
     end
 

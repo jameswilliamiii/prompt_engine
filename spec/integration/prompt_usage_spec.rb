@@ -10,8 +10,8 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
 
       def generate_welcome_email
         PromptEngine.render("welcome-email",
-          customer_name: customer_name,
-          product_name: product_name)
+          { customer_name: customer_name,
+            product_name: product_name })
 
         # In a real app, this would call an AI service
         # For testing, we just return the rendered prompt
@@ -19,8 +19,8 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
 
       def generate_support_response(issue_description)
         PromptEngine.render("support-response",
-          customer_name: customer_name,
-          issue: issue_description)
+          { customer_name: customer_name,
+            issue: issue_description })
       end
     end
   end
@@ -87,7 +87,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
       customer = CustomerEmail.new(customer_name: "Test User")
 
       expect {
-        PromptEngine.render(:non_existent_prompt)
+        PromptEngine.render(:non_existent_prompt, {})
       }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
@@ -118,7 +118,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
         status: "active"
       )
 
-      result = PromptEngine.render("simple-greeting")
+      result = PromptEngine.render("simple-greeting", {})
 
       expect(result.content).to eq("Hello! How can I help you today?")
     end
@@ -128,7 +128,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
 
       # Don't provide product_name
       result = PromptEngine.render("welcome-email",
-        customer_name: "Alice")
+        { customer_name: "Alice" })
 
       expect(result.content).to include("Alice")
       expect(result.content).to include("{{product_name}}") # Unmatched variable preserved
@@ -159,8 +159,8 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
 
         def generate_summary
           prompt_data = PromptEngine.render("article-summary",
-            title: title,
-            content: content)
+            { title: title,
+              content: content })
 
           # In real usage, this would call an AI service
           self.summary = "Generated summary for: #{title}"

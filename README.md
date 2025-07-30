@@ -188,10 +188,10 @@ Visit `/prompt_engine` in your browser to access the admin interface where you c
 ### In Your Application
 
 ```ruby
-# Render a prompt with variables
+# Render a prompt with variables (defaults to active prompts only)
 rendered = PromptEngine.render("customer-support",
-  customer_name: "John",
-  issue: "Can't login to my account"
+  { customer_name: "John",
+    issue: "Can't login to my account" }
 )
 
 # Access rendered content
@@ -214,19 +214,26 @@ response = rendered.execute_with(client)
 
 # Override model settings at runtime
 rendered = PromptEngine.render("email-writer",
-  subject: "Welcome to our platform",
-  model: "gpt-4-turbo",
-  temperature: 0.9
+  { subject: "Welcome to our platform" },
+  { model: "gpt-4-turbo", temperature: 0.9 }
 )
 
 # Load a specific version
 rendered = PromptEngine.render("onboarding-email",
-  user_name: "Sarah",
-  version: 3
+  { user_name: "Sarah" },
+  { version: 3 }
+)
+
+# Render prompts with different statuses (defaults to 'active')
+# Useful for testing drafts or accessing archived prompts
+rendered = PromptEngine.render("new-feature",
+  { feature_name: "AI Assistant" },
+  { status: "draft" }  # Can be 'draft', 'active', or 'archived'
 )
 ```
 
 For complete parameter access documentation, see [docs/VARIABLE_ACCESS.md](docs/VARIABLE_ACCESS.md).
+For status filtering details, see [docs/STATUS_FILTERING.md](docs/STATUS_FILTERING.md).
 
 ## How It Works
 
@@ -238,15 +245,16 @@ For complete parameter access documentation, see [docs/VARIABLE_ACCESS.md](docs/
 
 ## API Documentation
 
-### PromptEngine.render(slug, \*\*options)
+### PromptEngine.render(slug, variables = {}, options = {})
 
 Renders a prompt template with the given variables.
 
 **Parameters:**
 
 - `slug` (String): The unique identifier for the prompt
-- `**options` (Hash): Variables and optional overrides
-  - Variables: Any key-value pairs matching prompt variables
+- `variables` (Hash): Variables to interpolate in the prompt (default: {})
+- `options` (Hash): Rendering options (default: {})
+  - `status`: The status to filter by (defaults to 'active')
   - `model`: Override the default model
   - `temperature`: Override the default temperature
   - `max_tokens`: Override the default max tokens
@@ -380,6 +388,8 @@ The gem is available as open source under the terms of the
 - 📦 [Migration Guide](docs/MIGRATIONS.md) - Handling database migrations
 - 📝 [Usage Guide](docs/USAGE.md) - Complete usage examples and best practices
 - 🔤 [Variable Access](docs/VARIABLE_ACCESS.md) - Working with parameters in rendered prompts
+- 🎯 [Method Signature](docs/METHOD_SIGNATURE.md) - Understanding the render method's positional arguments
+- 🏷️ [Status Filtering](docs/STATUS_FILTERING.md) - Working with draft, active, and archived prompts
 - 📋 [Product Specification](docs/SPEC.md) - Complete product vision and roadmap
 
 ## Support
