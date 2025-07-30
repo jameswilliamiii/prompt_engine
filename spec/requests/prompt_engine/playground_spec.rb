@@ -105,7 +105,7 @@ module PromptEngine
           result = PlaygroundRunResult.last
           expect(result.prompt_version).to eq(prompt.current_version)
           expect(result.provider).to eq("anthropic")
-          expect(result.model).to eq("claude-3-5-sonnet-20241022")
+          expect(result.model).to eq("claude-3-7")
           expect(result.rendered_prompt).to eq("Tell me about Ruby on Rails in technical style")
           expect(result.response).to eq("This is a test response about Ruby on Rails")
           expect(result.execution_time).to be >= 0

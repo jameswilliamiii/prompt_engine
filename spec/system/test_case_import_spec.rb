@@ -17,9 +17,9 @@ RSpec.describe "Test Case Import", type: :system do
     # Create a temporary CSV file
     csv_content = <<~CSV
       name,age,expected_output,description
-      Alice,28,Hello Alice! You are 28 years old.,Test with Alice
-      Bob,35,Hello Bob! You are 35 years old.,Test with Bob
-      Charlie,42,Hello Charlie! You are 42 years old.,
+      Alice,28,"Hello Alice, you are 28 years old",Test with Alice
+      Bob,35,"Hello Bob, you are 35 years old",Test with Bob
+      Charlie,42,"Hello Charlie, you are 42 years old",
     CSV
 
     csv_file = Tempfile.new([ 'test_cases', '.csv' ])
@@ -72,12 +72,12 @@ RSpec.describe "Test Case Import", type: :system do
     json_content = [
       {
         input_variables: { name: "David", age: "50" },
-        expected_output: "Hello David! You are 50 years old.",
+        expected_output: "Hello David, you are 50 years old",
         description: "Senior user test"
       },
       {
         input_variables: { name: "Eve", age: "18" },
-        expected_output: "Hello Eve! You are 18 years old."
+        expected_output: "Hello Eve, you are 18 years old"
       }
     ].to_json
 

@@ -92,10 +92,11 @@ module PromptEngine
       errors = []
 
       imported_data.each_with_index do |data, index|
+        # Handle both symbol and string keys (session might convert symbols to strings)
         test_case = @eval_set.test_cases.build(
-          input_variables: data[:input_variables],
-          expected_output: data[:expected_output],
-          description: data[:description]
+          input_variables: data[:input_variables] || data["input_variables"],
+          expected_output: data[:expected_output] || data["expected_output"],
+          description: data[:description] || data["description"]
         )
 
         if test_case.save
