@@ -1,21 +1,50 @@
 module PromptEngine
   class RenderedPrompt
-    attr_reader :prompt, :content, :system_message, :model,
-                :temperature, :max_tokens, :overrides,
+    attr_reader :prompt, :content, :overrides,
                 :version_number
 
     def initialize(prompt, rendered_data, overrides = {})
       @prompt = prompt
       @content = rendered_data[:content]
-      @system_message = rendered_data[:system_message]
       @parameters = rendered_data[:parameters_used] || {}
       @overrides = overrides
       @version_number = rendered_data[:version_number]
+      @rendered_data = rendered_data
+      
+      # Store status - use override if provided, otherwise use prompt's current status
+      # Note: When a specific version is loaded, we still use the current prompt status
+      # unless explicitly overridden
+      @status = overrides.key?(:status) ? overrides[:status] : prompt.status
+    end
 
-      # Apply overrides for model settings
-      @model = overrides[:model] || rendered_data[:model]
-      @temperature = overrides[:temperature] || rendered_data[:temperature]
-      @max_tokens = overrides[:max_tokens] || rendered_data[:max_tokens]
+    # Options accessor - returns the options hash used for rendering
+    def options
+      @overrides.dup
+    end
+
+    # Individual accessors for common options
+    def status
+      @status
+    end
+
+    def version
+      @version_number
+    end
+
+    def model
+      @overrides[:model] || @rendered_data[:model]
+    end
+
+    def temperature
+      @overrides[:temperature] || @rendered_data[:temperature]
+    end
+
+    def max_tokens
+      @overrides[:max_tokens] || @rendered_data[:max_tokens]
+    end
+
+    def system_message
+      @overrides[:system_message] || @rendered_data[:system_message]
     end
 
     # Returns messages array for chat-based models
@@ -97,8 +126,9 @@ module PromptEngine
         temperature: temperature,
         max_tokens: max_tokens,
         messages: messages,
-        overrides: overrides,
-        version_number: version_number,
+        options: options,
+        status: status,
+        version: version,
         parameters: parameters
       }
     end

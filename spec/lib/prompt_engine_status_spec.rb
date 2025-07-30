@@ -56,23 +56,23 @@ RSpec.describe PromptEngine do
 
       context "with status parameter" do
         it "finds draft prompts when status is specified" do
-          result = PromptEngine.render("draft-greeting", { name: "World" }, { status: "draft" })
+          result = PromptEngine.render("draft-greeting", { name: "World" }, options: { status: "draft" })
           expect(result.content).to eq("Draft: Hello World!")
         end
 
         it "finds archived prompts when status is specified" do
-          result = PromptEngine.render("archived-greeting", { name: "World" }, { status: "archived" })
+          result = PromptEngine.render("archived-greeting", { name: "World" }, options: { status: "archived" })
           expect(result.content).to eq("Archived: Hello World!")
         end
 
         it "finds active prompts when status is explicitly specified" do
-          result = PromptEngine.render("greeting", { name: "World" }, { status: "active" })
+          result = PromptEngine.render("greeting", { name: "World" }, options: { status: "active" })
           expect(result.content).to eq("Hello World!")
         end
 
         it "raises error if prompt with specified status doesn't exist" do
           expect {
-            PromptEngine.render("greeting", { name: "World" }, { status: "archived" })
+            PromptEngine.render("greeting", { name: "World" }, options: { status: "archived" })
           }.to raise_error(ActiveRecord::RecordNotFound)
         end
       end
@@ -89,7 +89,7 @@ RSpec.describe PromptEngine do
         it "correctly passes through variables along with status" do
           result = PromptEngine.render("draft-greeting", 
             { name: "Alice" },
-            { status: "draft", model: "gpt-4", temperature: 0.7 }
+            options: { status: "draft", model: "gpt-4", temperature: 0.7 }
           )
           expect(result.content).to eq("Draft: Hello Alice!")
           expect(result.model).to eq("gpt-4")
@@ -102,7 +102,7 @@ RSpec.describe PromptEngine do
           
           result = PromptEngine.render("draft-greeting",
             { name: "Bob" },
-            { status: "draft", version: 1 }
+            options: { status: "draft", version: 1 }
           )
           expect(result.content).to eq("Draft: Hello Bob!")
         end
@@ -155,6 +155,45 @@ RSpec.describe PromptEngine do
     it "maintains existing behavior for find method" do
       found = PromptEngine.find("test-prompt")
       expect(found).to eq(prompt)
+    end
+  end
+
+  describe "flexible usage patterns" do
+    let!(:simple_prompt) { create(:prompt, slug: "simple", content: "Simple text", status: "active") }
+    let!(:var_prompt) { create(:prompt, slug: "with-vars", content: "Hello {{name}}", status: "active") }
+    let!(:draft_prompt) { create(:prompt, slug: "draft-one", content: "Draft content", status: "draft") }
+    let!(:draft_with_var) { create(:prompt, slug: "draft-var", content: "Draft {{text}}", status: "draft") }
+
+    it "works with just slug (no vars, no options)" do
+      result = PromptEngine.render("simple")
+      expect(result.content).to eq("Simple text")
+    end
+
+    it "works with slug and variables (no options)" do
+      result = PromptEngine.render("with-vars", { name: "Alice" })
+      expect(result.content).to eq("Hello Alice")
+    end
+
+    it "works with slug, variables, and options" do
+      result = PromptEngine.render("draft-var", 
+        { text: "content" }, 
+        options: { status: "draft" }
+      )
+      expect(result.content).to eq("Draft content")
+    end
+
+    it "works with slug and options (no variables)" do
+      result = PromptEngine.render("draft-one", 
+        options: { status: "draft", model: "gpt-4" }
+      )
+      expect(result.content).to eq("Draft content")
+      expect(result.model).to eq("gpt-4")
+    end
+
+    it "allows empty hash for variables when using options" do
+      result = PromptEngine.render("simple", {}, options: { temperature: 0.5 })
+      expect(result.content).to eq("Simple text")
+      expect(result.temperature).to eq(0.5)
     end
   end
 end

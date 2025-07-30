@@ -21,19 +21,19 @@ You can override the default behavior by passing a `status` parameter:
 # Render a draft prompt
 PromptEngine.render("welcome-email", 
   { user_name: "John" },
-  { status: "draft" }
+  options: { status: "draft" }
 )
 
 # Render an archived prompt
 PromptEngine.render("old-welcome", 
   { user_name: "John" },
-  { status: "archived" }
+  options: { status: "archived" }
 )
 
 # Explicitly request active status
 PromptEngine.render("welcome-email",
   { user_name: "John" },
-  { status: "active" }
+  options: { status: "active" }
 )
 ```
 
@@ -51,7 +51,7 @@ PromptEngine.render("welcome-email",
 # In your staging environment or admin preview
 result = PromptEngine.render("new-feature-prompt",
   { feature_name: "AI Assistant", user_name: "Beta Tester" },
-  { status: "draft" }
+  options: { status: "draft" }
 )
 ```
 
@@ -61,7 +61,7 @@ result = PromptEngine.render("new-feature-prompt",
 # For audit or comparison purposes
 old_version = PromptEngine.render("terms-of-service",
   { company_name: "Acme Corp" },
-  { status: "archived" }
+  options: { status: "archived" }
 )
 ```
 
@@ -74,7 +74,7 @@ The playground can test prompts in any status:
 def execute
   result = PromptEngine.render(params[:slug],
     params[:variables] || {},
-    { status: params[:status] || "active" }
+    options: { status: params[:status] || "active" }
   )
 end
 ```
@@ -104,10 +104,12 @@ result = PromptEngine.render("ai-prompt",
   { user_name: "Alice", task: "Write a story" },
   
   # Options including status and overrides
-  { status: "draft",
+  options: { 
+    status: "draft",
     model: "gpt-4-turbo",
     temperature: 0.8,
-    max_tokens: 2000 }
+    max_tokens: 2000 
+  }
 )
 ```
 
@@ -119,7 +121,7 @@ You can also specify a version along with status:
 # Render version 3 of a draft prompt
 result = PromptEngine.render("feature-prompt",
   { feature: "New Dashboard" },
-  { status: "draft", version: 3 }
+  options: { status: "draft", version: 3 }
 )
 ```
 
@@ -145,7 +147,7 @@ To start using status filtering:
 # New code can specify status
 PromptEngine.render("my-prompt", 
   { var1: "value1" },
-  { status: "draft" }
+  options: { status: "draft" }
 )
 ```
 
@@ -155,6 +157,6 @@ If a prompt doesn't exist with the specified status, an `ActiveRecord::RecordNot
 
 ```ruby
 # If "welcome-email" exists but only as "active", not "draft"
-PromptEngine.render("welcome-email", {}, { status: "draft" })
+PromptEngine.render("welcome-email", options: { status: "draft" })
 # => ActiveRecord::RecordNotFound
 ```

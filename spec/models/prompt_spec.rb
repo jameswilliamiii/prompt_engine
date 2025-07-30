@@ -245,7 +245,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
     before do
       class TestModel
         def self.generate_content(prompt_name, variables = {})
-          PromptEngine.render(prompt_name, **variables)
+          PromptEngine.render(prompt_name, variables)
         end
       end
     end

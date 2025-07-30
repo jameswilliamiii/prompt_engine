@@ -39,7 +39,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
         # Testing a new version before deployment
         result = PromptEngine.render("welcome-email-v2", 
           { user_name: "Bob" },
-          { status: "draft" }
+          options: { status: "draft" }
         )
         expect(result.content).to eq("Hi Bob! Welcome aboard! 🎉")
       end
@@ -50,7 +50,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
         # Viewing old version for comparison or audit
         result = PromptEngine.render("welcome-email-old",
           { user_name: "Charlie" },
-          { status: "archived" }
+          options: { status: "archived" }
         )
         expect(result.content).to eq("Dear Charlie, Welcome to our service.")
       end
@@ -61,14 +61,14 @@ RSpec.describe "Using prompts with status filtering in Rails" do
         # Admin can test prompts in any status
         draft_result = PromptEngine.render("welcome-email-v2",
           { user_name: "Admin" },
-          { status: "draft" }
+          options: { status: "draft" }
         )
         expect(draft_result.content).to include("Admin")
 
         # Same admin can also test the active version
         active_result = PromptEngine.render("welcome-email",
           { user_name: "Admin" },
-          { status: "active" }
+          options: { status: "active" }
         )
         expect(active_result.content).to include("Admin")
       end
@@ -88,7 +88,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
       # New code that wants to be explicit
       result = PromptEngine.render("notification", 
         { message: "System update" },
-        { status: "active" }
+        options: { status: "active" }
       )
       expect(result.content).to eq("Alert: System update")
     end
@@ -97,7 +97,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
   describe "Error handling" do
     it "provides clear error when prompt not found with status" do
       expect {
-        PromptEngine.render("non-existent", {}, { status: "active" })
+        PromptEngine.render("non-existent", options: { status: "active" })
       }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
@@ -105,7 +105,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
       create(:prompt, slug: "test", content: "Test", status: "draft")
       
       expect {
-        PromptEngine.render("test", {}, { status: "active" })
+        PromptEngine.render("test", options: { status: "active" })
       }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
@@ -125,7 +125,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
     it "handles status along with all other rendering options" do
       result = PromptEngine.render("complex-prompt",
         { name: "User", answer: "42" },
-        { status: "draft", model: "gpt-4-turbo", temperature: 0.5 }
+        options: { status: "draft", model: "gpt-4-turbo", temperature: 0.5 }
       )
 
       expect(result.content).to eq("Hello User, the answer is 42")
@@ -141,7 +141,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
       # Render the first version with status
       result = PromptEngine.render("complex-prompt",
         { name: "Alice", answer: "correct" },
-        { status: "draft", version: 1 }
+        options: { status: "draft", version: 1 }
       )
 
       expect(result.content).to eq("Hello Alice, the answer is correct")

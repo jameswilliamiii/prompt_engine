@@ -1,23 +1,23 @@
 # PromptEngine Method Signature
 
-As of version 2.0, PromptEngine uses a positional argument approach for the `render` method to clearly separate prompt variables from rendering options.
+As of version 2.0, PromptEngine uses a hybrid approach combining positional and keyword arguments for the `render` method to clearly separate prompt variables from rendering options.
 
 ## Method Signature
 
 ```ruby
-PromptEngine.render(slug, variables = {}, options = {})
+PromptEngine.render(slug, variables = {}, options: {})
 ```
 
 ### Parameters
 
-1. **slug** (String) - Required
+1. **slug** (String) - Required positional argument
    - The unique identifier for the prompt to render
 
-2. **variables** (Hash) - Optional, defaults to `{}`
+2. **variables** (Hash) - Optional positional argument, defaults to `{}`
    - Variables to interpolate in the prompt template
    - These are the values that replace `{{variable_name}}` in your prompts
 
-3. **options** (Hash) - Optional, defaults to `{}`
+3. **options:** (Hash) - Optional keyword argument, defaults to `{}`
    - Rendering configuration options:
      - `:status` - Filter by prompt status ('draft', 'active', 'archived'), defaults to 'active'
      - `:model` - Override the prompt's default model
@@ -30,71 +30,81 @@ PromptEngine.render(slug, variables = {}, options = {})
 ### Basic Usage
 
 ```ruby
-# Simple render with variables
+# Simple render with just slug (no vars, no options)
+result = PromptEngine.render("simple-greeting")
+
+# Render with variables only
 result = PromptEngine.render("welcome-email", 
   { customer_name: "John", product: "Premium Plan" }
 )
 
-# Render without variables
-result = PromptEngine.render("simple-greeting", {})
+# Render with options only (no variables)
+result = PromptEngine.render("draft-prompt",
+  options: { status: "draft" }
+)
 
-# Or simply
-result = PromptEngine.render("simple-greeting")
+# Render with empty variables hash when using options
+result = PromptEngine.render("simple-greeting", {}, 
+  options: { temperature: 0.9 }
+)
 ```
 
 ### With Options
 
 ```ruby
-# Render a draft prompt
+# Render a draft prompt with variables
 result = PromptEngine.render("new-feature",
   { feature_name: "AI Assistant", user_name: "Beta Tester" },
-  { status: "draft" }
+  options: { status: "draft" }
 )
 
 # Override model settings
 result = PromptEngine.render("email-writer",
   { subject: "Welcome", recipient: "Alice" },
-  { model: "gpt-4-turbo", temperature: 0.9 }
+  options: { model: "gpt-4-turbo", temperature: 0.9 }
 )
 
 # Load a specific version
 result = PromptEngine.render("onboarding",
   { user_name: "Bob" },
-  { version: 3 }
+  options: { version: 3 }
 )
 
 # Combine multiple options
 result = PromptEngine.render("complex-prompt",
   { name: "Charlie", task: "Summarize this document" },
-  { status: "draft", model: "claude-3", temperature: 0.7, max_tokens: 2000 }
+  options: { status: "draft", model: "claude-3", temperature: 0.7, max_tokens: 2000 }
 )
 ```
 
-## Why This Approach?
+## Why This Hybrid Approach?
 
-The positional argument approach provides several benefits:
+The hybrid positional/keyword argument approach provides several benefits:
 
 1. **Clear Separation**: Variables and options are clearly separated, avoiding namespace collisions
 2. **No Conflicts**: Prompt variables can be named anything (including "status", "model", etc.) without conflicting with options
-3. **Explicit Intent**: It's immediately clear which arguments are prompt variables vs configuration
-4. **Type Safety**: Easier to validate and type-check in future versions
+3. **Explicit Intent**: The `options:` keyword makes it crystal clear these are configuration parameters
+4. **Flexibility**: Can skip variables entirely when only providing options
+5. **Ruby Idiomatic**: This pattern is common and well-understood in Ruby APIs
 
-## Migration from Keyword Arguments
-
-If you're upgrading from an older version that used keyword arguments:
+## All Supported Usage Patterns
 
 ```ruby
-# Old style (pre-2.0)
+# 1. Just slug (no variables, no options)
+PromptEngine.render("static-prompt")
+
+# 2. Slug with variables (no options)
+PromptEngine.render("greeting", { name: "Alice" })
+
+# 3. Slug with variables and options
 PromptEngine.render("welcome", 
-  name: "John", 
-  status: "draft",  # Ambiguous - is this a variable or option?
-  model: "gpt-4"
+  { name: "Bob" }, 
+  options: { status: "draft", model: "gpt-4" }
 )
 
-# New style (2.0+)
-PromptEngine.render("welcome",
-  { name: "John" },        # Clear: this is a variable
-  { status: "draft", model: "gpt-4" }  # Clear: these are options
+# 4. Slug with options only (no variables)
+PromptEngine.render("archived-prompt", 
+  options: { status: "archived" }
 )
 ```
 
@@ -104,16 +114,25 @@ PromptEngine.render("welcome",
 
 ```ruby
 # When you have no variables but want to specify options
-result = PromptEngine.render("static-prompt", {}, { status: "archived" })
+# Option 1: Skip variables entirely
+result = PromptEngine.render("static-prompt", 
+  options: { status: "archived" }
+)
+
+# Option 2: Explicit empty hash (if you prefer being explicit)
+result = PromptEngine.render("static-prompt", {}, 
+  options: { status: "archived" }
+)
 ```
 
 ### Variables That Look Like Options
 
 ```ruby
-# No ambiguity - "status" here is clearly a prompt variable
+# No ambiguity - "status" and "temperature" here are clearly prompt variables
+# because they're in the variables hash, not in options:
 result = PromptEngine.render("status-reporter",
   { status: "System is operational", temperature: "Normal" },
-  { model: "gpt-4", temperature: 0.3 }  # "temperature" as option
+  options: { model: "gpt-4", temperature: 0.3 }  # "temperature" as option
 )
 ```
 
@@ -128,13 +147,13 @@ result = PromptEngine.render("status-reporter",
    PromptEngine.render("greeting", name: "Alice")  # Ruby will convert to hash
    ```
 
-2. Be explicit with empty variables when using options:
+2. Skip variables when not needed:
    ```ruby
-   # Good - intent is clear
-   PromptEngine.render("prompt", {}, { status: "draft" })
+   # Best - cleaner when you only have options
+   PromptEngine.render("prompt", options: { status: "draft" })
    
-   # Works but less clear
-   PromptEngine.render("prompt", nil, { status: "draft" })
+   # Also works - explicit empty hash
+   PromptEngine.render("prompt", {}, options: { status: "draft" })
    ```
 
 3. Use meaningful variable names that describe the content:

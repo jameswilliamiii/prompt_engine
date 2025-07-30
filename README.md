@@ -190,8 +190,7 @@ Visit `/prompt_engine` in your browser to access the admin interface where you c
 ```ruby
 # Render a prompt with variables (defaults to active prompts only)
 rendered = PromptEngine.render("customer-support",
-  { customer_name: "John",
-    issue: "Can't login to my account" }
+  { customer_name: "John", issue: "Can't login to my account" }
 )
 
 # Access rendered content
@@ -215,20 +214,20 @@ response = rendered.execute_with(client)
 # Override model settings at runtime
 rendered = PromptEngine.render("email-writer",
   { subject: "Welcome to our platform" },
-  { model: "gpt-4-turbo", temperature: 0.9 }
+  options: { model: "gpt-4-turbo", temperature: 0.9 }
 )
 
 # Load a specific version
 rendered = PromptEngine.render("onboarding-email",
   { user_name: "Sarah" },
-  { version: 3 }
+  options: { version: 3 }
 )
 
 # Render prompts with different statuses (defaults to 'active')
 # Useful for testing drafts or accessing archived prompts
 rendered = PromptEngine.render("new-feature",
   { feature_name: "AI Assistant" },
-  { status: "draft" }  # Can be 'draft', 'active', or 'archived'
+  options: { status: "draft" }  # Can be 'draft', 'active', or 'archived'
 )
 ```
 
@@ -245,15 +244,15 @@ For status filtering details, see [docs/STATUS_FILTERING.md](docs/STATUS_FILTERI
 
 ## API Documentation
 
-### PromptEngine.render(slug, variables = {}, options = {})
+### PromptEngine.render(slug, variables = {}, options: {})
 
 Renders a prompt template with the given variables.
 
 **Parameters:**
 
 - `slug` (String): The unique identifier for the prompt
-- `variables` (Hash): Variables to interpolate in the prompt (default: {})
-- `options` (Hash): Rendering options (default: {})
+- `variables` (Hash): Variables to interpolate in the prompt (optional positional argument)
+- `options:` (Hash): Rendering options (optional keyword argument)
   - `status`: The status to filter by (defaults to 'active')
   - `model`: Override the default model
   - `temperature`: Override the default temperature
@@ -390,6 +389,7 @@ The gem is available as open source under the terms of the
 - 🔤 [Variable Access](docs/VARIABLE_ACCESS.md) - Working with parameters in rendered prompts
 - 🎯 [Method Signature](docs/METHOD_SIGNATURE.md) - Understanding the render method's positional arguments
 - 🏷️ [Status Filtering](docs/STATUS_FILTERING.md) - Working with draft, active, and archived prompts
+- 🤖 [LLM Integration](docs/PROMPT-USAGE.md) - Using rendered prompts with OpenAI, Anthropic, RubyLLM, and custom clients
 - 📋 [Product Specification](docs/SPEC.md) - Complete product vision and roadmap
 
 ## Support

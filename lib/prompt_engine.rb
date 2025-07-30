@@ -8,21 +8,37 @@ module PromptEngine
     # Render a prompt by slug with variables and options
     # @param slug [String] The slug of the prompt to render
     # @param variables [Hash] Variables to interpolate in the prompt (default: {})
-    # @param options [Hash] Rendering options (default: {})
+    # @param options [Hash] Rendering options via keyword argument
     # @option options [String] :status The status to filter by (defaults to 'active')
     # @option options [String] :model Override the prompt's default model
     # @option options [Float] :temperature Override the prompt's default temperature
     # @option options [Integer] :max_tokens Override the prompt's default max_tokens
     # @option options [Integer] :version Render a specific version number
-    def render(slug, variables = {}, options = {})
-      # Extract status from options if provided
-      status = options.delete(:status) || 'active'
+    def render(slug, variables = {}, options: {})
+      # Set defaults for options
+      options = {
+        status: 'active'
+      }.merge(options)
       
-      # Find the prompt with the appropriate status
-      prompt = find(slug, status: status)
+      # If version is specified, we need to find the prompt without status filter
+      # because we want to load any version regardless of the prompt's current status
+      if options[:version]
+        # Find prompt by slug only (no status filter)
+        prompt = Prompt.find_by_slug!(slug)
+        
+        # Pass along the original status option for the RenderedPrompt
+        render_options = options.merge(variables)
+      else
+        # Extract status from options for finding the prompt
+        status = options.delete(:status)
+        
+        # Find the prompt with the appropriate status
+        prompt = find(slug, status: status)
+        
+        # Add status back to options for RenderedPrompt
+        render_options = options.merge(variables).merge(status: status)
+      end
       
-      # Merge variables into options for the prompt.render call
-      render_options = options.merge(variables)
       prompt.render(**render_options)
     end
 

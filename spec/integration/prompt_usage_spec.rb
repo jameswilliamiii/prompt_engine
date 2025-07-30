@@ -87,7 +87,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
       customer = CustomerEmail.new(customer_name: "Test User")
 
       expect {
-        PromptEngine.render(:non_existent_prompt, {})
+        PromptEngine.render(:non_existent_prompt)
       }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
@@ -118,7 +118,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
         status: "active"
       )
 
-      result = PromptEngine.render("simple-greeting", {})
+      result = PromptEngine.render("simple-greeting")
 
       expect(result.content).to eq("Hello! How can I help you today?")
     end
