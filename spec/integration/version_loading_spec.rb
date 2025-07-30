@@ -12,22 +12,22 @@ RSpec.describe "Version loading behavior" do
         temperature: 0.5,
         status: "active"
       )
-      
+
       # Create version 2
       p.update!(content: "Version 2: Hi {{name}}")
-      
+
       # Create version 3 and change status to draft
       p.update!(
         content: "Version 3: Hey {{name}}",
         status: "draft"
       )
-      
+
       p
     end
 
     describe "default version loading" do
       it "loads the most current version when no version specified and status matches" do
-        result = PromptEngine.render("versioned", 
+        result = PromptEngine.render("versioned",
           { name: "Alice" },
           options: { status: "draft" }
         )
@@ -43,7 +43,7 @@ RSpec.describe "Version loading behavior" do
       end
 
       it "loads current version when status matches" do
-        result = PromptEngine.render("versioned", 
+        result = PromptEngine.render("versioned",
           { name: "Charlie" },
           options: { status: "draft" }
         )
@@ -136,13 +136,13 @@ RSpec.describe "Version loading behavior" do
           content: "V1: Archived {{text}}",
           status: "active"
         )
-        
+
         # Create v2
         p.update!(content: "V2: Updated {{text}}")
-        
+
         # Archive it
         p.update!(status: "archived")
-        
+
         p
       end
 
@@ -186,7 +186,7 @@ RSpec.describe "Version loading behavior" do
     it "provides access to all options through individual methods" do
       result = PromptEngine.render("test-accessors",
         { name: "Kate" },
-        options: { 
+        options: {
           model: "claude-3",
           temperature: 0.3,
           max_tokens: 2000

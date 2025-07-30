@@ -15,7 +15,7 @@ module PromptEngine
 
     let!(:draft_prompt) do
       create(:prompt,
-        name: "Draft Test Prompt", 
+        name: "Draft Test Prompt",
         slug: "draft-test-prompt",
         content: "Draft: {{message}}",
         status: "draft"
@@ -40,18 +40,18 @@ module PromptEngine
       before do
         # Mock RubyLLM
         allow_any_instance_of(PlaygroundExecutor).to receive(:require).with("ruby_llm")
-        
+
         ruby_llm_mock = double("RubyLLM")
         stub_const("RubyLLM", ruby_llm_mock)
         config_mock = double("Config")
         allow(config_mock).to receive(:anthropic_api_key=)
         allow(config_mock).to receive(:openai_api_key=)
         allow(ruby_llm_mock).to receive(:configure).and_yield(config_mock)
-        
+
         # Mock the chat response
         chat_mock = double("Chat")
         response_mock = double("Response", content: "Test response", input_tokens: 5, output_tokens: 5)
-        
+
         allow(ruby_llm_mock).to receive(:chat).and_return(chat_mock)
         allow(chat_mock).to receive(:with_temperature).and_return(chat_mock)
         allow(chat_mock).to receive(:with_instructions).and_return(chat_mock)
@@ -72,7 +72,7 @@ module PromptEngine
 
       it "executes active prompts in playground" do
         post playground_prompt_path(active_prompt), params: {
-          provider: "openai", 
+          provider: "openai",
           api_key: "test-key",
           parameters: { message: "World" }
         }
@@ -86,7 +86,7 @@ module PromptEngine
     describe "Playground UI considerations" do
       it "shows prompt status in playground header" do
         get playground_prompt_path(draft_prompt)
-        
+
         # The playground should indicate this is a draft
         expect(response.body).to include("Draft Test Prompt")
         expect(response.body).to include(draft_prompt.status.capitalize)

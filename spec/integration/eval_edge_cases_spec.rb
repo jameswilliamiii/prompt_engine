@@ -116,7 +116,7 @@ RSpec.describe "Evaluation Edge Cases", type: :integration do
 
       # Mock create_eval to succeed (since it's called first)
       allow(mock_client).to receive(:create_eval).and_return({ 'id' => 'test-eval-123' })
-      
+
       # Mock upload_file to simulate uploading empty file - this should fail or return an error
       allow(mock_client).to receive(:upload_file).and_raise(
         PromptEngine::OpenAiEvalsClient::APIError, "File contains no data"

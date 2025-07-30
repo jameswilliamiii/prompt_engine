@@ -1,6 +1,6 @@
 module PromptEngine
   class PromptsController < ApplicationController
-    before_action :set_prompt, only: [:show, :edit, :update, :destroy]
+    before_action :set_prompt, only: [ :show, :edit, :update, :destroy ]
 
     def index
       @prompts = PromptEngine::Prompt.by_name
@@ -10,7 +10,7 @@ module PromptEngine
       # Get recent test runs for this prompt across all versions
       @recent_test_runs = PromptEngine::PlaygroundRunResult
         .joins(:prompt_version)
-        .where(prompt_engine_prompt_versions: {prompt_id: @prompt.id})
+        .where(prompt_engine_prompt_versions: { prompt_id: @prompt.id })
         .recent
         .limit(5)
         .includes(:prompt_version)
@@ -19,7 +19,7 @@ module PromptEngine
       @eval_sets = @prompt.eval_sets.includes(:test_cases, :eval_runs)
       @recent_eval_runs = PromptEngine::EvalRun
         .joins(:eval_set)
-        .where(prompt_engine_eval_sets: {prompt_id: @prompt.id})
+        .where(prompt_engine_eval_sets: { prompt_id: @prompt.id })
         .order(created_at: :desc)
         .limit(5)
         .includes(:eval_set, :prompt_version)
@@ -63,7 +63,7 @@ module PromptEngine
 
     def prompt_params
       params.require(:prompt).permit(:name, :slug, :description, :content, :system_message, :model, :temperature, :max_tokens, :status,
-        parameters_attributes: [:id, :name, :description, :parameter_type, :required, :default_value, :_destroy])
+        parameters_attributes: [ :id, :name, :description, :parameter_type, :required, :default_value, :_destroy ])
     end
   end
 end

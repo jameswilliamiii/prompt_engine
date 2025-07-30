@@ -1,7 +1,7 @@
 module PromptEngine
   class EvalSetsController < ApplicationController
     before_action :set_prompt
-    before_action :set_eval_set, only: [:show, :edit, :update, :destroy, :run, :compare, :metrics]
+    before_action :set_eval_set, only: [ :show, :edit, :update, :destroy, :run, :compare, :metrics ]
 
     def index
       @eval_sets = @prompt.eval_sets

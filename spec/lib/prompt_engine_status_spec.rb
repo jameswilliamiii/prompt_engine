@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe PromptEngine do
   describe "status scoping when rendering prompts" do
     let!(:active_prompt) do
-      create(:prompt, 
+      create(:prompt,
         name: "Active Greeting",
         slug: "greeting",
         content: "Hello {{name}}!",
@@ -14,7 +14,7 @@ RSpec.describe PromptEngine do
     let!(:draft_prompt) do
       create(:prompt,
         name: "Draft Greeting",
-        slug: "draft-greeting", 
+        slug: "draft-greeting",
         content: "Draft: Hello {{name}}!",
         status: "draft"
       )
@@ -87,7 +87,7 @@ RSpec.describe PromptEngine do
 
       context "with other rendering options" do
         it "correctly passes through variables along with status" do
-          result = PromptEngine.render("draft-greeting", 
+          result = PromptEngine.render("draft-greeting",
             { name: "Alice" },
             options: { status: "draft", model: "gpt-4", temperature: 0.7 }
           )
@@ -99,7 +99,7 @@ RSpec.describe PromptEngine do
         it "handles version parameter along with status" do
           # Create a second version of the draft prompt
           draft_prompt.update!(content: "Draft V2: Hey {{name}}!")
-          
+
           result = PromptEngine.render("draft-greeting",
             { name: "Bob" },
             options: { status: "draft", version: 1 }
@@ -175,15 +175,15 @@ RSpec.describe PromptEngine do
     end
 
     it "works with slug, variables, and options" do
-      result = PromptEngine.render("draft-var", 
-        { text: "content" }, 
+      result = PromptEngine.render("draft-var",
+        { text: "content" },
         options: { status: "draft" }
       )
       expect(result.content).to eq("Draft content")
     end
 
     it "works with slug and options (no variables)" do
-      result = PromptEngine.render("draft-one", 
+      result = PromptEngine.render("draft-one",
         options: { status: "draft", model: "gpt-4" }
       )
       expect(result.content).to eq("Draft content")

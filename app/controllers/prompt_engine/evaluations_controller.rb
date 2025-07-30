@@ -2,7 +2,7 @@ module PromptEngine
   class EvaluationsController < ApplicationController
     def index
       @prompts_with_eval_sets = Prompt.joins(:eval_sets)
-        .includes(eval_sets: [:eval_runs])
+        .includes(eval_sets: [ :eval_runs ])
         .distinct
         .order(:name)
 

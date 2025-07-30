@@ -10,10 +10,10 @@ RSpec.describe "PromptEngine::TestCases Import", type: :request do
     # The prompt should auto-detect and create parameters based on content
     # Ensure parameters exist
     prompt.sync_parameters!
-    
+
     # Verify parameters were created correctly
     expect(prompt.parameters.count).to eq(2)
-    expect(prompt.parameters.pluck(:name)).to match_array(["name", "age"])
+    expect(prompt.parameters.pluck(:name)).to match_array([ "name", "age" ])
   end
 
   describe "GET #import" do
@@ -240,33 +240,33 @@ RSpec.describe "PromptEngine::TestCases Import", type: :request do
           Rails.root.join("spec/fixtures/test_cases.csv"),
           "text/csv"
         )
-        
+
         post import_preview_prompt_eval_set_test_cases_path(prompt, eval_set), params: {
           file: csv_file
         }
-        
+
         # Verify the preview was successful
         expect(response).to have_http_status(:success)
-        
+
         # Check if there are any errors shown in the preview
         if response.body.include?("alert") || response.body.include?("error")
           puts "Preview response body:"
           puts response.body
         end
-        
+
         # Debug: Check if session was set
         # In Rails 5+, we can't directly access session in request specs
         # but we should be able to see the result in the response
-        
+
         # Now the session should have the imported data
         # Create the test cases
         expect {
           post import_create_prompt_eval_set_test_cases_path(prompt, eval_set)
         }.to change { eval_set.test_cases.count }.by(2)
-        
+
         # Should redirect to eval_set path
         expect(response).to redirect_to(prompt_eval_set_path(prompt, eval_set))
-        
+
         # Check flash message
         if flash[:alert].present?
           puts "Flash alert: #{flash[:alert]}"
@@ -313,7 +313,7 @@ RSpec.describe "PromptEngine::TestCases Import", type: :request do
             "text/csv"
           )
         }
-        
+
         post import_create_prompt_eval_set_test_cases_path(prompt, eval_set)
 
         expect(response).to redirect_to(prompt_eval_set_path(prompt, eval_set))

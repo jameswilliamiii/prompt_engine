@@ -325,7 +325,7 @@ module PromptEngine
         it "merges additional options into the parameters" do
           prompt_test = described_class.new(prompt, rendered_data)
           params = prompt_test.to_openai_params(
-            tools: [{ type: "function", function: { name: "test" } }],
+            tools: [ { type: "function", function: { name: "test" } } ],
             stream: true,
             response_format: { type: "json_object" }
           )
@@ -335,7 +335,7 @@ module PromptEngine
             messages: anything,
             temperature: 0.7,
             max_tokens: 1000,
-            tools: [{ type: "function", function: { name: "test" } }],
+            tools: [ { type: "function", function: { name: "test" } } ],
             stream: true,
             response_format: { type: "json_object" }
           )
@@ -424,7 +424,7 @@ module PromptEngine
         it "has messages as the first key in the hash" do
           prompt_test = described_class.new(prompt, rendered_data)
           params = prompt_test.to_ruby_llm_params
-          
+
           expect(params.keys.first).to eq(:messages)
         end
 
@@ -500,7 +500,7 @@ module PromptEngine
         it "merges additional options into the parameters" do
           prompt_test = described_class.new(prompt, test_rendered_data)
           params = prompt_test.to_ruby_llm_params(
-            stop_sequences: ["\\n\\n"],
+            stop_sequences: [ "\\n\\n" ],
             top_p: 0.9,
             metadata: { user_id: 123 }
           )
@@ -510,7 +510,7 @@ module PromptEngine
             model: "claude-3-opus",
             temperature: 0.7,
             max_tokens: 1000,
-            stop_sequences: ["\\n\\n"],
+            stop_sequences: [ "\\n\\n" ],
             top_p: 0.9,
             metadata: { user_id: 123 }
           )
@@ -619,17 +619,17 @@ module PromptEngine
 
         it "passes additional options to OpenAI parameters" do
           expect(openai_client).to receive(:chat).with(
-            parameters: hash_including(stream: true, tools: ["test"])
+            parameters: hash_including(stream: true, tools: [ "test" ])
           )
-          
-          rendered_prompt.execute_with(openai_client, stream: true, tools: ["test"])
+
+          rendered_prompt.execute_with(openai_client, stream: true, tools: [ "test" ])
         end
 
         it "works with different OpenAI client class names" do
-          ["OpenAI", "MyOpenAIWrapper", "CustomOpenAIClient"].each do |class_name|
+          [ "OpenAI", "MyOpenAIWrapper", "CustomOpenAIClient" ].each do |class_name|
             client_class = double("Class", name: class_name)
             client = double(class_name, class: client_class)
-            
+
             expect(client).to receive(:chat).with(parameters: anything)
             rendered_prompt.execute_with(client)
           end
@@ -659,17 +659,17 @@ module PromptEngine
 
         it "passes additional options to Anthropic parameters" do
           expect(anthropic_client).to receive(:chat).with(
-            hash_including(stop_sequences: ["\\n"], metadata: { user: "test" })
+            hash_including(stop_sequences: [ "\\n" ], metadata: { user: "test" })
           )
-          
-          rendered_prompt.execute_with(anthropic_client, stop_sequences: ["\\n"], metadata: { user: "test" })
+
+          rendered_prompt.execute_with(anthropic_client, stop_sequences: [ "\\n" ], metadata: { user: "test" })
         end
 
         it "works with different Anthropic client class names" do
-          ["Anthropic", "AnthropicAPI", "MyAnthropicWrapper"].each do |class_name|
+          [ "Anthropic", "AnthropicAPI", "MyAnthropicWrapper" ].each do |class_name|
             client_class = double("Class", name: class_name)
             client = double(class_name, class: client_class)
-            
+
             expect(client).to receive(:chat).with(anything)
             rendered_prompt.execute_with(client)
           end
@@ -701,15 +701,15 @@ module PromptEngine
           expect(ruby_llm_client).to receive(:chat).with(
             hash_including(provider_options: { api_key: "test" })
           )
-          
+
           rendered_prompt.execute_with(ruby_llm_client, provider_options: { api_key: "test" })
         end
 
         it "works with different RubyLLM client class names" do
-          ["RubyLLM", "RubyLLMClient", "MyRubyLLMProvider"].each do |class_name|
+          [ "RubyLLM", "RubyLLMClient", "MyRubyLLMProvider" ].each do |class_name|
             client_class = double("Class", name: class_name)
             client = double(class_name, class: client_class)
-            
+
             expect(client).to receive(:chat).with(anything)
             rendered_prompt.execute_with(client)
           end
@@ -729,10 +729,10 @@ module PromptEngine
         end
 
         it "includes the class name in the error message" do
-          ["SomeOtherClient", "UnknownProvider", "CustomLLM"].each do |class_name|
+          [ "SomeOtherClient", "UnknownProvider", "CustomLLM" ].each do |class_name|
             client_class = double("Class", name: class_name)
             client = double(class_name, class: client_class)
-            
+
             expect {
               rendered_prompt.execute_with(client)
             }.to raise_error(ArgumentError, "Unknown client type: #{class_name}")
@@ -744,30 +744,30 @@ module PromptEngine
         it "calls to_openai_params for OpenAI clients" do
           client_class = double("Class", name: "OpenAI::Client")
           client = double("OpenAI::Client", class: client_class)
-          
+
           expect(rendered_prompt).to receive(:to_openai_params).with(test: true).and_call_original
           expect(client).to receive(:chat).with(parameters: anything)
-          
+
           rendered_prompt.execute_with(client, test: true)
         end
 
         it "calls to_ruby_llm_params for RubyLLM clients" do
           client_class = double("Class", name: "RubyLLM::Provider")
           client = double("RubyLLM::Provider", class: client_class)
-          
+
           expect(rendered_prompt).to receive(:to_ruby_llm_params).with(test: true).and_call_original
           expect(client).to receive(:chat).with(anything)
-          
+
           rendered_prompt.execute_with(client, test: true)
         end
 
         it "calls to_ruby_llm_params for Anthropic clients" do
           client_class = double("Class", name: "Anthropic::Client")
           client = double("Anthropic::Client", class: client_class)
-          
+
           expect(rendered_prompt).to receive(:to_ruby_llm_params).with(test: true).and_call_original
           expect(client).to receive(:chat).with(anything)
-          
+
           rendered_prompt.execute_with(client, test: true)
         end
       end

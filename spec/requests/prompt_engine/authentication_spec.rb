@@ -12,14 +12,14 @@ RSpec.describe "PromptEngine Authentication", type: :request do
     it "allows customization via ActiveSupport.on_load" do
       # This test verifies the hook mechanism is available
       hook_executed = false
-      
+
       ActiveSupport.on_load(:prompt_engine_application_controller) do
         hook_executed = true
       end
-      
+
       # Force loading of the controller class
       PromptEngine::ApplicationController
-      
+
       expect(hook_executed).to be true
     end
 
@@ -54,7 +54,7 @@ RSpec.describe "PromptEngine Authentication", type: :request do
           authenticate :user do
             mount PromptEngine::Engine => "/prompt_engine"
           end
-          
+        #{'  '}
           # Or with role checking:
           authenticate :user, ->(user) { user.admin? } do
             mount PromptEngine::Engine => "/prompt_engine"
@@ -71,15 +71,15 @@ RSpec.describe "PromptEngine Authentication", type: :request do
         # In config/initializers/prompt_engine.rb:
         ActiveSupport.on_load(:prompt_engine_application_controller) do
           before_action :authenticate_admin!
-          
+        #{'  '}
           private
-          
+        #{'  '}
           def authenticate_admin!
             unless current_user&.admin?
               redirect_to main_app.root_path, alert: "Not authorized"
             end
           end
-          
+        #{'  '}
           def current_user
             # Use your app's current user method
             main_app.current_user
@@ -121,7 +121,7 @@ RSpec.describe "PromptEngine Authentication", type: :request do
               render json: { error: 'Unauthorized' }, status: :unauthorized
             end
           end
-          
+        #{'  '}
           def valid_api_token?(token)
             # Implement your token validation logic
             ApiToken.active.exists?(token: token)
@@ -137,23 +137,23 @@ RSpec.describe "PromptEngine Authentication", type: :request do
       example_code = <<~RUBY
         ActiveSupport.on_load(:prompt_engine_application_controller) do
           before_action :authenticate_by_any_method!
-          
+        #{'  '}
           private
-          
+        #{'  '}
           def authenticate_by_any_method!
             return if authenticated_via_session?
             return if authenticated_via_api_token?
-            
+        #{'    '}
             respond_to do |format|
               format.html { redirect_to main_app.login_path }
               format.json { render json: { error: 'Unauthorized' }, status: :unauthorized }
             end
           end
-          
+        #{'  '}
           def authenticated_via_session?
             current_user.present?
           end
-          
+        #{'  '}
           def authenticated_via_api_token?
             request.headers['X-API-Key'].present? &&
               ApiKey.active.exists?(key: request.headers['X-API-Key'])

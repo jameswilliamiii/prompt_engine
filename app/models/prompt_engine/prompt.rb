@@ -14,9 +14,9 @@ module PromptEngine
 
     attr_accessor :change_summary
 
-    validates :name, presence: true, uniqueness: {scope: :status}
+    validates :name, presence: true, uniqueness: { scope: :status }
     validates :content, presence: true
-    validates :slug, presence: true, uniqueness: true, format: {with: /\A[a-z0-9-]+\z/}
+    validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9-]+\z/ }
 
     accepts_nested_attributes_for :parameters, allow_destroy: true
 
@@ -105,7 +105,7 @@ module PromptEngine
 
       # Validate all required parameters are provided
       validation = validate_parameters(provided_params)
-      return {error: validation[:errors].join(", ")} unless validation[:valid]
+      return { error: validation[:errors].join(", ") } unless validation[:valid]
 
       # Cast parameters to their correct types, including defaults
       casted_params = {}

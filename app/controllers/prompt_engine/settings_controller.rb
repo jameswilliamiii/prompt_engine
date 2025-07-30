@@ -1,7 +1,7 @@
 module PromptEngine
   class SettingsController < ApplicationController
     before_action :load_settings
-    
+
     def edit
       # Just display the form
     end

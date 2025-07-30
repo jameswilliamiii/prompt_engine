@@ -16,13 +16,13 @@
 # Option 2: Custom Authentication (integrate with your app's auth system)
 # ActiveSupport.on_load(:prompt_engine_application_controller) do
 #   before_action :authenticate_admin!
-#   
+#
 #   private
-#   
+#
 #   def authenticate_admin!
 #     redirect_to main_app.root_path unless current_user&.admin?
 #   end
-#   
+#
 #   def current_user
 #     # Your app's current user method
 #     @current_user ||= User.find_by(id: session[:user_id])

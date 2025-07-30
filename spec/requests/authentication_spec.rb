@@ -12,14 +12,14 @@ RSpec.describe "PromptEngine Authentication", type: :request do
     it "allows host applications to add authentication" do
       # This test verifies the hook is available
       hook_called = false
-      
+
       ActiveSupport.on_load(:prompt_engine_application_controller) do
         hook_called = true
       end
-      
+
       # Trigger the hook by accessing the controller
       PromptEngine::ApplicationController.new
-      
+
       expect(hook_called).to be true
     end
   end
@@ -30,7 +30,7 @@ RSpec.describe "PromptEngine Authentication", type: :request do
       expect(PromptEngine::Engine.middleware).to respond_to(:use)
     end
   end
-  
+
   describe "accessing main app helpers" do
     it "provides access to main_app routes" do
       controller = PromptEngine::ApplicationController.new

@@ -10,7 +10,7 @@ module PromptEngine
       @overrides = overrides
       @version_number = rendered_data[:version_number]
       @rendered_data = rendered_data
-      
+
       # Store status - use override if provided, otherwise use prompt's current status
       # Note: When a specific version is loaded, we still use the current prompt status
       # unless explicitly overridden

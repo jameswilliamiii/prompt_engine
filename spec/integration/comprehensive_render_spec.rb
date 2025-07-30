@@ -53,7 +53,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
         rendered = PromptEngine.render("email-writer",
           options: { model: "gpt-4-turbo", temperature: 0.9 }
         )
-        
+
         expect(rendered.content).to eq("Write an email about this topic")
         expect(rendered.model).to eq("gpt-4-turbo") # overridden
         expect(rendered.temperature).to eq(0.9) # overridden
@@ -61,13 +61,13 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
 
       it "works with multiple option overrides" do
         rendered = PromptEngine.render("email-writer",
-          options: { 
-            model: "claude-3", 
+          options: {
+            model: "claude-3",
             temperature: 0.5,
             max_tokens: 2000
           }
         )
-        
+
         expect(rendered.model).to eq("claude-3")
         expect(rendered.temperature).to eq(0.5)
         expect(rendered.max_tokens).to eq(2000)
@@ -80,7 +80,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
           { subject: "Welcome to our platform" },
           options: { model: "gpt-4-turbo", temperature: 0.9 }
         )
-        
+
         expect(rendered.content).to eq("Write an email about this topic")
         expect(rendered.model).to eq("gpt-4-turbo")
         expect(rendered.temperature).to eq(0.9)
@@ -91,7 +91,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
           { customer_name: "Alice", issue: "Password reset" },
           options: { model: "gpt-4-turbo", temperature: 0.2 }
         )
-        
+
         expect(rendered.content).to eq("Help Alice with Password reset")
         expect(rendered.model).to eq("gpt-4-turbo") # overridden
         expect(rendered.temperature).to eq(0.2) # overridden
@@ -104,7 +104,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
           { user_name: "Sarah" },
           options: { version: 1 }
         )
-        
+
         expect(rendered.content).to eq("Welcome Sarah to our service!")
         expect(rendered.version_number).to eq(1)
       end
@@ -114,7 +114,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
           { user_name: "Bob" },
           options: { version: 2 }
         )
-        
+
         expect(rendered.content).to eq("Hi Bob, welcome aboard!")
         expect(rendered.version_number).to eq(2)
       end
@@ -124,7 +124,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
           { user_name: "Charlie" },
           options: { version: 1, model: "claude-3", temperature: 0.8 }
         )
-        
+
         expect(rendered.content).to eq("Welcome Charlie to our service!")
         expect(rendered.version_number).to eq(1)
         expect(rendered.model).to eq("claude-3")
@@ -138,7 +138,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
           { feature_name: "AI Assistant" },
           options: { status: "draft" }
         )
-        
+
         expect(rendered.content).to eq("Introducing AI Assistant - built for you!")
       end
 
@@ -156,20 +156,20 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
           { customer_name: "Dave", issue: "Billing" },
           options: { status: "active" }
         )
-        
+
         expect(rendered.content).to eq("Help Dave with Billing")
       end
 
       it "combines status with other options" do
         rendered = PromptEngine.render("new-feature",
           { feature_name: "Smart Search" },
-          options: { 
+          options: {
             status: "draft",
             model: "gpt-4",
             temperature: 0.6
           }
         )
-        
+
         expect(rendered.content).to eq("Introducing Smart Search - built for you!")
         expect(rendered.model).to eq("gpt-4")
         expect(rendered.temperature).to eq(0.6)
@@ -181,7 +181,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
         rendered = PromptEngine.render("customer-support",
           { customer_name: "John", issue: "Can't login to my account" }
         )
-        
+
         expect(rendered.content).to eq("Help John with Can't login to my account")
         expect(rendered.model).to eq("gpt-4") # uses prompt's default
         expect(rendered.temperature).to eq(0.3) # uses prompt's default
@@ -197,14 +197,14 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
         )
 
         rendered = PromptEngine.render("multi-var",
-          { 
+          {
             greeting: "Hello",
             name: "Alice",
             order_id: "12345",
             status: "shipped"
           }
         )
-        
+
         expect(rendered.content).to eq("Hello Alice, your order #12345 is shipped")
       end
     end
@@ -214,14 +214,14 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
         rendered = PromptEngine.render("email-writer", {},
           options: { temperature: 0.4 }
         )
-        
+
         expect(rendered.content).to eq("Write an email about this topic")
         expect(rendered.temperature).to eq(0.4)
       end
 
       it "handles just slug (no variables, no options)" do
         rendered = PromptEngine.render("email-writer")
-        
+
         expect(rendered.content).to eq("Write an email about this topic")
         expect(rendered.model).to eq("gpt-3.5-turbo")
         expect(rendered.temperature).to eq(0.7)
@@ -239,14 +239,14 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
 
         rendered = PromptEngine.render("old-template",
           {},
-          options: { 
+          options: {
             status: "archived",
             version: 1,
             model: "gpt-3.5",
             temperature: 0.1
           }
         )
-        
+
         expect(rendered.content).to eq("Version 1 content")
         expect(rendered.model).to eq("gpt-3.5")
         expect(rendered.temperature).to eq(0.1)

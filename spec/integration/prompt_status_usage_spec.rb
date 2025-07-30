@@ -12,7 +12,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
       )
 
       create(:prompt,
-        name: "Welcome Email - Draft V2", 
+        name: "Welcome Email - Draft V2",
         slug: "welcome-email-v2",
         content: "Hi {{user_name}}! Welcome aboard! 🎉",
         status: "draft"
@@ -37,7 +37,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
     context "in preview/staging environment" do
       it "can test draft prompts before making them active" do
         # Testing a new version before deployment
-        result = PromptEngine.render("welcome-email-v2", 
+        result = PromptEngine.render("welcome-email-v2",
           { user_name: "Bob" },
           options: { status: "draft" }
         )
@@ -86,7 +86,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
 
     it "new code can explicitly specify status" do
       # New code that wants to be explicit
-      result = PromptEngine.render("notification", 
+      result = PromptEngine.render("notification",
         { message: "System update" },
         options: { status: "active" }
       )
@@ -103,7 +103,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
 
     it "provides clear error when prompt exists but not in requested status" do
       create(:prompt, slug: "test", content: "Test", status: "draft")
-      
+
       expect {
         PromptEngine.render("test", options: { status: "active" })
       }.to raise_error(ActiveRecord::RecordNotFound)
