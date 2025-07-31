@@ -37,7 +37,7 @@ module PromptEngine
     before_save :clean_orphaned_parameters
 
     VERSIONED_ATTRIBUTES = %w[content system_message model temperature max_tokens metadata].freeze
-    OVERRIDE_KEYS = %i[model temperature max_tokens version status].freeze
+    OVERRIDE_KEYS = %i[model temperature max_tokens version].freeze
 
     def current_version
       versions.first

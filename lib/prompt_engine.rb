@@ -35,8 +35,8 @@ module PromptEngine
         # Find the prompt with the appropriate status
         prompt = find(slug, status: status)
 
-        # Add status back to options for RenderedPrompt
-        render_options = options.merge(variables).merge(status: status)
+        # Merge options with variables (status is only for finding, not rendering)
+        render_options = options.merge(variables)
       end
 
       prompt.render(**render_options)
