@@ -1,9 +1,6 @@
 require "rails_helper"
 
 RSpec.describe "Prompts management", type: :system do
-  before do
-    driven_by(:rack_test)
-  end
 
   describe "Creating a new prompt" do
     it "allows users to create a new prompt with valid data" do
@@ -27,7 +24,7 @@ RSpec.describe "Prompts management", type: :system do
       expect(page).to have_content("Prompt was successfully created.")
       expect(page).to have_content("Customer Support Bot")
       expect(page).to have_content("You are a helpful customer support assistant")
-      expect(page).to have_content("active")
+      expect(page).to have_content("Active")
     end
 
     it "shows validation errors for invalid data" do
@@ -64,7 +61,7 @@ RSpec.describe "Prompts management", type: :system do
       expect(page).to have_content("Prompt was successfully updated.")
       expect(page).to have_content("Updated Customer Bot")
       expect(page).to have_content("Updated content for the bot")
-      expect(page).to have_content("active")
+      expect(page).to have_content("Active")
     end
 
     it "shows validation errors when updating with invalid data" do
@@ -203,9 +200,9 @@ RSpec.describe "Prompts management", type: :system do
     it "displays all prompts with their status badges" do
       visit "/prompt_engine/prompts"
 
-      expect(page).to have_css(".table__badge--draft", text: "draft")
-      expect(page).to have_css(".table__badge--active", text: "active")
-      expect(page).to have_css(".table__badge--archived", text: "archived")
+      expect(page).to have_css(".table__badge--draft", text: "Draft")
+      expect(page).to have_css(".table__badge--active", text: "Active")
+      expect(page).to have_css(".table__badge--archived", text: "Archived")
     end
 
     it "shows prompt details in the table" do
@@ -213,7 +210,7 @@ RSpec.describe "Prompts management", type: :system do
 
       within("tr", text: "Active Prompt") do
         expect(page).to have_content("Active Prompt")
-        expect(page).to have_css(".table__badge--active", text: "active")
+        expect(page).to have_css(".table__badge--active", text: "Active")
         expect(page).to have_link("Edit")
         expect(page).to have_button("Delete")
       end

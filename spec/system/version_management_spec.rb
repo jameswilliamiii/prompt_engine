@@ -1,9 +1,6 @@
 require "rails_helper"
 
 RSpec.describe "Version management", type: :system do
-  before do
-    driven_by(:rack_test)
-  end
 
   let!(:prompt) { create(:prompt, name: "Test Prompt", content: "Version 1 content") }
   let!(:version_1) { prompt.versions.first }

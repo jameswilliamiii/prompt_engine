@@ -14,6 +14,9 @@ require "action_view/railtie"
 require "action_cable/engine"
 # require "rails/test_unit/railtie"
 
+# Include importmap for JavaScript management
+require "importmap-rails"
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
@@ -40,5 +43,11 @@ module Dummy
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+    
+    # Override engine's admin layout to use dummy app's application layout
+    # This ensures JavaScript is loaded in the test environment
+    config.to_prepare do
+      PromptEngine::ApplicationController.layout "application"
+    end
   end
 end

@@ -6,9 +6,6 @@ module PromptEngine
 
     let(:prompt) { create(:prompt, name: "Test Prompt", content: "Hello {{name}}") }
 
-    before do
-      driven_by(:rack_test)
-    end
 
     describe "API key prefilling from settings" do
       context "when settings have API keys saved" do

@@ -14,9 +14,6 @@ RSpec.describe "Evaluation Workflow", type: :system do
       status: "active")
   end
 
-  before do
-    driven_by(:rack_test)
-  end
 
   xdescribe "complete workflow with UI" do
     it "creates eval set, adds test cases, runs evaluation, and displays results" do

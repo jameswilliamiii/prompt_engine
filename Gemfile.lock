@@ -4,6 +4,7 @@ PATH
     prompt_engine (1.0.0)
       bcrypt
       csv (~> 3.3)
+      importmap-rails
       rails
       ruby_llm
       sqlite3
@@ -142,6 +143,10 @@ GEM
     hashdiff (1.2.0)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
+    importmap-rails (2.2.2)
+      actionpack (>= 6.0.0)
+      activesupport (>= 6.0.0)
+      railties (>= 6.0.0)
     io-console (0.8.1)
     irb (1.15.2)
       pp (>= 0.6.0)
