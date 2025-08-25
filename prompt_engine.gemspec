@@ -24,6 +24,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency "sqlite3"
   spec.add_dependency "csv", "~> 3.3"
   spec.add_dependency "importmap-rails"
+  spec.add_dependency "turbo-rails"
+  spec.add_dependency "stimulus-rails"
 
   spec.add_development_dependency "rspec-rails", "~> 7.0"
   spec.add_development_dependency "factory_bot_rails", "~> 6.4"

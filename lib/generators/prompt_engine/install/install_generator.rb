@@ -11,7 +11,7 @@ module PromptEngine
       end
       
       def create_initializer
-        copy_file "initializer.rb", "config/initializers/prompt_engine.rb"
+        # copy_file "initializer.rb", "config/initializers/prompt_engine.rb"
       end
       
       def add_javascript_registration

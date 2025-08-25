@@ -3,19 +3,16 @@ require_relative "boot"
 require "rails"
 # Pick the frameworks you want:
 require "active_model/railtie"
-require "active_job/railtie"
+# require "active_job/railtie"
 require "active_record/railtie"
-require "active_storage/engine"
+# require "active_storage/engine"
 require "action_controller/railtie"
-require "action_mailer/railtie"
-require "action_mailbox/engine"
-require "action_text/engine"
+# require "action_mailer/railtie"
+# require "action_mailbox/engine"
+# require "action_text/engine"
 require "action_view/railtie"
-require "action_cable/engine"
+# require "action_cable/engine"
 # require "rails/test_unit/railtie"
-
-# Include importmap for JavaScript management
-require "importmap-rails"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -23,10 +20,8 @@ Bundler.require(*Rails.groups)
 
 module Dummy
   class Application < Rails::Application
-    config.load_defaults Rails::VERSION::STRING.to_f
-
-    # For compatibility with applications that use this config
-    config.action_controller.include_all_helpers = false
+    # Initialize configuration defaults for originally generated Rails version.
+    config.load_defaults 8.0
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
@@ -43,11 +38,5 @@ module Dummy
 
     # Don't generate system test files.
     config.generators.system_tests = nil
-    
-    # Override engine's admin layout to use dummy app's application layout
-    # This ensures JavaScript is loaded in the test environment
-    config.to_prepare do
-      PromptEngine::ApplicationController.layout "application"
-    end
   end
 end
