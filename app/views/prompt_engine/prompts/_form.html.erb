@@ -1,14 +1,16 @@
-<%= form_with(model: prompt, local: true, html: { class: "form" }) do |form| %>
-  <div data-controller="prompt-engine--prompt-form prompt-engine--variable-detector"
-       data-prompt-engine--prompt-form-is-new-record-value="<%= prompt.new_record? %>"
-       data-prompt-engine--variable-detector-existing-parameters-value="<%= raw((prompt.persisted? ? prompt.parameters : []).map { |p| {
-         name: p.name,
-         description: p.description,
-         parameter_type: p.parameter_type,
-         required: p.required,
-         default_value: p.default_value,
-         id: p.id
-       }}.to_json) %>">
+<%= form_with(model: prompt, local: true, html: { 
+      class: "form",
+      "data-controller": "prompt-engine--prompt-form prompt-engine--variable-detector",
+      "data-prompt-engine--prompt-form-is-new-record-value": prompt.new_record?,
+      "data-prompt-engine--variable-detector-existing-parameters-value": raw((prompt.persisted? ? prompt.parameters : []).map { |p| {
+        name: p.name,
+        description: p.description,
+        parameter_type: p.parameter_type,
+        required: p.required,
+        default_value: p.default_value,
+        id: p.id
+      }}.to_json)
+    }) do |form| %>
   <% if prompt.errors.any? %>
     <div class="form__errors">
       <h3 class="text-danger">Please fix the following errors:</h3>
@@ -128,7 +130,6 @@
     <%= link_to "Cancel", prompts_path, class: "btn btn--secondary btn--medium" %>
     <%= form.submit prompt.new_record? ? "Create Prompt" : "Update Prompt", 
         class: "btn btn--primary btn--medium" %>
-  </div>
   </div>
 <% end %>
 
