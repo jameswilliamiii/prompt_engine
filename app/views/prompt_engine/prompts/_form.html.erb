@@ -1,4 +1,14 @@
 <%= form_with(model: prompt, local: true, html: { class: "form" }) do |form| %>
+  <div data-controller="prompt-engine--prompt-form prompt-engine--variable-detector"
+       data-prompt-engine--prompt-form-is-new-record-value="<%= prompt.new_record? %>"
+       data-prompt-engine--variable-detector-existing-parameters-value="<%= raw((prompt.persisted? ? prompt.parameters : []).map { |p| {
+         name: p.name,
+         description: p.description,
+         parameter_type: p.parameter_type,
+         required: p.required,
+         default_value: p.default_value,
+         id: p.id
+       }}.to_json) %>">
   <% if prompt.errors.any? %>
     <div class="form__errors">
       <h3 class="text-danger">Please fix the following errors:</h3>
@@ -14,7 +24,10 @@
     <%= form.label :name, class: "form__label form__label--required" %>
     <%= form.text_field :name, class: "form__input", required: true, 
         placeholder: "e.g., Customer Support Response",
-        data: { action: "input->slug-generator#generateSlug" } %>
+        data: { 
+          "prompt-engine--prompt-form-target": "nameField",
+          action: "input->prompt-engine--prompt-form#generateSlug" 
+        } %>
     <div class="form__help">A descriptive name for this prompt</div>
   </div>
 
@@ -22,7 +35,7 @@
     <%= form.label :slug, class: "form__label form__label--required" %>
     <%= form.text_field :slug, class: "form__input", required: true, 
         placeholder: "e.g., customer-support-response",
-        data: { "slug-generator-target": "slugField" } %>
+        data: { "prompt-engine--prompt-form-target": "slugField" } %>
     <div class="form__help">URL-friendly identifier (lowercase letters, numbers, and hyphens only)</div>
   </div>
 
@@ -43,15 +56,20 @@
     <%= form.label :content, "Prompt Content", class: "form__label form__label--required" %>
     <%= form.text_area :content, class: "form__textarea", rows: 6, required: true,
         placeholder: "The main prompt content that will be sent to the AI",
-        data: { action: "input->variable-detector#detectVariables" } %>
+        data: { 
+          "prompt-engine--variable-detector-target": "contentField",
+          action: "input->prompt-engine--variable-detector#detectVariables" 
+        } %>
     <div class="form__help">The main prompt template. Use {{variable_name}} syntax for variables.</div>
   </div>
 
-  <div id="parameters-section" class="parameters-section" style="display: none;">
+  <div id="parameters-section" class="parameters-section" style="display: none;" 
+       data-prompt-engine--variable-detector-target="parametersSection">
     <h3 class="form__section-title">Parameters</h3>
     <div class="form__help mb-md">Configure the parameters detected in your prompt:</div>
     
-    <div id="parameters-list" class="parameters-list">
+    <div id="parameters-list" class="parameters-list"
+         data-prompt-engine--variable-detector-target="parametersList">
       <!-- Parameters will be dynamically inserted here -->
     </div>
     
@@ -111,144 +129,6 @@
     <%= form.submit prompt.new_record? ? "Create Prompt" : "Update Prompt", 
         class: "btn btn--primary btn--medium" %>
   </div>
+  </div>
 <% end %>
 
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const contentField = document.querySelector('[data-action="input->variable-detector#detectVariables"]');
-  const parametersSection = document.getElementById('parameters-section');
-  const parametersList = document.getElementById('parameters-list');
-  
-  // Slug generation
-  const nameField = document.querySelector('[data-action="input->slug-generator#generateSlug"]');
-  const slugField = document.querySelector('[data-slug-generator-target="slugField"]');
-  
-  if (nameField && slugField) {
-    function generateSlug() {
-      // Only auto-generate if slug is empty or if it's a new record
-      if (!slugField.value || <%= prompt.new_record? %>) {
-        const slug = nameField.value
-          .toLowerCase()
-          .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-          .replace(/\s+/g, '-') // Replace spaces with hyphens
-          .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-          .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
-        slugField.value = slug;
-      }
-    }
-    
-    nameField.addEventListener('input', generateSlug);
-  }
-  
-  // Store existing parameters data (for edit form)
-  const existingParameters = <%= raw((prompt.persisted? ? prompt.parameters : []).map { |p| {
-    name: p.name,
-    description: p.description,
-    parameter_type: p.parameter_type,
-    required: p.required,
-    default_value: p.default_value,
-    id: p.id
-  }}.to_json) %>;
-  
-  function detectVariables() {
-    const content = contentField.value;
-    const variablePattern = /\{\{([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*)\}\}/g;
-    const matches = [...content.matchAll(variablePattern)];
-    const uniqueVariables = [...new Set(matches.map(match => match[1]))];
-    
-    if (uniqueVariables.length > 0) {
-      parametersSection.style.display = 'block';
-      updateParametersDisplay(uniqueVariables);
-    } else {
-      parametersSection.style.display = 'none';
-    }
-  }
-  
-  function updateParametersDisplay(variables) {
-    parametersList.innerHTML = '';
-    
-    // Add fields for parameters that should be kept
-    variables.forEach((variable, index) => {
-      const existingParam = existingParameters.find(p => p.name === variable);
-      const parameterItem = createParameterItem(variable, index, existingParam);
-      parametersList.appendChild(parameterItem);
-    });
-    
-    // Add hidden fields to destroy parameters that are no longer in content
-    let destroyIndex = variables.length;
-    existingParameters.forEach(param => {
-      if (!variables.includes(param.name)) {
-        const destroyField = document.createElement('div');
-        destroyField.style.display = 'none';
-        destroyField.innerHTML = `
-          <input type="hidden" name="prompt[parameters_attributes][${destroyIndex}][id]" value="${param.id}">
-          <input type="hidden" name="prompt[parameters_attributes][${destroyIndex}][_destroy]" value="1">
-        `;
-        parametersList.appendChild(destroyField);
-        destroyIndex++;
-      }
-    });
-  }
-  
-  function createParameterItem(variableName, index, existingData) {
-    const div = document.createElement('div');
-    div.className = 'parameter-item';
-    div.innerHTML = `
-      <div class="parameter-field">
-        <label>Name</label>
-        <span class="parameter-name">${variableName}</span>
-        <input type="hidden" name="prompt[parameters_attributes][${index}][name]" value="${variableName}">
-        ${existingData ? `<input type="hidden" name="prompt[parameters_attributes][${index}][id]" value="${existingData.id}">` : ''}
-      </div>
-      
-      <div class="parameter-field">
-        <label>Type</label>
-        <select name="prompt[parameters_attributes][${index}][parameter_type]" class="form__select form__select--small">
-          <option value="string" ${existingData?.parameter_type === 'string' ? 'selected' : ''}>String</option>
-          <option value="number" ${existingData?.parameter_type === 'number' ? 'selected' : ''}>Number</option>
-          <option value="boolean" ${existingData?.parameter_type === 'boolean' ? 'selected' : ''}>Boolean</option>
-          <option value="array" ${existingData?.parameter_type === 'array' ? 'selected' : ''}>Array</option>
-          <option value="object" ${existingData?.parameter_type === 'object' ? 'selected' : ''}>Object</option>
-        </select>
-      </div>
-      
-      <div class="parameter-field">
-        <label>Required</label>
-        <div class="parameter-checkbox">
-          <input type="hidden" name="prompt[parameters_attributes][${index}][required]" value="0">
-          <input type="checkbox" 
-                 name="prompt[parameters_attributes][${index}][required]" 
-                 value="1"
-                 ${existingData?.required !== false ? 'checked' : ''}>
-        </div>
-      </div>
-      
-      <div class="parameter-field">
-        <label>Default Value</label>
-        <input type="text" 
-               name="prompt[parameters_attributes][${index}][default_value]" 
-               class="form__input form__input--small"
-               placeholder="Optional"
-               value="${existingData?.default_value || ''}">
-      </div>
-      
-      <div class="parameter-field">
-        <label>Description</label>
-        <input type="text" 
-               name="prompt[parameters_attributes][${index}][description]" 
-               class="form__input form__input--small"
-               placeholder="Optional"
-               value="${existingData?.description || ''}">
-      </div>
-    `;
-    return div;
-  }
-  
-  if (contentField) {
-    contentField.addEventListener('input', detectVariables);
-    // Detect variables on page load
-    detectVariables();
-  }
-});
-</script>

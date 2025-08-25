@@ -19,32 +19,26 @@ module PromptEngine
           )
         end
 
-        it "prefills the API key based on selected provider" do
-          # Create prompts with different models to test prefilling
-          anthropic_prompt = create(:prompt, name: "Anthropic Prompt", content: "Hello {{name}}", model: "claude-3-5-sonnet")
-          openai_prompt = create(:prompt, name: "OpenAI Prompt", content: "Hello {{name}}", model: "gpt-4o")
-
-          # Test Anthropic prompt
-          visit playground_prompt_path(anthropic_prompt)
-          expect(page).to have_field("api_key", with: "sk-ant-test-anthropic-key")
-          expect(page).to have_text("Using saved API key from settings")
-
-          # Test OpenAI prompt
-          visit playground_prompt_path(openai_prompt)
-          expect(page).to have_field("api_key", with: "sk-test-openai-key")
-          expect(page).to have_text("Using saved API key from settings")
-
-          # Test prompt with no model - should not prefill
+        it "shows checkbox to use saved keys and only prefills when checked" do
           visit playground_prompt_path(prompt)
-          api_key_field = find("#api_key")
-          expect(api_key_field["data-anthropic-key"]).to eq("sk-ant-test-anthropic-key")
-          expect(api_key_field["data-openai-key"]).to eq("sk-test-openai-key")
+          
+          # Should show checkbox for using saved keys
+          expect(page).to have_field("Use saved API keys from settings")
+          
+          # Should not prefill API key by default
+          expect(page).to have_field("api_key", with: "")
+          expect(page).to have_text("Your API key will not be stored")
+          
+          # API keys should still be available in data attributes for Stimulus
+          playground_controller = find('[data-controller="prompt-engine--playground"]')
+          expect(playground_controller["data-prompt-engine--playground-anthropic-key-value"]).to eq("sk-ant-test-anthropic-key")
+          expect(playground_controller["data-prompt-engine--playground-openai-key-value"]).to eq("sk-test-openai-key")
         end
 
-        it "includes link to change settings" do
+        it "includes link to save in settings" do
           visit playground_prompt_path(prompt)
 
-          expect(page).to have_link("Change in settings", href: edit_settings_path)
+          expect(page).to have_link("Save in settings", href: edit_settings_path)
         end
       end
 
@@ -56,11 +50,13 @@ module PromptEngine
           )
         end
 
-        it "shows placeholder and link to save in settings" do
+        it "shows placeholder and link to save in settings without checkbox" do
           visit playground_prompt_path(prompt)
 
           expect(page).to have_field("api_key", placeholder: "Enter your API key")
           expect(page).to have_link("Save in settings", href: edit_settings_path)
+          # Should not show checkbox when no keys are saved
+          expect(page).not_to have_field("Use saved API keys from settings")
         end
       end
 
@@ -72,20 +68,20 @@ module PromptEngine
           )
         end
 
-        it "only prefills for the provider with saved key" do
-          # Create a prompt with a model that matches the provider with a saved key
-          openai_prompt = create(:prompt, name: "OpenAI Prompt", content: "Hello {{name}}", model: "gpt-4o")
+        it "shows checkbox and data attributes for partial saved keys" do
+          visit playground_prompt_path(prompt)
 
-          visit playground_prompt_path(openai_prompt)
+          # Should show checkbox even with only one provider key
+          expect(page).to have_field("Use saved API keys from settings")
 
-          # OpenAI should be selected because of the model, and key should be prefilled
-          expect(page).to have_field("api_key", with: "sk-test-openai-only")
+          # Should not prefill by default
+          expect(page).to have_field("api_key", with: "")
 
-          # Data attributes should still be set correctly
-          api_key_field = find("#api_key")
-          expect(api_key_field["data-openai-key"]).to eq("sk-test-openai-only")
-          # When the API key is nil, the data attribute is not set (nil)
-          expect(api_key_field["data-anthropic-key"]).to be_nil
+          # Data attributes should reflect saved keys
+          playground_controller = find('[data-controller="prompt-engine--playground"]')
+          expect(playground_controller["data-prompt-engine--playground-openai-key-value"]).to eq("sk-test-openai-only")
+          # When the API key is nil, the value should be empty string (Stimulus values default to empty string for nil)
+          expect(playground_controller["data-prompt-engine--playground-anthropic-key-value"]).to eq("")
         end
       end
     end
