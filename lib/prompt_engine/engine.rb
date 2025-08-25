@@ -11,6 +11,18 @@ module PromptEngine
     # Ensure services and clients directories are in the autoload paths
     config.autoload_paths += %W[#{config.root}/app/services]
     config.autoload_paths += %W[#{config.root}/app/clients]
+    
+    # Add JavaScript path to asset pipeline
+    initializer "prompt_engine.asset_paths" do |app|
+      app.config.assets.paths << root.join("app/javascript")
+    end
+    
+    # Sprockets-only: ensure engine CSS is precompiled when host uses Sprockets
+    initializer "prompt_engine.assets.precompile" do |app|
+      app.config.assets.precompile += %w[
+        prompt_engine/application.css
+      ]
+    end
 
     # IMPORTANT: Migrations are NOT automatically loaded!
     # Users must explicitly install migrations using:

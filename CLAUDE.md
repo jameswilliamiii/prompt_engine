@@ -139,6 +139,17 @@ Read `.ai/RSPEC-TESTS.md` before writing tests. Key principles:
 - Color variables defined in `foundation.css`
 - Spacing system based on 4px units
 
+### Stimulus JavaScript Architecture
+
+Read `.ai/conventions/STIMULUS_CONVENTIONS.md` before working with JavaScript features. Key principles:
+
+- All Stimulus controllers use `prompt-engine--` prefix (e.g., `prompt-engine--playground`)
+- Controllers are feature-specific (playground, prompt-form, variable-detector, modal)
+- Use `@rails/request.js` for AJAX with `data-turbo="false"` on forms
+- Controllers return JSON with HTML partials for DOM updates
+- System specs test all JavaScript behavior comprehensively
+- No inline JavaScript - everything through Stimulus controllers
+
 ## Dependencies
 
 - **Rails**: 8.0.2+ (mountable engine)
@@ -250,3 +261,39 @@ PromptEngine.render(:prompt_name, variables: { user_name: "John" })
 **Planned**: Multi-language support, A/B testing, prompt marketplace
 
 See `docs/SPEC.md` for complete product vision and `docs/ARCHITECTURE.md` for detailed technical documentation.
+
+## Team Coordination & Specialized Agents
+
+When working on complex tasks, you can delegate to specialized team members via MCP agents:
+
+### Backend Developer Agent (`mcp__backend_developer__task`)
+Use for:
+- Rails models, controllers, and core business logic
+- Service objects and background jobs
+- Database migrations and schema changes
+- API endpoints and authentication
+- Engine configuration and initialization
+
+### Frontend Developer Agent (`mcp__frontend_developer__task`)
+Use for:
+- Hotwire, Stimulus, and Turbo implementations
+- View templates and partials
+- CSS/BEM styling and responsive design
+- Admin interface components
+- JavaScript controller development
+
+### Integration Tester Agent (`mcp__integration_tester__task`)
+Use for:
+- External API integrations (OpenAI, Anthropic)
+- Comprehensive test coverage and specs
+- VCR cassette management
+- System and request spec writing
+- Test setup and factory definitions
+
+### Delegation Guidelines
+
+- Delegate when tasks require deep specialization in one area
+- Provide clear context about the PromptEngine domain
+- Reference `.ai/conventions/STIMULUS_CONVENTIONS.md` for frontend work
+- Reference `.ai/RSPEC-TESTS.md` for testing requirements
+- Ensure agents understand the Rails engine architecture
