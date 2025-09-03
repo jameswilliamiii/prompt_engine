@@ -1,6 +1,5 @@
 module PromptEngine
   class PlaygroundController < ApplicationController
-    layout "prompt_engine/admin"
     before_action :set_prompt
 
     def show

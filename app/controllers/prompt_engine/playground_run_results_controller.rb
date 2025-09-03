@@ -1,6 +1,5 @@
 module PromptEngine
   class PlaygroundRunResultsController < ApplicationController
-    layout "prompt_engine/admin"
     before_action :set_playground_run_result, only: [ :show ]
     before_action :set_context, only: [ :index ]
 

@@ -1,7 +1,5 @@
 module PromptEngine
   class VersionsController < ApplicationController
-    layout "prompt_engine/admin"
-
     before_action :set_prompt
     before_action :set_version, only: [ :show, :restore ]
     before_action :set_compare_versions, only: [ :compare ]

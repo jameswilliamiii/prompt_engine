@@ -1,7 +1,5 @@
 module PromptEngine
   class EvaluationsController < ApplicationController
-    layout "prompt_engine/admin"
-
     def index
       @prompts_with_eval_sets = Prompt.joins(:eval_sets)
         .includes(eval_sets: [ :eval_runs ])

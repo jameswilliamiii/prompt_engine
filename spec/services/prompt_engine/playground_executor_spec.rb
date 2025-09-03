@@ -178,7 +178,7 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
       it "uses Claude model" do
         result = executor.execute
 
-        expect(result[:model]).to eq("claude-3-5-sonnet-20241022")
+        expect(result[:model]).to eq("claude-3-7")
         expect(result[:provider]).to eq("anthropic")
       end
     end
@@ -316,7 +316,7 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
   describe "MODELS constant" do
     it "contains supported providers and their models" do
       expect(described_class::MODELS).to eq({
-        "anthropic" => "claude-3-5-sonnet-20241022",
+        "anthropic" => "claude-3-7",
         "openai" => "gpt-4o"
       })
     end

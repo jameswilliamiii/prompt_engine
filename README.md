@@ -7,13 +7,21 @@ test, and optimize their AI prompts without deploying code changes.
 [![Made with ❤️ by Avi.nyc](https://img.shields.io/badge/Made%20with%20%E2%9D%A4%EF%B8%8F%20by-Avi.nyc-ff69b4)](https://avi.nyc)
 [![Sponsored by Innovent Capital](https://img.shields.io/badge/Sponsored%20by-Innovent%20Capital-blue)](https://innoventcapital.com)
 
+## WARNING - IN ACTIVE DEVELOPMENT
+
+PromptEngine is currently being worked on actively to prepare for a proper initial version release. You can use it by including the gem sourced from the main branch of this repo however **as we make changes, we will not ensure backward compatibility.** Use at your own risk for now, but a final version should be ready in the next week.
+
+## Documentation and Demo
+
+- 🚀 [Live Demo App](https://prompt-engine-demo.avi.nyc)
+- 📖 [Documentation](https://prompt-engine-docs.avi.nyc/)
+
 ## Why PromptEngine?
 
 - **Version Control**: Track every change to your prompts with automatic versioning
 - **A/B Testing**: Test different prompt variations with built-in evaluation tools
 - **No Deploy Required**: Update prompts through the admin UI without code changes
 - **LLM Agnostic**: Works with OpenAI, Anthropic, and other providers
-- **Multi-Modal Support**: Upload and process PDF documents and images in prompts
 - **Type Safety**: Automatic parameter detection and validation
 - **Team Collaboration**: Centralized prompt management for your entire team
 - **Production Ready**: Battle-tested with secure API key storage
@@ -23,9 +31,7 @@ test, and optimize their AI prompts without deploying code changes.
 - 🎯 **Smart Prompt Management**: Create and organize prompts with slug-based identification
 - 📝 **Version Control**: Automatic versioning with one-click rollback
 - 🔍 **Variable Detection**: Auto-detects `{{variables}}` and creates typed parameters
-- 📎 **File Support**: Upload PDFs and images (JPG, PNG, GIF, WebP) as prompt parameters
 - 🧪 **Playground**: Test prompts with real AI providers before deploying
-- 📊 **Evaluation Suite**: Create test cases and measure prompt performance
 - 🔐 **Secure**: Encrypted API key storage using Rails encryption
 - 🚀 **Modern API**: Object-oriented design with direct LLM integration
 
@@ -46,50 +52,15 @@ And then execute:
 ```bash
 $ bundle
 
+# IMPORTANT: You must install migrations before running db:migrate
+$ rails prompt_engine:install:migrations
 $ rails db:migrate
 $ rails prompt_engine:seed  # Optional: adds sample prompts
 ```
 
-_`$ rails prompt_engine:install:migrations`_ might be useful to but `rails db:migrate` after adding
-gem and bundling should work.
+**Note**: PromptEngine migrations are NOT automatically loaded. You must explicitly run `rails prompt_engine:install:migrations` before running `rails db:migrate`.
 
-For migration handling details, see [docs/MIGRATIONS.md](docs/MIGRATIONS.md).
-
-## Setup
-
-### 1. Configure Encryption
-
-PromptEngine uses Rails encryption to secure API keys. For detailed setup instructions, see
-[docs/ENCRYPTION_SETUP.md](docs/ENCRYPTION_SETUP.md).
-
-**Quick start for development:**
-
-```ruby
-# config/environments/development.rb
-config.active_record.encryption.primary_key = 'development' * 4
-config.active_record.encryption.deterministic_key = 'development' * 4
-config.active_record.encryption.key_derivation_salt = 'development' * 4
-```
-
-For production, use `rails db:encryption:init` to generate secure keys.
-
-### 2. Configure API Keys
-
-Add your AI provider API keys to Rails credentials. See
-[docs/API_CREDENTIALS.md](docs/API_CREDENTIALS.md) for complete configuration options.
-
-```bash
-rails credentials:edit
-```
-
-```yaml
-openai:
-  api_key: sk-your-openai-api-key
-anthropic:
-  api_key: sk-ant-your-anthropic-api-key
-```
-
-### 3. Mount the Engine
+## Mount the Engine
 
 In your `config/routes.rb`:
 
@@ -100,103 +71,20 @@ Rails.application.routes.draw do
 end
 ```
 
-### 4. Authentication (Optional but Recommended)
+### Authentication (Recommended for Production)
 
-PromptEngine provides flexible authentication options to secure your admin interface. By default,
-authentication is enabled but not configured, allowing full access. We strongly recommend
-configuring authentication for production environments.
+PromptEngine provides flexible authentication options to secure your admin interface. Since prompt templates may contain sensitive business logic, we strongly recommend configuring authentication for production environments.
 
-#### Quick Start
-
-The simplest way to secure PromptEngine is with HTTP Basic authentication:
-
-```ruby
-# config/initializers/prompt_engine.rb
-PromptEngine.configure do |config|
-  config.http_basic_auth_enabled = true
-  config.http_basic_auth_name = "admin"
-  config.http_basic_auth_password = "secure_password_here"
-end
-```
-
-For production, use Rails credentials:
-
-```bash
-rails credentials:edit
-```
-
-```yaml
-# Add to credentials file
-prompt_engine:
-  username: your_secure_username
-  password: your_secure_password
-```
-
-```ruby
-# config/initializers/prompt_engine.rb
-PromptEngine.configure do |config|
-  config.http_basic_auth_enabled = true
-  config.http_basic_auth_name = Rails.application.credentials.dig(:prompt_engine, :username)
-  config.http_basic_auth_password = Rails.application.credentials.dig(:prompt_engine, :password)
-end
-```
-
-#### Authentication Strategies
-
-##### 1. HTTP Basic Authentication
-
-Built-in support with secure credential comparison:
-
-```ruby
-# config/initializers/prompt_engine.rb
-PromptEngine.configure do |config|
-  config.authentication_enabled = true  # Default: true
-  config.http_basic_auth_enabled = true
-  config.http_basic_auth_name = ENV['PROMPT_ENGINE_USERNAME']
-  config.http_basic_auth_password = ENV['PROMPT_ENGINE_PASSWORD']
-end
-```
-
-**Security Notes:**
-
-- Uses `ActiveSupport::SecurityUtils.secure_compare` to prevent timing attacks
-- Credentials are never logged or exposed in errors
-- Empty credentials are treated as invalid
-
-##### 2. Devise Integration
-
-For Devise authentication, mount the engine within an authenticated route:
+#### Option 1: Route-level Authentication (Devise)
 
 ```ruby
 # config/routes.rb
-Rails.application.routes.draw do
-  authenticate :user, ->(user) { user.admin? } do
-    mount PromptEngine::Engine => "/prompt_engine"
-  end
+authenticate :user, ->(u) { u.admin? } do
+  mount PromptEngine::Engine => "/prompt_engine"
 end
 ```
 
-##### 3. Custom Authentication
-
-Integrate with your existing authentication system using the ActiveSupport hook:
-
-```ruby
-# config/initializers/prompt_engine.rb
-ActiveSupport.on_load(:prompt_engine_application_controller) do
-  before_action do
-    raise ActionController::RoutingError.new('Not Found') unless current_user&.admin?
-  end
-
-  def current_user
-    # Your authentication logic here
-    @current_user ||= User.find_by(id: session[:user_id])
-  end
-end
-```
-
-##### 4. Rack Middleware Authentication
-
-For advanced scenarios, add custom middleware directly to the engine:
+#### Option 2: Basic Authentication
 
 ```ruby
 # config/initializers/prompt_engine.rb
@@ -209,88 +97,53 @@ PromptEngine::Engine.middleware.use(Rack::Auth::Basic) do |username, password|
 end
 ```
 
-##### 5. Disable Authentication (Development Only)
-
-⚠️ **Warning:** Only disable authentication in development environments:
+#### Option 3: Custom Authentication
 
 ```ruby
 # config/initializers/prompt_engine.rb
-if Rails.env.development?
-  PromptEngine.configure do |config|
-    config.authentication_enabled = false
+ActiveSupport.on_load(:prompt_engine_application_controller) do
+  before_action :authenticate_admin!
+  
+  private
+  
+  def authenticate_admin!
+    redirect_to main_app.root_path unless current_user&.admin?
+  end
+  
+  def current_user
+    # Your app's current user method
+    main_app.current_user
   end
 end
 ```
 
-#### Configuration Reference
+#### Rails 8 Authentication
 
-| Setting                    | Default | Description                          |
-| -------------------------- | ------- | ------------------------------------ |
-| `authentication_enabled`   | `true`  | Master switch for all authentication |
-| `http_basic_auth_enabled`  | `false` | Enable HTTP Basic authentication     |
-| `http_basic_auth_name`     | `nil`   | Username for HTTP Basic auth         |
-| `http_basic_auth_password` | `nil`   | Password for HTTP Basic auth         |
-
-#### Testing with Authentication
-
-When writing tests, you can disable authentication:
+If using Rails 8's built-in authentication generator:
 
 ```ruby
-# spec/rails_helper.rb or test/test_helper.rb
-RSpec.configure do |config|
-  config.before(:each) do
-    PromptEngine.authentication_enabled = false
-  end
+# config/initializers/prompt_engine.rb
+ActiveSupport.on_load(:prompt_engine_application_controller) do
+  include Authentication # Rails 8's authentication concern
+  before_action :require_authentication
 end
 ```
 
-Or provide credentials in your tests:
-
-```ruby
-get prompt_engine.prompts_path, headers: {
-  "Authorization" => ActionController::HttpAuthentication::Basic.encode_credentials("admin", "password")
-}
-```
-
-#### Security Best Practices
-
-1. **Always enable authentication in production**
-2. **Use strong, unique passwords**
-3. **Store credentials securely** (Rails credentials, environment variables, or secrets management)
-4. **Use HTTPS** to encrypt authentication credentials in transit
-5. **Implement rate limiting** on your application server
-6. **Monitor access logs** for suspicious activity
-
-For more authentication examples and advanced configurations, see
-[AUTHENTICATION.md](docs/AUTHENTICATION.md)
-
-## Usage
-
-For detailed usage instructions and examples, see [docs/USAGE.md](docs/USAGE.md).
-
-### Admin Interface
+## Admin Interface
 
 Visit `/prompt_engine` in your browser to access the admin interface where you can:
 
 - Create and manage prompts
 - Test prompts in the playground
 - View version history
-- Create evaluation sets
 - Monitor prompt performance
 
 ### In Your Application
 
 ```ruby
-# Render a prompt with variables
+# Render a prompt with variables (defaults to active prompts only)
 rendered = PromptEngine.render("customer-support",
-  customer_name: "John",
-  issue: "Can't login to my account"
-)
-
-# Render a prompt with file uploads
-rendered = PromptEngine.render("document-analysis",
-  analysis_request: "Summarize the key points",
-  document: uploaded_file  # File object (PDF, JPG, PNG, GIF, WebP)
+  { customer_name: "John", issue: "Can't login to my account" }
 )
 
 # Access rendered content
@@ -313,51 +166,48 @@ response = rendered.execute_with(client)
 
 # Override model settings at runtime
 rendered = PromptEngine.render("email-writer",
-  subject: "Welcome to our platform",
-  model: "gpt-4-turbo",
-  temperature: 0.9
+  { subject: "Welcome to our platform" },
+  options: { model: "gpt-4-turbo", temperature: 0.9 }
 )
 
 # Load a specific version
 rendered = PromptEngine.render("onboarding-email",
-  user_name: "Sarah",
-  version: 3
+  { user_name: "Sarah" },
+  options: { version: 3 }
+)
+
+# Render prompts with different statuses (defaults to 'active')
+# Useful for testing drafts or accessing archived prompts
+rendered = PromptEngine.render("new-feature",
+  { feature_name: "AI Assistant" },
+  options: { status: "draft" }  # Can be 'draft', 'active', or 'archived'
 )
 ```
-
-For complete parameter access documentation, see [docs/VARIABLE_ACCESS.md](docs/VARIABLE_ACCESS.md).
 
 ## How It Works
 
 1. **Create Prompts**: Use the admin UI to create prompts with `{{variables}}`
 2. **Auto-Detection**: PromptEngine automatically detects variables and creates parameters
-3. **Configure Parameters**: Set parameter types including text, number, boolean, and file
-4. **File Upload**: Upload PDFs and images directly in the playground for multi-modal prompts
-5. **Version Control**: Every save creates a new version automatically
-6. **Test & Deploy**: Test in the playground, then use in your application
-7. **Monitor**: Track usage and performance through the dashboard
+3. **Version Control**: Every save creates a new version automatically
+4. **Test & Deploy**: Test in the playground, then use in your application
+5. **Monitor**: Track usage and performance through the dashboard
 
 ## API Documentation
 
-### PromptEngine.render(slug, \*\*options)
+### PromptEngine.render(slug, variables = {}, options: {})
 
 Renders a prompt template with the given variables.
 
 **Parameters:**
 
 - `slug` (String): The unique identifier for the prompt
-- `**options` (Hash): Variables and optional overrides
-  - Variables: Any key-value pairs matching prompt variables (including file uploads)
+- `variables` (Hash): Variables to interpolate in the prompt (optional positional argument)
+- `options:` (Hash): Rendering options (optional keyword argument)
+  - `status`: The status to filter by (defaults to 'active')
   - `model`: Override the default model
   - `temperature`: Override the default temperature
   - `max_tokens`: Override the default max tokens
   - `version`: Load a specific version number
-
-**File Parameters:**
-- Supported file types: PDF, JPG, PNG, GIF, WebP
-- Pass File objects or uploaded files as parameter values
-- Files are automatically processed and included in the LLM request
-- **PDF Support**: PDFs are currently only supported on Claude 3+ and Gemini models ([see RubyLLM documentation](https://rubyllm.com/guides/chat#working-with-pdfs))
 
 **Returns:** `PromptEngine::RenderedPrompt` instance
 
@@ -392,12 +242,10 @@ We welcome contributions! Here's how you can help:
    bundle install
    ```
 
-4. Set up the test database:
+4. Run setup script
 
    ```bash
-   cd spec/dummy
-   rails db:create db:migrate db:seed
-   cd ../..
+   bundle exec rails setup
    ```
 
 5. Run the tests:
@@ -408,7 +256,7 @@ We welcome contributions! Here's how you can help:
 
 6. Start the development server:
    ```bash
-   cd spec/dummy && rails server
+   bundle exec rails server
    ```
 
 ### Making Changes
@@ -457,17 +305,10 @@ PromptEngine follows Rails engine conventions with a modular architecture:
 - **Admin UI**: Built with Hotwire, Stimulus, and Turbo
 - **API**: Object-oriented design with RenderedPrompt instances
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed technical documentation.
-
 ## Roadmap
-
-- [ ] Multi-language prompt support
-- [ ] Prompt templates marketplace
-- [ ] Advanced A/B testing analytics
-- [ ] Webhook integrations
-- [ ] Prompt chaining
+- [ ] Proper Eval Sandbox and Testing
+- [ ] Logging and Observability of Prompt Usage
 - [ ] Cost tracking and optimization
-- [ ] Team collaboration features
 
 ## Sponsors
 
@@ -478,20 +319,10 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed technical document
 The gem is available as open source under the terms of the
 [MIT License](https://opensource.org/licenses/MIT).
 
-## Documentation
-
-- 📖 [Architecture Overview](docs/ARCHITECTURE.md) - Technical architecture and design decisions
-- 🔐 [Authentication Guide](docs/AUTHENTICATION.md) - Securing your PromptEngine installation
-- 🔑 [API Credentials Setup](docs/API_CREDENTIALS.md) - Configuring AI provider API keys
-- 🔒 [Encryption Setup](docs/ENCRYPTION_SETUP.md) - Setting up Rails encryption for secure storage
-- 📦 [Migration Guide](docs/MIGRATIONS.md) - Handling database migrations
-- 📝 [Usage Guide](docs/USAGE.md) - Complete usage examples and best practices
-- 🔤 [Variable Access](docs/VARIABLE_ACCESS.md) - Working with parameters in rendered prompts
-- 📋 [Product Specification](docs/SPEC.md) - Complete product vision and roadmap
-
 ## Support
 
-- 📖 [Documentation](docs/)
+- 🚀 [Live Demo App](https://prompt-engine-demo.avi.nyc)
+- 📖 [Documentation](https://prompt-engine-docs.avi.nyc/)
 - 🐛 [Issue Tracker](https://github.com/aviflombaum/prompt_engine/issues)
 - 💬 [Discussions](https://github.com/aviflombaum/prompt_engine/discussions)
 - 📧 [Email Support](mailto:ruby@avi.nyc)

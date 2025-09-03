@@ -98,11 +98,6 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
-
-  # Disable authentication for all tests by default
-  config.before(:each) do
-    PromptEngine.authentication_enabled = false
-  end
 end
 
 # Capybara configuration is now in spec/support/capybara.rb

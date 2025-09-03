@@ -1,7 +1,5 @@
 module PromptEngine
   class EvalSetsController < ApplicationController
-    layout "prompt_engine/admin"
-
     before_action :set_prompt
     before_action :set_eval_set, only: [ :show, :edit, :update, :destroy, :run, :compare, :metrics ]
 
