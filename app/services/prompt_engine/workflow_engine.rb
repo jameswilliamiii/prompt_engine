@@ -5,50 +5,90 @@ module PromptEngine
     end
 
     def execute(initial_input: "", variables: {})
-      # Keep the original variables throughout the workflow
-      persistent_variables = variables.dup
-      persistent_variables[:input] = initial_input
+      original_input = initial_input
+      previous_output = nil
+      final_output = nil
 
-      @workflow.steps.keys.sort.each do |step_key|
+      @workflow.steps.keys.sort.each_with_index do |step_key, index|
+        # Strict rebuild per step. If pass_original_input is false we only propagate previous output.
+        step_vars = if index == 0
+          variables.dup
+        elsif @workflow.pass_original_input
+          variables.dup
+        else
+          {} # no original vars when disabled
+        end
+
+        step_vars[:input] = if index == 0
+          initial_input
+        elsif @workflow.pass_original_input
+          original_input
+        else
+          previous_output
+        end
+
+        step_vars[:original_input] = original_input if index == 0 && @workflow.pass_original_input
+
         prompt_slug = @workflow.steps[step_key]
-        output = PromptEngine.render(prompt_slug, **persistent_variables)
-
-        # Update the input for the next step, but keep all other variables
-        persistent_variables[:input] = output.content
-        persistent_variables[:output] = output.content
+        rendered = PromptEngine.render(prompt_slug, **step_vars)
+        final_output = rendered.content
+        previous_output = final_output
       end
 
-      persistent_variables[:output]
+      final_output
     end
 
     def execute_with_steps(initial_input: "", variables: {}, provider: nil, api_key: nil, save_run: true)
-      current_variables = variables.dup
-      current_variables[:input] = initial_input
-
-      results = {
-        steps: [],
-        total_execution_time: 0
-      }
-
+      original_input = initial_input
+      previous_output = nil
+      results = { steps: [], total_execution_time: 0 }
       start_time = Time.current
       workflow_run = nil
 
+      if save_run
+        workflow_run = @workflow.workflow_runs.create!(
+          initial_input: initial_input,
+          input_variables: variables,
+          status: :completed,
+          execution_time: 0
+        )
+      end
+
       begin
-        # Create workflow run record if saving is enabled
-        if save_run
-          workflow_run = @workflow.workflow_runs.create!(
-            initial_input: initial_input,
-            input_variables: variables,
-            status: :completed,
-            execution_time: 0
-          )
-        end
-
         @workflow.steps.keys.sort.each_with_index do |step_key, index|
-          prompt_slug = @workflow.steps[step_key]
-          step_start_time = Time.current
+          # Strict per-step variable construction
+          step_vars = if index == 0
+            variables.dup
+          elsif @workflow.pass_original_input
+            variables.dup
+          else
+            {}
+          end
 
-          # For playground execution with provider/api_key, we need to use the playground executor
+          step_input = if index == 0
+            initial_input
+          elsif @workflow.pass_original_input
+            original_input
+          else
+            previous_output
+          end
+
+          step_vars[:input] = step_input
+          step_vars[:original_input] = original_input if index == 0 && @workflow.pass_original_input
+
+          # Snapshot BEFORE execution (only what we want to expose)
+          snapshot = if @workflow.pass_original_input
+            allowed = variables.keys.map { |k| k.to_sym } + [ :input, :original_input ]
+            step_vars.select { |k, _| allowed.include?(k.to_sym) }
+          else
+            { input: step_input }
+          end
+
+          prompt_slug = @workflow.steps[step_key]
+          step_start = Time.current
+          output_content = nil
+          exec_time_ms = 0
+
           if provider && api_key
             prompt = PromptEngine::Prompt.find_by(slug: prompt_slug)
             if prompt
@@ -56,68 +96,61 @@ module PromptEngine
                 prompt: prompt,
                 provider: provider,
                 api_key: api_key,
-                parameters: current_variables
+                parameters: step_vars
               )
-
               execution_result = executor.execute
               output_content = execution_result[:response]
-              execution_time = execution_result[:execution_time]
+              exec_time_ms = execution_result[:execution_time]
+              # Attempt to parse JSON if json_mode enabled
+              if prompt.respond_to?(:json_mode) && prompt.json_mode
+                begin
+                  parsed = JSON.parse(output_content)
+                  output_content = parsed
+                rescue JSON::ParserError
+                  # leave original string; parsing failed
+                end
+              end
             else
               output_content = "Error: Prompt '#{prompt_slug}' not found"
-              execution_time = 0
+              exec_time_ms = 0
             end
           else
-            # Standard execution for API calls
-            rendered_output = PromptEngine.render(prompt_slug, **current_variables)
-            output_content = rendered_output.content
-            execution_time = (Time.current - step_start_time) * 1000
+            rendered = PromptEngine.render(prompt_slug, **step_vars)
+            output_content = rendered.content
+            if rendered.respond_to?(:json_mode) && rendered.json_mode
+              begin
+                parsed = JSON.parse(output_content)
+                output_content = parsed
+              rescue JSON::ParserError
+              end
+            end
+            exec_time_ms = (Time.current - step_start) * 1000
           end
 
-          step_result = {
+          results[:steps] << {
             step: step_key,
             prompt_slug: prompt_slug,
-            input: current_variables[:input],
+            input: step_vars[:input],
+            input_parameters: snapshot,
             output: output_content,
-            execution_time: execution_time
+            execution_time: exec_time_ms
           }
 
-          results[:steps] << step_result
-
-          # After the first step, only pass the output to the next step
-          if index == 0
-            # First step: keep all variables but update input/output
-            current_variables[:input] = output_content
-            current_variables[:output] = output_content
-          else
-            # Subsequent steps: only pass input and output
-            current_variables = {
-              input: output_content,
-              output: output_content
-            }
-          end
+          previous_output = output_content
         end
 
-        results[:final_output] = current_variables[:output]
+        results[:final_output] = previous_output
         results[:total_execution_time] = (Time.current - start_time) * 1000
 
-        # Update workflow run with results
         if workflow_run
           workflow_run.update!(
             results: results,
             execution_time: results[:total_execution_time] / 1000.0
           )
         end
-
         results
-      rescue StandardError => e
-        # Update workflow run with error if it exists
-        if workflow_run
-          workflow_run.update!(
-            status: :failed,
-            error_message: e.message,
-            execution_time: (Time.current - start_time)
-          )
-        end
+      rescue => e
+        workflow_run&.update!(status: :failed, error_message: e.message) if workflow_run
         raise e
       end
     end

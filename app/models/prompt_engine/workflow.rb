@@ -6,6 +6,8 @@ module PromptEngine
 
     validates :name, presence: true, uniqueness: true
     validates :steps, presence: true
+    # pass_original_input: boolean field controlling whether the original input from
+    # the first step is passed to subsequent steps (default: true)
 
     validate :validate_prompt_references
 

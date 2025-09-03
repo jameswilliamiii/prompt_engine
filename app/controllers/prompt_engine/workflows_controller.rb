@@ -71,7 +71,7 @@ module PromptEngine
     end
 
     def workflow_params
-      params.require(:workflow).permit(:name, steps: {}, conditions: {})
+      params.require(:workflow).permit(:name, :pass_original_input, steps: {}, conditions: {})
     end
   end
 end

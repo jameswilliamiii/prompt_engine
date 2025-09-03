@@ -43,6 +43,19 @@ module PromptEngine
       # Create chat instance with the model
       chat = RubyLLM.chat(model: MODELS[provider])
 
+      # Enable structured JSON output if json_mode is on for the prompt
+      if prompt.respond_to?(:json_mode) && prompt.json_mode
+        begin
+          if chat.respond_to?(:with_params)
+            chat = chat.with_params(response_format: { type: "json_object" })
+          elsif chat.respond_to?(:with_response_format)
+            chat = chat.with_response_format(type: "json_object")
+          end
+        rescue => e
+          Rails.logger.debug("PlaygroundExecutor json_mode setup failed: #{e.class} #{e.message}") if defined?(Rails)
+        end
+      end
+
       # Apply temperature if specified
       if prompt.temperature.present?
         chat = chat.with_temperature(prompt.temperature)

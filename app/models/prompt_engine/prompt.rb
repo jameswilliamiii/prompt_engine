@@ -36,7 +36,7 @@ module PromptEngine
     after_update :sync_parameters!, if: :saved_change_to_content?
     before_save :clean_orphaned_parameters
 
-    VERSIONED_ATTRIBUTES = %w[content system_message model temperature max_tokens metadata].freeze
+  VERSIONED_ATTRIBUTES = %w[content system_message model temperature max_tokens json_mode metadata].freeze
     OVERRIDE_KEYS = %i[model temperature max_tokens version].freeze
 
     def current_version
@@ -213,6 +213,7 @@ module PromptEngine
         model: model,
         temperature: temperature,
         max_tokens: max_tokens,
+  json_mode: json_mode,
         metadata: metadata,
         change_description: "Initial version"
       )
@@ -228,6 +229,7 @@ module PromptEngine
         model: model,
         temperature: temperature,
         max_tokens: max_tokens,
+  json_mode: json_mode,
         metadata: metadata,
         change_description: "Updated: #{(saved_changes.keys & VERSIONED_ATTRIBUTES).join(", ")}"
       )

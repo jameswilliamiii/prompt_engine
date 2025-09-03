@@ -9,5 +9,6 @@ FactoryBot.define do
     max_tokens { 1000 }
     status { "draft" }
     metadata { {} }
+  json_mode { false }
   end
 end

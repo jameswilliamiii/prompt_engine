@@ -8,6 +8,7 @@ FactoryBot.define do
     temperature { 0.7 }
     max_tokens { 1000 }
     metadata { {} }
+  json_mode { false }
     created_by { "test_user" }
     change_description { "Test change" }
   end

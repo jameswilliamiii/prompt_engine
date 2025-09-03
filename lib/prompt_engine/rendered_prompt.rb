@@ -43,6 +43,10 @@ module PromptEngine
       @overrides[:max_tokens] || @rendered_data[:max_tokens]
     end
 
+    def json_mode
+      @overrides.key?(:json_mode) ? @overrides[:json_mode] : @rendered_data[:json_mode] || prompt.json_mode
+    end
+
     def system_message
       @overrides[:system_message] || @rendered_data[:system_message]
     end
@@ -77,7 +81,11 @@ module PromptEngine
         max_tokens: max_tokens
       }.compact
 
-      # Merge with additional options
+      # If json_mode enabled and no explicit response_format passed, add it
+      if json_mode && !additional_options.key?(:response_format)
+        additional_options = additional_options.merge(response_format: { type: "json_object" })
+      end
+
       base_params.merge(additional_options)
     end
 

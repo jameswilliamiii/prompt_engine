@@ -118,6 +118,15 @@
                 </div>
               <% end %>
 
+              <% if step_result['input_parameters'].present? %>
+                <div class="step-result__section">
+                  <h4 class="step-result__section-title">Input Parameters</h4>
+                  <div class="step-result__content step-result__content--params">
+                    <pre class="json-pre"><%= JSON.pretty_generate(step_result['input_parameters'].deep_stringify_keys) rescue step_result['input_parameters'].to_s %></pre>
+                  </div>
+                </div>
+              <% end %>
+
               <div class="step-result__section">
                 <h4 class="step-result__section-title">Output</h4>
                 <div class="step-result__content step-result__content--output">
@@ -237,6 +246,14 @@
 .workflow-step-content {
   overflow: hidden;
   transition: max-height 0.3s ease;
+}
+
+.json-pre {
+  background: var(--color-surface);
+  padding: 12px;
+  border-radius: 6px;
+  overflow: auto;
+  font-size: 13px;
 }
 
 .workflow-step-content.collapse {

@@ -43,7 +43,8 @@ module PromptEngine
         system_message: system_message,
         model: model,
         temperature: temperature,
-        max_tokens: max_tokens,
+  max_tokens: max_tokens,
+  json_mode: json_mode,
         metadata: metadata
       }
     end
@@ -59,7 +60,7 @@ module PromptEngine
     end
 
     def ensure_immutability
-      immutable_attributes = %w[content system_message model temperature max_tokens]
+  immutable_attributes = %w[content system_message model temperature max_tokens json_mode]
       changed_immutable = (changed & immutable_attributes)
 
       if changed_immutable.any?

@@ -222,6 +222,31 @@ Renders a prompt template with the given variables.
 - `to_ruby_llm_params`: Convert to RubyLLM/Anthropic format
 - `execute_with(client)`: Execute with an LLM client
 
+### JSON Mode (Structured Output)
+
+Enable a prompt-level toggle that requests structured JSON output from providers that support RubyLLM's `response_format` option (e.g., OpenAI). When `json_mode` is enabled on a prompt, `RenderedPrompt#to_ruby_llm_params` automatically includes:
+
+```ruby
+response_format: { type: 'json_object' }
+```
+
+Example:
+
+```ruby
+prompt.update!(json_mode: true)
+rendered = prompt.render
+params = rendered.to_ruby_llm_params
+params[:response_format] # => { type: 'json_object' }
+```
+
+If you need a custom structure, you can still pass your own response_format which takes precedence:
+
+```ruby
+rendered.to_ruby_llm_params(response_format: { type: 'json_schema', schema: my_schema_hash })
+```
+
+Disable by unchecking the JSON Mode checkbox in the UI or setting `json_mode: false`.
+
 ## Contributing
 
 We welcome contributions! Here's how you can help:

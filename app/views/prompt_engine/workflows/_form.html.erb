@@ -79,6 +79,17 @@
     <% end %>
   </div>
 
+  <div class="form__group">
+    <div class="form__field">
+      <%= form.check_box :pass_original_input, class: "form__checkbox" %>
+      <%= form.label :pass_original_input, "Pass original input to subsequent steps", class: "form__label form__label--checkbox" %>
+    </div>
+    <div class="form__help">
+      When checked, the original input from the first step will be passed to all subsequent steps. 
+      When unchecked, each step will only receive the output from the previous step as its input.
+    </div>
+  </div>
+
   <div class="form__actions">
     <%= form.submit class: "btn btn--primary btn--medium" %>
     <%= link_to "Cancel", workflow.persisted? ? workflow_path(workflow) : workflows_path, class: "btn btn--neutral btn--medium" %>
