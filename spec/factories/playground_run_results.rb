@@ -1,12 +1,12 @@
 FactoryBot.define do
-  factory :playground_run_result, class: 'PromptEngine::PlaygroundRunResult' do
+  factory :playground_run_result, class: "PromptEngine::PlaygroundRunResult" do
     association :prompt_version, factory: :prompt_version
 
     provider { "anthropic" }
     model { "claude-3-5-sonnet-20241022" }
     rendered_prompt { "Tell me about {{topic}}" }
     system_message { "You are a helpful assistant." }
-    parameters { { topic: "Ruby on Rails" } }
+    parameters { {topic: "Ruby on Rails"} }
     response { "Ruby on Rails is a web application framework written in Ruby..." }
     execution_time { 1.234 }
     token_count { 150 }

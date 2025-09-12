@@ -1,7 +1,6 @@
 require "rails_helper"
 
 RSpec.describe "Prompts management", type: :system do
-
   describe "Creating a new prompt" do
     it "allows users to create a new prompt with valid data" do
       visit "/prompt_engine/prompts"
@@ -178,7 +177,7 @@ RSpec.describe "Prompts management", type: :system do
     end
 
     it "validates uniqueness of prompt name" do
-      existing_prompt = create(:prompt, name: "Unique Name")
+      create(:prompt, name: "Unique Name")
 
       visit "/prompt_engine/prompts/new"
 

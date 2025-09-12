@@ -1,4 +1,4 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe PromptEngine::ParameterParser, type: :model do
   describe "#initialize" do
@@ -28,9 +28,9 @@ RSpec.describe PromptEngine::ParameterParser, type: :model do
         parameters = parser.extract_parameters
 
         expect(parameters).to eq([
-          { name: "name", placeholder: "{{name}}", required: true },
-          { name: "city", placeholder: "{{city}}", required: true },
-          { name: "country", placeholder: "{{country}}", required: true }
+          {name: "name", placeholder: "{{name}}", required: true},
+          {name: "city", placeholder: "{{city}}", required: true},
+          {name: "country", placeholder: "{{country}}", required: true}
         ])
       end
 
@@ -39,8 +39,8 @@ RSpec.describe PromptEngine::ParameterParser, type: :model do
         parameters = parser.extract_parameters
 
         expect(parameters).to eq([
-          { name: "name", placeholder: "{{name}}", required: true },
-          { name: "location", placeholder: "{{location}}", required: true }
+          {name: "name", placeholder: "{{name}}", required: true},
+          {name: "location", placeholder: "{{location}}", required: true}
         ])
       end
 
@@ -49,8 +49,8 @@ RSpec.describe PromptEngine::ParameterParser, type: :model do
         parameters = parser.extract_parameters
 
         expect(parameters).to eq([
-          { name: "greeting", placeholder: "{{greeting}}", required: true },
-          { name: "weather", placeholder: "{{weather}}", required: true }
+          {name: "greeting", placeholder: "{{greeting}}", required: true},
+          {name: "weather", placeholder: "{{weather}}", required: true}
         ])
       end
 
@@ -59,8 +59,8 @@ RSpec.describe PromptEngine::ParameterParser, type: :model do
         parameters = parser.extract_parameters
 
         expect(parameters).to eq([
-          { name: "user_name", placeholder: "{{user_name}}", required: true },
-          { name: "total_count", placeholder: "{{total_count}}", required: true }
+          {name: "user_name", placeholder: "{{user_name}}", required: true},
+          {name: "total_count", placeholder: "{{total_count}}", required: true}
         ])
       end
 
@@ -69,8 +69,8 @@ RSpec.describe PromptEngine::ParameterParser, type: :model do
         parameters = parser.extract_parameters
 
         expect(parameters).to eq([
-          { name: "first-name", placeholder: "{{first-name}}", required: true },
-          { name: "last-name", placeholder: "{{last-name}}", required: true }
+          {name: "first-name", placeholder: "{{first-name}}", required: true},
+          {name: "last-name", placeholder: "{{last-name}}", required: true}
         ])
       end
 
@@ -79,8 +79,8 @@ RSpec.describe PromptEngine::ParameterParser, type: :model do
         parameters = parser.extract_parameters
 
         expect(parameters).to eq([
-          { name: "item1", placeholder: "{{item1}}", required: true },
-          { name: "item2", placeholder: "{{item2}}", required: true }
+          {name: "item1", placeholder: "{{item1}}", required: true},
+          {name: "item2", placeholder: "{{item2}}", required: true}
         ])
       end
     end
@@ -110,7 +110,7 @@ RSpec.describe PromptEngine::ParameterParser, type: :model do
         parser = described_class.new("Missing {{ closing or opening }}")
         # The regex will match "{{ closing or opening }}"
         expect(parser.extract_parameters).to eq([
-          { name: "closing or opening", placeholder: "{{closing or opening}}", required: true }
+          {name: "closing or opening", placeholder: "{{closing or opening}}", required: true}
         ])
       end
     end
@@ -130,7 +130,7 @@ RSpec.describe PromptEngine::ParameterParser, type: :model do
 
         # Due to regex limitations, this will only capture up to the first closing braces
         expect(parameters).to eq([
-          { name: "outer {{inner", placeholder: "{{outer {{inner}}", required: true }
+          {name: "outer {{inner", placeholder: "{{outer {{inner}}", required: true}
         ])
       end
 
@@ -139,8 +139,8 @@ RSpec.describe PromptEngine::ParameterParser, type: :model do
         parameters = parser.extract_parameters
 
         expect(parameters).to eq([
-          { name: "email@address", placeholder: "{{email@address}}", required: true },
-          { name: "price$amount", placeholder: "{{price$amount}}", required: true }
+          {name: "email@address", placeholder: "{{email@address}}", required: true},
+          {name: "price$amount", placeholder: "{{price$amount}}", required: true}
         ])
       end
     end

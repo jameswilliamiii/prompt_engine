@@ -7,8 +7,8 @@ module PromptEngine
     has_many :eval_runs, class_name: "PromptEngine::EvalRun", dependent: :destroy
 
     validates :version_number, presence: true,
-              numericality: { greater_than: 0 },
-              uniqueness: { scope: :prompt_id }
+      numericality: {greater_than: 0},
+      uniqueness: {scope: :prompt_id}
     validates :content, presence: true
 
     before_validation :set_version_number, on: :create

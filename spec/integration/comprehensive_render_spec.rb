@@ -51,8 +51,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
     describe "Case 1: No variables, just option overrides" do
       it "renders with model and temperature overrides only" do
         rendered = PromptEngine.render("email-writer",
-          options: { model: "gpt-4-turbo", temperature: 0.9 }
-        )
+          options: {model: "gpt-4-turbo", temperature: 0.9})
 
         expect(rendered.content).to eq("Write an email about this topic")
         expect(rendered.model).to eq("gpt-4-turbo") # overridden
@@ -65,8 +64,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
             model: "claude-3",
             temperature: 0.5,
             max_tokens: 2000
-          }
-        )
+          })
 
         expect(rendered.model).to eq("claude-3")
         expect(rendered.temperature).to eq(0.5)
@@ -77,9 +75,8 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
     describe "Case 2: Override model settings at runtime with variables" do
       it "renders with variables and model/temperature overrides" do
         rendered = PromptEngine.render("email-writer",
-          { subject: "Welcome to our platform" },
-          options: { model: "gpt-4-turbo", temperature: 0.9 }
-        )
+          {subject: "Welcome to our platform"},
+          options: {model: "gpt-4-turbo", temperature: 0.9})
 
         expect(rendered.content).to eq("Write an email about this topic")
         expect(rendered.model).to eq("gpt-4-turbo")
@@ -88,9 +85,8 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
 
       it "properly handles variables with model overrides" do
         rendered = PromptEngine.render("customer-support",
-          { customer_name: "Alice", issue: "Password reset" },
-          options: { model: "gpt-4-turbo", temperature: 0.2 }
-        )
+          {customer_name: "Alice", issue: "Password reset"},
+          options: {model: "gpt-4-turbo", temperature: 0.2})
 
         expect(rendered.content).to eq("Help Alice with Password reset")
         expect(rendered.model).to eq("gpt-4-turbo") # overridden
@@ -101,9 +97,8 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
     describe "Case 3: Load a specific version" do
       it "loads version 1 of a prompt" do
         rendered = PromptEngine.render("onboarding-email",
-          { user_name: "Sarah" },
-          options: { version: 1 }
-        )
+          {user_name: "Sarah"},
+          options: {version: 1})
 
         expect(rendered.content).to eq("Welcome Sarah to our service!")
         expect(rendered.version_number).to eq(1)
@@ -111,9 +106,8 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
 
       it "loads version 2 of a prompt" do
         rendered = PromptEngine.render("onboarding-email",
-          { user_name: "Bob" },
-          options: { version: 2 }
-        )
+          {user_name: "Bob"},
+          options: {version: 2})
 
         expect(rendered.content).to eq("Hi Bob, welcome aboard!")
         expect(rendered.version_number).to eq(2)
@@ -121,9 +115,8 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
 
       it "loads specific version with model overrides" do
         rendered = PromptEngine.render("onboarding-email",
-          { user_name: "Charlie" },
-          options: { version: 1, model: "claude-3", temperature: 0.8 }
-        )
+          {user_name: "Charlie"},
+          options: {version: 1, model: "claude-3", temperature: 0.8})
 
         expect(rendered.content).to eq("Welcome Charlie to our service!")
         expect(rendered.version_number).to eq(1)
@@ -135,9 +128,8 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
     describe "Case 4: Render prompts with different statuses" do
       it "renders draft prompts when specified" do
         rendered = PromptEngine.render("new-feature",
-          { feature_name: "AI Assistant" },
-          options: { status: "draft" }
-        )
+          {feature_name: "AI Assistant"},
+          options: {status: "draft"})
 
         expect(rendered.content).to eq("Introducing AI Assistant - built for you!")
       end
@@ -146,29 +138,26 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
         # This should fail because new-feature is draft, not active
         expect {
           PromptEngine.render("new-feature",
-            { feature_name: "AI Assistant" }
-          )
+            {feature_name: "AI Assistant"})
         }.to raise_error(ActiveRecord::RecordNotFound)
       end
 
       it "can explicitly request active status" do
         rendered = PromptEngine.render("customer-support",
-          { customer_name: "Dave", issue: "Billing" },
-          options: { status: "active" }
-        )
+          {customer_name: "Dave", issue: "Billing"},
+          options: {status: "active"})
 
         expect(rendered.content).to eq("Help Dave with Billing")
       end
 
       it "combines status with other options" do
         rendered = PromptEngine.render("new-feature",
-          { feature_name: "Smart Search" },
+          {feature_name: "Smart Search"},
           options: {
             status: "draft",
             model: "gpt-4",
             temperature: 0.6
-          }
-        )
+          })
 
         expect(rendered.content).to eq("Introducing Smart Search - built for you!")
         expect(rendered.model).to eq("gpt-4")
@@ -179,8 +168,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
     describe "Case 5: Simple render with variables only (no options)" do
       it "renders with just variables" do
         rendered = PromptEngine.render("customer-support",
-          { customer_name: "John", issue: "Can't login to my account" }
-        )
+          {customer_name: "John", issue: "Can't login to my account"})
 
         expect(rendered.content).to eq("Help John with Can't login to my account")
         expect(rendered.model).to eq("gpt-4") # uses prompt's default
@@ -189,7 +177,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
 
       it "works with multiple variables" do
         # Create a prompt with multiple variables
-        multi_var = PromptEngine::Prompt.create!(
+        PromptEngine::Prompt.create!(
           name: "Multi Variable",
           slug: "multi-var",
           content: '{{greeting}} {{name}}, your order #{{order_id}} is {{status}}',
@@ -202,8 +190,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
             name: "Alice",
             order_id: "12345",
             status: "shipped"
-          }
-        )
+          })
 
         expect(rendered.content).to eq("Hello Alice, your order #12345 is shipped")
       end
@@ -212,8 +199,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
     describe "Edge cases and combinations" do
       it "handles empty variables with options" do
         rendered = PromptEngine.render("email-writer", {},
-          options: { temperature: 0.4 }
-        )
+          options: {temperature: 0.4})
 
         expect(rendered.content).to eq("Write an email about this topic")
         expect(rendered.temperature).to eq(0.4)
@@ -244,8 +230,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
             version: 1,
             model: "gpt-3.5",
             temperature: 0.1
-          }
-        )
+          })
 
         expect(rendered.content).to eq("Version 1 content")
         expect(rendered.model).to eq("gpt-3.5")

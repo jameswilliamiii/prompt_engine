@@ -1,7 +1,6 @@
 require "rails_helper"
 
 RSpec.describe "Version management", type: :system do
-
   let!(:prompt) { create(:prompt, name: "Test Prompt", content: "Version 1 content") }
   let!(:version_1) { prompt.versions.first }
   let!(:version_2) {
@@ -202,7 +201,7 @@ RSpec.describe "Version management", type: :system do
 
   describe "Restoring a version" do
     it "restores prompt to selected version" do
-      original_content = prompt.content
+      prompt.content
 
       visit "/prompt_engine/prompts/#{prompt.id}/versions"
 

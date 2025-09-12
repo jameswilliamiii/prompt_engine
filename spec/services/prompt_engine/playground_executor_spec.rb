@@ -1,4 +1,4 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
   let(:prompt) do
@@ -6,8 +6,7 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
       content: "Tell me about {{topic}} in {{style}} style",
       system_message: "You are a helpful assistant",
       temperature: 0.8,
-      max_tokens: 150
-    )
+      max_tokens: 150)
   end
 
   let(:valid_parameters) do
@@ -56,10 +55,10 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
 
     before do
       # Mock the require to prevent loading the actual gem
-      allow(executor).to receive(:require).with('ruby_llm')
+      allow(executor).to receive(:require).with("ruby_llm")
 
       # Create a config double outside the module
-      config = double('Config')
+      config = double("Config")
       allow(config).to receive(:anthropic_api_key=)
       allow(config).to receive(:openai_api_key=)
 
@@ -119,8 +118,7 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
           double("response",
             content: "Response content",
             input_tokens: 50,
-            output_tokens: 100
-          )
+            output_tokens: 100)
         end
 
         it "calculates total token count" do
@@ -164,7 +162,7 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
       it "configures Anthropic API key" do
         config_set = false
         allow(RubyLLM).to receive(:configure) do |&block|
-          config = double('Config')
+          config = double("Config")
           expect(config).to receive(:anthropic_api_key=).with("anthropic-key")
           allow(config).to receive(:openai_api_key=)
           block.call(config)
@@ -278,8 +276,7 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
         FactoryBot.create(:prompt,
           content: "Simple prompt",
           system_message: nil,
-          temperature: nil
-        )
+          temperature: nil)
       end
 
       let(:executor) do

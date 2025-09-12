@@ -9,8 +9,7 @@ module PromptEngine
         name: "Active Test Prompt",
         slug: "test-prompt",
         content: "Active: {{message}}",
-        status: "active"
-      ).tap(&:sync_parameters!)
+        status: "active").tap(&:sync_parameters!)
     end
 
     let!(:draft_prompt) do
@@ -18,8 +17,7 @@ module PromptEngine
         name: "Draft Test Prompt",
         slug: "draft-test-prompt",
         content: "Draft: {{message}}",
-        status: "draft"
-      ).tap(&:sync_parameters!)
+        status: "draft").tap(&:sync_parameters!)
     end
 
     describe "GET playground with status-filtered prompts" do
@@ -62,7 +60,7 @@ module PromptEngine
         post playground_prompt_path(draft_prompt), params: {
           provider: "openai",
           api_key: "test-key",
-          parameters: { message: "Hello" }
+          parameters: {message: "Hello"}
         }
 
         expect(response).to be_successful
@@ -74,7 +72,7 @@ module PromptEngine
         post playground_prompt_path(active_prompt), params: {
           provider: "openai",
           api_key: "test-key",
-          parameters: { message: "World" }
+          parameters: {message: "World"}
         }
 
         expect(response).to be_successful

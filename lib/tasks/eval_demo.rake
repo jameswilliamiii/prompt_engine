@@ -25,17 +25,17 @@ namespace :prompt_engine do
     # Step 3: Create test cases
     test_cases_data = [
       {
-        input: { "text" => "The cat is sleeping peacefully on the warm windowsill" },
+        input: {"text" => "The cat is sleeping peacefully on the warm windowsill"},
         expected: "Cat",
         description: "Animal summary"
       },
       {
-        input: { "text" => "It's raining heavily with thunder and lightning" },
+        input: {"text" => "It's raining heavily with thunder and lightning"},
         expected: "Storm",
         description: "Weather summary"
       },
       {
-        input: { "text" => "The delicious pizza has cheese, pepperoni, and mushrooms" },
+        input: {"text" => "The delicious pizza has cheese, pepperoni, and mushrooms"},
         expected: "Pizza",
         description: "Food summary"
       }
@@ -92,7 +92,7 @@ namespace :prompt_engine do
         begin
           ActivePrompt::EvaluationRunner.new(eval_run).execute
           puts "✓ Evaluation submitted to OpenAI"
-        rescue ActivePrompt::OpenAIEvalsClient::NotFoundError => e
+        rescue ActivePrompt::OpenAIEvalsClient::NotFoundError
           puts "⚠️  OpenAI Evals API not available on this account"
           puts "   Using mock evaluation instead"
 

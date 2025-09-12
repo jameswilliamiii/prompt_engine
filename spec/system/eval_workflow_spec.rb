@@ -14,7 +14,6 @@ RSpec.describe "Evaluation Workflow", type: :system do
       status: "active")
   end
 
-
   xdescribe "complete workflow with UI" do
     it "creates eval set, adds test cases, runs evaluation, and displays results" do
       # Step 1: Navigate to prompts

@@ -110,7 +110,7 @@ module PromptEngine
           expect(result.response).to eq("This is a test response about Ruby on Rails")
           expect(result.execution_time).to be >= 0
           expect(result.token_count).to eq(150)
-          expect(result.parameters).to eq({ "topic" => "Ruby on Rails", "style" => "technical" })
+          expect(result.parameters).to eq({"topic" => "Ruby on Rails", "style" => "technical"})
         end
 
         it "renders the result view" do
@@ -154,7 +154,7 @@ module PromptEngine
           {
             provider: "openai",
             api_key: "test-openai-key",
-            parameters: { topic: "Python", style: "casual" }
+            parameters: {topic: "Python", style: "casual"}
           }
         end
 
@@ -170,7 +170,7 @@ module PromptEngine
         it "handles missing provider" do
           post playground_prompt_path(prompt), params: {
             api_key: "test-key",
-            parameters: { topic: "Rails" }
+            parameters: {topic: "Rails"}
           }
 
           expect(response).to be_successful
@@ -180,7 +180,7 @@ module PromptEngine
         it "handles missing API key" do
           post playground_prompt_path(prompt), params: {
             provider: "anthropic",
-            parameters: { topic: "Rails" }
+            parameters: {topic: "Rails"}
           }
 
           expect(response).to be_successful
@@ -191,7 +191,7 @@ module PromptEngine
           post playground_prompt_path(prompt), params: {
             provider: "invalid_provider",
             api_key: "test-key",
-            parameters: { topic: "Rails" }
+            parameters: {topic: "Rails"}
           }
 
           expect(response).to be_successful

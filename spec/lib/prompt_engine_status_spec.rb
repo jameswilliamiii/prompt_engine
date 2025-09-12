@@ -7,8 +7,7 @@ RSpec.describe PromptEngine do
         name: "Active Greeting",
         slug: "greeting",
         content: "Hello {{name}}!",
-        status: "active"
-      )
+        status: "active")
     end
 
     let!(:draft_prompt) do
@@ -16,8 +15,7 @@ RSpec.describe PromptEngine do
         name: "Draft Greeting",
         slug: "draft-greeting",
         content: "Draft: Hello {{name}}!",
-        status: "draft"
-      )
+        status: "draft")
     end
 
     let!(:archived_prompt) do
@@ -25,8 +23,7 @@ RSpec.describe PromptEngine do
         name: "Archived Greeting",
         slug: "archived-greeting",
         content: "Archived: Hello {{name}}!",
-        status: "archived"
-      )
+        status: "archived")
     end
 
     # Create a prompt with same slug but different status to test scoping
@@ -36,43 +33,42 @@ RSpec.describe PromptEngine do
         name: "Draft Version of Greeting",
         slug: "greeting-draft",
         content: "Draft Version: Hello {{name}}!",
-        status: "draft"
-      )
+        status: "draft")
     end
 
     describe ".render" do
       context "without status parameter" do
         it "defaults to finding active prompts" do
-          result = PromptEngine.render("greeting", { name: "World" })
+          result = PromptEngine.render("greeting", {name: "World"})
           expect(result.content).to eq("Hello World!")
         end
 
         it "raises error if no active prompt exists with the slug" do
           expect {
-            PromptEngine.render("draft-greeting", { name: "World" })
+            PromptEngine.render("draft-greeting", {name: "World"})
           }.to raise_error(ActiveRecord::RecordNotFound)
         end
       end
 
       context "with status parameter" do
         it "finds draft prompts when status is specified" do
-          result = PromptEngine.render("draft-greeting", { name: "World" }, options: { status: "draft" })
+          result = PromptEngine.render("draft-greeting", {name: "World"}, options: {status: "draft"})
           expect(result.content).to eq("Draft: Hello World!")
         end
 
         it "finds archived prompts when status is specified" do
-          result = PromptEngine.render("archived-greeting", { name: "World" }, options: { status: "archived" })
+          result = PromptEngine.render("archived-greeting", {name: "World"}, options: {status: "archived"})
           expect(result.content).to eq("Archived: Hello World!")
         end
 
         it "finds active prompts when status is explicitly specified" do
-          result = PromptEngine.render("greeting", { name: "World" }, options: { status: "active" })
+          result = PromptEngine.render("greeting", {name: "World"}, options: {status: "active"})
           expect(result.content).to eq("Hello World!")
         end
 
         it "raises error if prompt with specified status doesn't exist" do
           expect {
-            PromptEngine.render("greeting", { name: "World" }, options: { status: "archived" })
+            PromptEngine.render("greeting", {name: "World"}, options: {status: "archived"})
           }.to raise_error(ActiveRecord::RecordNotFound)
         end
       end
@@ -88,9 +84,8 @@ RSpec.describe PromptEngine do
       context "with other rendering options" do
         it "correctly passes through variables along with status" do
           result = PromptEngine.render("draft-greeting",
-            { name: "Alice" },
-            options: { status: "draft", model: "gpt-4", temperature: 0.7 }
-          )
+            {name: "Alice"},
+            options: {status: "draft", model: "gpt-4", temperature: 0.7})
           expect(result.content).to eq("Draft: Hello Alice!")
           expect(result.model).to eq("gpt-4")
           expect(result.temperature).to eq(0.7)
@@ -101,9 +96,8 @@ RSpec.describe PromptEngine do
           draft_prompt.update!(content: "Draft V2: Hey {{name}}!")
 
           result = PromptEngine.render("draft-greeting",
-            { name: "Bob" },
-            options: { status: "draft", version: 1 }
-          )
+            {name: "Bob"},
+            options: {status: "draft", version: 1})
           expect(result.content).to eq("Draft: Hello Bob!")
         end
       end
@@ -148,7 +142,7 @@ RSpec.describe PromptEngine do
 
     it "maintains existing behavior when no status is provided" do
       # Old usage should still work
-      result = PromptEngine.render("test-prompt", { var: "value" })
+      result = PromptEngine.render("test-prompt", {var: "value"})
       expect(result.content).to eq("Test value")
     end
 
@@ -170,28 +164,26 @@ RSpec.describe PromptEngine do
     end
 
     it "works with slug and variables (no options)" do
-      result = PromptEngine.render("with-vars", { name: "Alice" })
+      result = PromptEngine.render("with-vars", {name: "Alice"})
       expect(result.content).to eq("Hello Alice")
     end
 
     it "works with slug, variables, and options" do
       result = PromptEngine.render("draft-var",
-        { text: "content" },
-        options: { status: "draft" }
-      )
+        {text: "content"},
+        options: {status: "draft"})
       expect(result.content).to eq("Draft content")
     end
 
     it "works with slug and options (no variables)" do
       result = PromptEngine.render("draft-one",
-        options: { status: "draft", model: "gpt-4" }
-      )
+        options: {status: "draft", model: "gpt-4"})
       expect(result.content).to eq("Draft content")
       expect(result.model).to eq("gpt-4")
     end
 
     it "allows empty hash for variables when using options" do
-      result = PromptEngine.render("simple", {}, options: { temperature: 0.5 })
+      result = PromptEngine.render("simple", {}, options: {temperature: 0.5})
       expect(result.content).to eq("Simple text")
       expect(result.temperature).to eq(0.5)
     end

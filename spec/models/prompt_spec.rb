@@ -309,8 +309,8 @@ RSpec.describe PromptEngine::Prompt, type: :model do
 
       prompt.update!(
         parameters_attributes: [
-          { name: "param1", parameter_type: "string" },
-          { name: "param2", parameter_type: "integer", required: false }
+          {name: "param1", parameter_type: "string"},
+          {name: "param2", parameter_type: "integer", required: false}
         ]
       )
 
@@ -327,7 +327,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
       expect {
         prompt.update!(
           parameters_attributes: [
-            { id: param.id, _destroy: "1" }
+            {id: param.id, _destroy: "1"}
           ]
         )
         prompt.reload # Reload to check the count
@@ -360,7 +360,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
 
       it "detects unique variables only" do
         prompt.update!(content: "Hello {{name}}, {{name}} is great!")
-        expect(prompt.detect_variables).to eq([ "name" ])
+        expect(prompt.detect_variables).to eq(["name"])
       end
     end
 
@@ -414,7 +414,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
           # Start with content that has both parameters
           prompt.update!(content: "Hello {{keep_me}} and {{remove_me}}")
 
-          param1 = prompt.parameters.find_by(name: "keep_me")
+          prompt.parameters.find_by(name: "keep_me")
           param2 = prompt.parameters.find_by(name: "remove_me")
 
           # When content is updated, orphaned parameters are removed automatically
@@ -422,7 +422,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
 
           # The parameter should already be removed
           expect(prompt.parameters.reload.count).to eq(1)
-          expect(prompt.parameters.pluck(:name)).to eq([ "keep_me" ])
+          expect(prompt.parameters.pluck(:name)).to eq(["keep_me"])
           expect(PromptEngine::Parameter.exists?(param2.id)).to be false
         end
       end
@@ -439,7 +439,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
         prompt.sync_parameters!
         # item_count will be inferred as integer type
         prompt.parameters.find_by(name: "item_count").update!(
-          validation_rules: { "min" => 0, "max" => 150 }
+          validation_rules: {"min" => 0, "max" => 150}
         )
       end
 
@@ -452,7 +452,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
           expect(result[:model]).to eq(prompt.model)
           expect(result[:temperature]).to eq(prompt.temperature)
           expect(result[:max_tokens]).to eq(prompt.max_tokens)
-          expect(result[:parameters_used]).to eq({ "name" => "Alice", "item_count" => 25 })
+          expect(result[:parameters_used]).to eq({"name" => "Alice", "item_count" => 25})
         end
 
         it "accepts string or symbol parameter keys" do
@@ -465,7 +465,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
         it "casts parameters to correct types" do
           result = prompt.render_with_params(name: 123, item_count: "45")
 
-          expect(result[:parameters_used]).to eq({ "name" => "123", "item_count" => 45 })
+          expect(result[:parameters_used]).to eq({"name" => "123", "item_count" => 45})
         end
 
         it "uses default values for optional parameters" do
@@ -497,7 +497,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
 
         it "returns multiple errors when multiple validations fail" do
           prompt.parameters.find_by(name: "name").update!(
-            validation_rules: { "min_length" => 3 }
+            validation_rules: {"min_length" => 3}
           )
 
           prompt.reload # Ensure fresh parameter data
@@ -532,7 +532,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
 
       it "validates all parameter rules" do
         prompt.parameters.find_by(name: "name").update!(
-          validation_rules: { "pattern" => "^[A-Z]" }
+          validation_rules: {"pattern" => "^[A-Z]"}
         )
 
         prompt.reload # Ensure fresh parameter data
@@ -553,7 +553,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
         # Change content to remove param2
         prompt.update!(content: "Hello {{param1}} only")
 
-        expect(prompt.parameters.reload.pluck(:name)).to eq([ "param1" ])
+        expect(prompt.parameters.reload.pluck(:name)).to eq(["param1"])
       end
 
       it "does not affect parameters when content does not change" do

@@ -81,7 +81,7 @@ RSpec.describe "Version loading behavior" do
 
       it "uses default active status when loading specific version without status override" do
         # Load version 1, even though the prompt's current status is 'draft'
-        result = PromptEngine.render("versioned",
+        PromptEngine.render("versioned",
           {name: "Grace"},
           options: {version: 1})
         # When no status is specified in options, it uses the default 'active' status

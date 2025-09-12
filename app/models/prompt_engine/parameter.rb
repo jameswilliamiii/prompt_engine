@@ -8,10 +8,10 @@ module PromptEngine
     belongs_to :prompt, class_name: "PromptEngine::Prompt"
 
     validates :name, presence: true,
-              uniqueness: { scope: :prompt_id },
-              format: { with: /\A[a-zA-Z_][a-zA-Z0-9_]*\z/, message: "must start with a letter or underscore and contain only letters, numbers, and underscores" }
-    validates :parameter_type, presence: true, inclusion: { in: TYPES }
-    validates :required, inclusion: { in: [ true, false ] }
+      uniqueness: {scope: :prompt_id},
+      format: {with: /\A[a-zA-Z_][a-zA-Z0-9_]*\z/, message: "must start with a letter or underscore and contain only letters, numbers, and underscores"}
+    validates :parameter_type, presence: true, inclusion: {in: TYPES}
+    validates :required, inclusion: {in: [true, false]}
 
     scope :required, -> { where(required: true) }
     scope :optional, -> { where(required: false) }
@@ -31,13 +31,25 @@ module PromptEngine
       when "boolean"
         ActiveModel::Type::Boolean.new.cast(value)
       when "datetime"
-        DateTime.parse(value.to_s) rescue nil
+        begin
+          DateTime.parse(value.to_s)
+        rescue
+          nil
+        end
       when "date"
-        Date.parse(value.to_s) rescue nil
+        begin
+          Date.parse(value.to_s)
+        rescue
+          nil
+        end
       when "array"
         value.is_a?(Array) ? value : value.to_s.split(",").map(&:strip)
       when "json"
-        value.is_a?(String) ? JSON.parse(value) : value rescue {}
+        begin
+          value.is_a?(String) ? JSON.parse(value) : value
+        rescue
+          {}
+        end
       else
         value.to_s
       end
@@ -54,23 +66,23 @@ module PromptEngine
       if validation_rules.present?
         # Apply custom validation rules
         if validation_rules["min_length"] && value.to_s.length < validation_rules["min_length"]
-          errors << "#{name} must be at least #{validation_rules['min_length']} characters"
+          errors << "#{name} must be at least #{validation_rules["min_length"]} characters"
         end
 
         if validation_rules["max_length"] && value.to_s.length > validation_rules["max_length"]
-          errors << "#{name} must be at most #{validation_rules['max_length']} characters"
+          errors << "#{name} must be at most #{validation_rules["max_length"]} characters"
         end
 
         if validation_rules["pattern"] && !value.to_s.match?(Regexp.new(validation_rules["pattern"]))
-          errors << "#{name} must match pattern: #{validation_rules['pattern']}"
+          errors << "#{name} must match pattern: #{validation_rules["pattern"]}"
         end
 
         if validation_rules["min"] && cast_value(value) < validation_rules["min"]
-          errors << "#{name} must be at least #{validation_rules['min']}"
+          errors << "#{name} must be at least #{validation_rules["min"]}"
         end
 
         if validation_rules["max"] && cast_value(value) > validation_rules["max"]
-          errors << "#{name} must be at most #{validation_rules['max']}"
+          errors << "#{name} must be at most #{validation_rules["max"]}"
         end
       end
 
@@ -89,7 +101,7 @@ module PromptEngine
       case parameter_type
       when "integer", "decimal"
         options[:type] = "number"
-        options[:step] = parameter_type == "decimal" ? "0.01" : "1"
+        options[:step] = (parameter_type == "decimal") ? "0.01" : "1"
         options[:min] = validation_rules["min"] if validation_rules&.dig("min")
         options[:max] = validation_rules["max"] if validation_rules&.dig("max")
       when "boolean"

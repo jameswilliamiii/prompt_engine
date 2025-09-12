@@ -8,8 +8,8 @@ module PromptEngine
     validates :model, presence: true
     validates :rendered_prompt, presence: true
     validates :response, presence: true
-    validates :execution_time, presence: true, numericality: { greater_than_or_equal_to: 0 }
-    validates :token_count, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+    validates :execution_time, presence: true, numericality: {greater_than_or_equal_to: 0}
+    validates :token_count, numericality: {greater_than_or_equal_to: 0}, allow_nil: true
 
     serialize :parameters, coder: JSON
 

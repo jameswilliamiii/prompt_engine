@@ -12,8 +12,8 @@ module PromptEngine
     }.freeze
 
     validates :name, presence: true
-    validates :name, uniqueness: { scope: :prompt_id }
-    validates :grader_type, presence: true, inclusion: { in: GRADER_TYPES.keys.map(&:to_s) }
+    validates :name, uniqueness: {scope: :prompt_id}
+    validates :grader_type, presence: true, inclusion: {in: GRADER_TYPES.keys.map(&:to_s)}
 
     validate :validate_grader_config
 

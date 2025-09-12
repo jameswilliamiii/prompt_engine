@@ -1,4 +1,4 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe "PromptEngine Authentication", type: :request do
   describe "default behavior" do

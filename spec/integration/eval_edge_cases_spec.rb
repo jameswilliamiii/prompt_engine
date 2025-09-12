@@ -128,7 +128,7 @@ RSpec.describe "Evaluation Edge Cases", type: :integration do
     it "allows adding test cases after creation" do
       expect(empty_eval_set.test_cases.count).to eq(0)
 
-      test_case = create(:test_case, eval_set: empty_eval_set)
+      create(:test_case, eval_set: empty_eval_set)
 
       expect(empty_eval_set.reload.test_cases.count).to eq(1)
       expect(empty_eval_set.ready_to_run?).to be true

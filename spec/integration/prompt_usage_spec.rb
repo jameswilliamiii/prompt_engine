@@ -10,8 +10,8 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
 
       def generate_welcome_email
         PromptEngine.render("welcome-email",
-          { customer_name: customer_name,
-            product_name: product_name })
+          {customer_name: customer_name,
+           product_name: product_name})
 
         # In a real app, this would call an AI service
         # For testing, we just return the rendered prompt
@@ -19,8 +19,8 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
 
       def generate_support_response(issue_description)
         PromptEngine.render("support-response",
-          { customer_name: customer_name,
-            issue: issue_description })
+          {customer_name: customer_name,
+           issue: issue_description})
       end
     end
   end
@@ -84,7 +84,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
     end
 
     it "raises an error when prompt doesn't exist" do
-      customer = CustomerEmail.new(customer_name: "Test User")
+      CustomerEmail.new(customer_name: "Test User")
 
       expect {
         PromptEngine.render(:non_existent_prompt)
@@ -93,7 +93,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
 
     it "only uses active prompts" do
       # Create a different archived prompt
-      archived_prompt = PromptEngine::Prompt.create!(
+      PromptEngine::Prompt.create!(
         name: "old-welcome-email",
         content: "Old version",
         status: "archived"
@@ -112,7 +112,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
     end
 
     it "handles prompts without variables" do
-      simple_prompt = PromptEngine::Prompt.create!(
+      PromptEngine::Prompt.create!(
         name: "simple-greeting",
         content: "Hello! How can I help you today?",
         status: "active"
@@ -124,11 +124,11 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
     end
 
     xit "preserves unmatched variables when variable is not provided" do
-      customer = CustomerEmail.new(customer_name: "Alice")
+      CustomerEmail.new(customer_name: "Alice")
 
       # Don't provide product_name
       result = PromptEngine.render("welcome-email",
-        { customer_name: "Alice" })
+        {customer_name: "Alice"})
 
       expect(result.content).to include("Alice")
       expect(result.content).to include("{{product_name}}") # Unmatched variable preserved
@@ -158,9 +158,9 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
         private
 
         def generate_summary
-          prompt_data = PromptEngine.render("article-summary",
-            { title: title,
-              content: content })
+          PromptEngine.render("article-summary",
+            {title: title,
+             content: content})
 
           # In real usage, this would call an AI service
           self.summary = "Generated summary for: #{title}"

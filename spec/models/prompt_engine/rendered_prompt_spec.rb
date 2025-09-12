@@ -122,7 +122,7 @@ RSpec.describe PromptEngine::RenderedPrompt, type: :model do
     end
 
     context "with overrides" do
-      let(:overrides) { { model: "gpt-3.5-turbo", temperature: 0.5 } }
+      let(:overrides) { {model: "gpt-3.5-turbo", temperature: 0.5} }
 
       it "includes overrides in the inspect output" do
         output = rendered_prompt.inspect
@@ -152,7 +152,7 @@ RSpec.describe PromptEngine::RenderedPrompt, type: :model do
   end
 
   describe "overrides" do
-    let(:overrides) { { model: "gpt-3.5-turbo", temperature: 0.5 } }
+    let(:overrides) { {model: "gpt-3.5-turbo", temperature: 0.5} }
 
     it "applies overrides to model settings" do
       expect(rendered_prompt.model).to eq("gpt-3.5-turbo")

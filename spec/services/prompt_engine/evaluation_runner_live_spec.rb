@@ -38,17 +38,17 @@ RSpec.describe PromptEngine::EvaluationRunner, :live_api do
     [
       create(:test_case,
         eval_set: eval_set,
-        input_variables: { "num1" => "2", "num2" => "3" },
+        input_variables: {"num1" => "2", "num2" => "3"},
         expected_output: "5",
         description: "Simple addition"),
       create(:test_case,
         eval_set: eval_set,
-        input_variables: { "num1" => "10", "num2" => "15" },
+        input_variables: {"num1" => "10", "num2" => "15"},
         expected_output: "25",
         description: "Double digit addition"),
       create(:test_case,
         eval_set: eval_set,
-        input_variables: { "num1" => "100", "num2" => "200" },
+        input_variables: {"num1" => "100", "num2" => "200"},
         expected_output: "300",
         description: "Triple digit addition")
     ]
@@ -108,8 +108,8 @@ RSpec.describe PromptEngine::EvaluationRunner, :live_api do
             item_schema: {
               type: "object",
               properties: {
-                input: { type: "string" },
-                output: { type: "string" }
+                input: {type: "string"},
+                output: {type: "string"}
               }
             }
           },
@@ -144,16 +144,16 @@ RSpec.describe PromptEngine::EvaluationRunner, :live_api do
       # Mock a simple evaluation using chat completions
       results = test_cases.map do |test_case|
         # Render the prompt with variables
-        rendered = prompt.render(variables: test_case.input_variables)
+        prompt.render(variables: test_case.input_variables)
 
         # In a real implementation, you would call OpenAI chat here
         # For testing, we'll simulate the response
         actual_output = case test_case.input_variables
-        when { "num1" => "2", "num2" => "3" }
+        when {"num1" => "2", "num2" => "3"}
           "5"
-        when { "num1" => "10", "num2" => "15" }
+        when {"num1" => "10", "num2" => "15"}
           "25"
-        when { "num1" => "100", "num2" => "200" }
+        when {"num1" => "100", "num2" => "200"}
           "300"
         end
 

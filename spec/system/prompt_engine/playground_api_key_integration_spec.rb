@@ -1,11 +1,10 @@
-require 'rails_helper'
+require "rails_helper"
 
 module PromptEngine
   RSpec.describe "Playground API Key Integration", type: :system do
     include Engine.routes.url_helpers
 
     let(:prompt) { create(:prompt, name: "Test Prompt", content: "Hello {{name}}") }
-
 
     describe "API key prefilling from settings" do
       context "when settings have API keys saved" do
@@ -18,14 +17,14 @@ module PromptEngine
 
         it "shows checkbox to use saved keys and only prefills when checked" do
           visit playground_prompt_path(prompt)
-          
+
           # Should show checkbox for using saved keys
           expect(page).to have_field("Use saved API keys from settings")
-          
+
           # Should not prefill API key by default
           expect(page).to have_field("api_key", with: "")
           expect(page).to have_text("Your API key will not be stored")
-          
+
           # API keys should still be available in data attributes for Stimulus
           playground_controller = find('[data-controller="prompt-engine--playground"]')
           expect(playground_controller["data-prompt-engine--playground-anthropic-key-value"]).to eq("sk-ant-test-anthropic-key")

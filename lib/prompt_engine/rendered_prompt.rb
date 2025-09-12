@@ -1,7 +1,7 @@
 module PromptEngine
   class RenderedPrompt
     attr_reader :prompt, :content, :overrides,
-                :version_number
+      :version_number
 
     def initialize(prompt, rendered_data, overrides = {})
       @prompt = prompt
@@ -23,9 +23,7 @@ module PromptEngine
     end
 
     # Individual accessors for common options
-    def status
-      @status
-    end
+    attr_reader :status
 
     def version
       @version_number
@@ -50,8 +48,8 @@ module PromptEngine
     # Returns messages array for chat-based models
     def messages
       msgs = []
-      msgs << { role: "system", content: system_message } if system_message.present?
-      msgs << { role: "user", content: content }
+      msgs << {role: "system", content: system_message} if system_message.present?
+      msgs << {role: "user", content: content}
       msgs
     end
 
@@ -96,9 +94,7 @@ module PromptEngine
     end
 
     # Parameter access methods
-    def parameters
-      @parameters
-    end
+    attr_reader :parameters
 
     def parameter(key)
       @parameters[key.to_s]

@@ -1,4 +1,4 @@
-require 'rails_helper'
+require "rails_helper"
 
 module PromptEngine
   RSpec.describe "Evaluation Workflow Integration", type: :integration do
@@ -7,8 +7,7 @@ module PromptEngine
         name: "summarizer",
         content: "Summarize this text in {{style}} style: {{text}}",
         system_message: "You are a helpful summarization assistant.",
-        status: "active"
-      )
+        status: "active")
     end
 
     describe "complete evaluation workflow" do
@@ -23,7 +22,7 @@ module PromptEngine
         expect(eval_set.prompt).to eq(prompt)
 
         # Step 2: Add test cases
-        test_case1 = TestCase.create!(
+        TestCase.create!(
           eval_set: eval_set,
           input_variables: {
             "style" => "concise",
@@ -33,7 +32,7 @@ module PromptEngine
           description: "Concise style test"
         )
 
-        test_case2 = TestCase.create!(
+        TestCase.create!(
           eval_set: eval_set,
           input_variables: {
             "style" => "detailed",
@@ -174,7 +173,7 @@ module PromptEngine
 
         # Missing expected output
         invalid_test_case2 = eval_set.test_cases.build(
-          input_variables: { "style" => "concise", "text" => "test" }
+          input_variables: {"style" => "concise", "text" => "test"}
         )
         expect(invalid_test_case2).not_to be_valid
         expect(invalid_test_case2.errors[:expected_output]).to include("can't be blank")
@@ -184,14 +183,14 @@ module PromptEngine
         # In a real implementation, you might validate that provided variables
         # match the expected variables from the prompt
         test_case = eval_set.test_cases.build(
-          input_variables: { "style" => "concise", "text" => "test content" },
+          input_variables: {"style" => "concise", "text" => "test content"},
           expected_output: "A concise summary"
         )
         expect(test_case).to be_valid
 
         # Test with missing required variable
         test_case_missing_var = eval_set.test_cases.build(
-          input_variables: { "style" => "concise" }, # missing "text"
+          input_variables: {"style" => "concise"}, # missing "text"
           expected_output: "A summary"
         )
         # This would need custom validation in the TestCase model

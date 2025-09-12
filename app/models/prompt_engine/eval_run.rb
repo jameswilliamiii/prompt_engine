@@ -4,7 +4,7 @@ module PromptEngine
     belongs_to :prompt_version
     has_many :eval_results, dependent: :destroy
 
-    enum :status, { pending: 0, running: 1, completed: 2, failed: 3 }
+    enum :status, {pending: 0, running: 1, completed: 2, failed: 3}
 
     scope :recent, -> { order(created_at: :desc) }
     scope :by_status, ->(status) { where(status: status) }

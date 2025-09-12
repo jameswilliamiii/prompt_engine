@@ -1,4 +1,4 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe "Settings API Key Integration", type: :integration do
   let(:prompt) { create(:prompt) }
@@ -60,7 +60,7 @@ RSpec.describe "Settings API Key Integration", type: :integration do
     let(:playground_executor) do
       PromptEngine::PlaygroundExecutor.new(
         prompt_version: prompt_version,
-        input_variables: { topic: "test" }
+        input_variables: {topic: "test"}
       )
     end
 
@@ -77,7 +77,7 @@ RSpec.describe "Settings API Key Integration", type: :integration do
         mock_client = instance_double("OpenAI::Client")
         allow(OpenAI::Client).to receive(:new).and_return(mock_client)
         allow(mock_client).to receive(:chat).and_return({
-          "choices" => [ { "message" => { "content" => "Response" } } ]
+          "choices" => [{"message" => {"content" => "Response"}}]
         })
 
         # Verify it uses the Settings key
@@ -103,7 +103,7 @@ RSpec.describe "Settings API Key Integration", type: :integration do
         mock_client = instance_double("Anthropic::Client")
         allow(Anthropic::Client).to receive(:new).and_return(mock_client)
         allow(mock_client).to receive(:messages).and_return({
-          "content" => [ { "text" => "Response" } ]
+          "content" => [{"text" => "Response"}]
         })
 
         # Verify it uses the Settings key

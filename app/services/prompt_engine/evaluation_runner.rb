@@ -29,7 +29,6 @@ module PromptEngine
 
       # Step 4: Poll for results
       poll_for_results
-
     rescue => e
       @eval_run.update!(status: :failed, error_message: e.message)
       raise
@@ -46,12 +45,12 @@ module PromptEngine
 
       # Add properties for each parameter in the prompt
       @prompt.parameters.each do |param|
-        schema_properties[param.name] = { type: parameter_type_to_json_schema(param.parameter_type) }
+        schema_properties[param.name] = {type: parameter_type_to_json_schema(param.parameter_type)}
         required_fields << param.name if param.required?
       end
 
       # Always include expected_output
-      schema_properties["expected_output"] = { type: "string" }
+      schema_properties["expected_output"] = {type: "string"}
       required_fields << "expected_output"
 
       # Create eval configuration on OpenAI
@@ -82,7 +81,7 @@ module PromptEngine
           item_data = test_case.input_variables.dup
           item_data["expected_output"] = test_case.expected_output
 
-          line = { item: item_data }
+          line = {item: item_data}
           file.puts(line.to_json)
         end
       end
@@ -194,49 +193,49 @@ module PromptEngine
     def build_testing_criteria
       case @eval_set.grader_type
       when "exact_match"
-        [ {
+        [{
           type: "string_check",
           name: "Exact match",
           input: "{{ sample.output_text }}",
           operation: "eq",
           reference: "{{ item.expected_output }}"
-        } ]
+        }]
       when "regex"
-        [ {
+        [{
           type: "string_check",
           name: "Regex match",
           input: "{{ sample.output_text }}",
           operation: "regex",
           reference: @eval_set.grader_config["pattern"]
-        } ]
+        }]
       when "contains"
-        [ {
+        [{
           type: "string_check",
           name: "Contains text",
           input: "{{ sample.output_text }}",
           operation: "contains",
           reference: "{{ item.expected_output }}"
-        } ]
+        }]
       when "json_schema"
         # OpenAI doesn't support json_schema_check directly
         # For MVP, we'll just verify the output is valid JSON format
         # and matches the expected output exactly
-        [ {
+        [{
           type: "string_check",
           name: "JSON format validation",
           input: "{{ sample.output_text }}",
           operation: "eq",
           reference: "{{ item.expected_output }}"
-        } ]
+        }]
       else
         # Default to exact match
-        [ {
+        [{
           type: "string_check",
           name: "Exact match",
           input: "{{ sample.output_text }}",
           operation: "eq",
           reference: "{{ item.expected_output }}"
-        } ]
+        }]
       end
     end
 

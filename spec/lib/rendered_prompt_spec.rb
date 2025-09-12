@@ -10,8 +10,7 @@ module PromptEngine
         model: "gpt-4",
         temperature: 0.7,
         max_tokens: 1000,
-        status: "active"
-      )
+        status: "active")
     end
 
     let(:rendered_data) do
@@ -21,7 +20,7 @@ module PromptEngine
         model: "gpt-4",
         temperature: 0.7,
         max_tokens: 1000,
-        parameters_used: { "name" => "Alice" },
+        parameters_used: {"name" => "Alice"},
         version_number: 1
       }
     end
@@ -54,7 +53,7 @@ module PromptEngine
       end
 
       it "returns the prompt's status if not overridden" do
-        prompt_without_status = described_class.new(prompt, rendered_data, { model: "gpt-4" })
+        prompt_without_status = described_class.new(prompt, rendered_data, {model: "gpt-4"})
         expect(prompt_without_status.status).to eq("active")
       end
     end
@@ -95,7 +94,7 @@ module PromptEngine
 
     describe "#max_tokens" do
       it "returns overridden max_tokens when provided" do
-        with_max_tokens = described_class.new(prompt, rendered_data, { max_tokens: 2000 })
+        with_max_tokens = described_class.new(prompt, rendered_data, {max_tokens: 2000})
         expect(with_max_tokens.max_tokens).to eq(2000)
       end
 
@@ -106,7 +105,7 @@ module PromptEngine
 
     describe "#system_message" do
       it "returns overridden system_message when provided" do
-        with_system = described_class.new(prompt, rendered_data, { system_message: "New system message" })
+        with_system = described_class.new(prompt, rendered_data, {system_message: "New system message"})
         expect(with_system.system_message).to eq("New system message")
       end
 
@@ -127,7 +126,7 @@ module PromptEngine
           status: "draft",
           version: 1,
           options: overrides,
-          parameters: { "name" => "Alice" }
+          parameters: {"name" => "Alice"}
         )
       end
     end
@@ -165,19 +164,19 @@ module PromptEngine
           messages = prompt_with_system.messages
 
           expect(messages).to eq([
-            { role: "system", content: "You are a helpful assistant" },
-            { role: "user", content: "Hello world" }
+            {role: "system", content: "You are a helpful assistant"},
+            {role: "user", content: "Hello world"}
           ])
         end
 
         it "uses system message from overrides when provided" do
-          overrides_with_system = { system_message: "Override system message" }
+          overrides_with_system = {system_message: "Override system message"}
           prompt_with_override = described_class.new(prompt, rendered_data, overrides_with_system)
           messages = prompt_with_override.messages
 
           expect(messages).to eq([
-            { role: "system", content: "Override system message" },
-            { role: "user", content: "Hello world" }
+            {role: "system", content: "Override system message"},
+            {role: "user", content: "Hello world"}
           ])
         end
       end
@@ -200,7 +199,7 @@ module PromptEngine
           messages = prompt_no_system.messages
 
           expect(messages).to eq([
-            { role: "user", content: "Hello world" }
+            {role: "user", content: "Hello world"}
           ])
         end
 
@@ -210,7 +209,7 @@ module PromptEngine
           messages = prompt_empty_system.messages
 
           expect(messages).to eq([
-            { role: "user", content: "Hello world" }
+            {role: "user", content: "Hello world"}
           ])
         end
 
@@ -220,7 +219,7 @@ module PromptEngine
           messages = prompt_whitespace_system.messages
 
           expect(messages).to eq([
-            { role: "user", content: "Hello world" }
+            {role: "user", content: "Hello world"}
           ])
         end
       end
@@ -231,7 +230,7 @@ module PromptEngine
           prompt_complex = described_class.new(prompt, data_with_content)
           messages = prompt_complex.messages
 
-          expect(messages.last).to eq({ role: "user", content: "Complex prompt with {{variables}}" })
+          expect(messages.last).to eq({role: "user", content: "Complex prompt with {{variables}}"})
         end
       end
     end
@@ -257,8 +256,8 @@ module PromptEngine
           expect(params).to eq({
             model: "gpt-4",
             messages: [
-              { role: "system", content: "You are helpful" },
-              { role: "user", content: "Test prompt" }
+              {role: "system", content: "You are helpful"},
+              {role: "user", content: "Test prompt"}
             ],
             temperature: 0.7,
             max_tokens: 1000
@@ -313,7 +312,7 @@ module PromptEngine
           expect(params).to eq({
             model: "gpt-3.5-turbo",
             messages: [
-              { role: "user", content: "Test prompt" }
+              {role: "user", content: "Test prompt"}
             ]
           })
           expect(params).not_to have_key(:temperature)
@@ -325,9 +324,9 @@ module PromptEngine
         it "merges additional options into the parameters" do
           prompt_test = described_class.new(prompt, rendered_data)
           params = prompt_test.to_openai_params(
-            tools: [ { type: "function", function: { name: "test" } } ],
+            tools: [{type: "function", function: {name: "test"}}],
             stream: true,
-            response_format: { type: "json_object" }
+            response_format: {type: "json_object"}
           )
 
           expect(params).to include(
@@ -335,9 +334,9 @@ module PromptEngine
             messages: anything,
             temperature: 0.7,
             max_tokens: 1000,
-            tools: [ { type: "function", function: { name: "test" } } ],
+            tools: [{type: "function", function: {name: "test"}}],
             stream: true,
-            response_format: { type: "json_object" }
+            response_format: {type: "json_object"}
           )
         end
 
@@ -382,8 +381,8 @@ module PromptEngine
           expect(params).to eq({
             model: "gpt-4-turbo",
             messages: [
-              { role: "system", content: "Override system" },
-              { role: "user", content: "Test prompt" }
+              {role: "system", content: "Override system"},
+              {role: "user", content: "Test prompt"}
             ],
             temperature: 0.3,
             max_tokens: 2000
@@ -412,8 +411,8 @@ module PromptEngine
 
           expect(params).to eq({
             messages: [
-              { role: "system", content: "You are helpful" },
-              { role: "user", content: "Test prompt" }
+              {role: "system", content: "You are helpful"},
+              {role: "user", content: "Test prompt"}
             ],
             model: "claude-3-opus",
             temperature: 0.7,
@@ -475,7 +474,7 @@ module PromptEngine
 
           expect(params).to eq({
             messages: [
-              { role: "user", content: "Test prompt" }
+              {role: "user", content: "Test prompt"}
             ],
             model: "claude-3-sonnet"
           })
@@ -500,9 +499,9 @@ module PromptEngine
         it "merges additional options into the parameters" do
           prompt_test = described_class.new(prompt, test_rendered_data)
           params = prompt_test.to_ruby_llm_params(
-            stop_sequences: [ "\\n\\n" ],
+            stop_sequences: ["\\n\\n"],
             top_p: 0.9,
-            metadata: { user_id: 123 }
+            metadata: {user_id: 123}
           )
 
           expect(params).to include(
@@ -510,9 +509,9 @@ module PromptEngine
             model: "claude-3-opus",
             temperature: 0.7,
             max_tokens: 1000,
-            stop_sequences: [ "\\n\\n" ],
+            stop_sequences: ["\\n\\n"],
             top_p: 0.9,
-            metadata: { user_id: 123 }
+            metadata: {user_id: 123}
           )
         end
 
@@ -556,8 +555,8 @@ module PromptEngine
 
           expect(params).to eq({
             messages: [
-              { role: "system", content: "Override system" },
-              { role: "user", content: "Test prompt" }
+              {role: "system", content: "Override system"},
+              {role: "user", content: "Test prompt"}
             ],
             model: "claude-3-sonnet",
             temperature: 0.4,
@@ -606,8 +605,8 @@ module PromptEngine
           expected_params = {
             model: "gpt-4",
             messages: [
-              { role: "system", content: "Test system" },
-              { role: "user", content: "Test prompt" }
+              {role: "system", content: "Test system"},
+              {role: "user", content: "Test prompt"}
             ],
             temperature: 0.7,
             max_tokens: 1000
@@ -619,14 +618,14 @@ module PromptEngine
 
         it "passes additional options to OpenAI parameters" do
           expect(openai_client).to receive(:chat).with(
-            parameters: hash_including(stream: true, tools: [ "test" ])
+            parameters: hash_including(stream: true, tools: ["test"])
           )
 
-          rendered_prompt.execute_with(openai_client, stream: true, tools: [ "test" ])
+          rendered_prompt.execute_with(openai_client, stream: true, tools: ["test"])
         end
 
         it "works with different OpenAI client class names" do
-          [ "OpenAI", "MyOpenAIWrapper", "CustomOpenAIClient" ].each do |class_name|
+          ["OpenAI", "MyOpenAIWrapper", "CustomOpenAIClient"].each do |class_name|
             client_class = double("Class", name: class_name)
             client = double(class_name, class: client_class)
 
@@ -645,8 +644,8 @@ module PromptEngine
         it "detects Anthropic client and calls chat with splatted parameters" do
           expected_params = {
             messages: [
-              { role: "system", content: "Test system" },
-              { role: "user", content: "Test prompt" }
+              {role: "system", content: "Test system"},
+              {role: "user", content: "Test prompt"}
             ],
             model: "gpt-4",
             temperature: 0.7,
@@ -659,14 +658,14 @@ module PromptEngine
 
         it "passes additional options to Anthropic parameters" do
           expect(anthropic_client).to receive(:chat).with(
-            hash_including(stop_sequences: [ "\\n" ], metadata: { user: "test" })
+            hash_including(stop_sequences: ["\\n"], metadata: {user: "test"})
           )
 
-          rendered_prompt.execute_with(anthropic_client, stop_sequences: [ "\\n" ], metadata: { user: "test" })
+          rendered_prompt.execute_with(anthropic_client, stop_sequences: ["\\n"], metadata: {user: "test"})
         end
 
         it "works with different Anthropic client class names" do
-          [ "Anthropic", "AnthropicAPI", "MyAnthropicWrapper" ].each do |class_name|
+          ["Anthropic", "AnthropicAPI", "MyAnthropicWrapper"].each do |class_name|
             client_class = double("Class", name: class_name)
             client = double(class_name, class: client_class)
 
@@ -685,8 +684,8 @@ module PromptEngine
         it "detects RubyLLM client and calls chat with splatted parameters" do
           expected_params = {
             messages: [
-              { role: "system", content: "Test system" },
-              { role: "user", content: "Test prompt" }
+              {role: "system", content: "Test system"},
+              {role: "user", content: "Test prompt"}
             ],
             model: "gpt-4",
             temperature: 0.7,
@@ -699,14 +698,14 @@ module PromptEngine
 
         it "passes additional options to RubyLLM parameters" do
           expect(ruby_llm_client).to receive(:chat).with(
-            hash_including(provider_options: { api_key: "test" })
+            hash_including(provider_options: {api_key: "test"})
           )
 
-          rendered_prompt.execute_with(ruby_llm_client, provider_options: { api_key: "test" })
+          rendered_prompt.execute_with(ruby_llm_client, provider_options: {api_key: "test"})
         end
 
         it "works with different RubyLLM client class names" do
-          [ "RubyLLM", "RubyLLMClient", "MyRubyLLMProvider" ].each do |class_name|
+          ["RubyLLM", "RubyLLMClient", "MyRubyLLMProvider"].each do |class_name|
             client_class = double("Class", name: class_name)
             client = double(class_name, class: client_class)
 
@@ -729,7 +728,7 @@ module PromptEngine
         end
 
         it "includes the class name in the error message" do
-          [ "SomeOtherClient", "UnknownProvider", "CustomLLM" ].each do |class_name|
+          ["SomeOtherClient", "UnknownProvider", "CustomLLM"].each do |class_name|
             client_class = double("Class", name: class_name)
             client = double(class_name, class: client_class)
 

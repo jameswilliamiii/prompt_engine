@@ -1,7 +1,7 @@
 module PromptEngine
   class EvalSetsController < ApplicationController
     before_action :set_prompt
-    before_action :set_eval_set, only: [ :show, :edit, :update, :destroy, :run, :compare, :metrics ]
+    before_action :set_eval_set, only: [:show, :edit, :update, :destroy, :run, :compare, :metrics]
 
     def index
       @eval_sets = @prompt.eval_sets
@@ -145,8 +145,6 @@ module PromptEngine
         @duration_trend = @eval_runs.map do |run|
           duration = if run.completed_at && run.started_at
             (run.completed_at - run.started_at).to_i
-          else
-            nil
           end
           {
             date: run.created_at.strftime("%b %d, %Y %I:%M %p"),

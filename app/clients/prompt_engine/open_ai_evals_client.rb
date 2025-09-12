@@ -42,8 +42,8 @@ module PromptEngine
 
       File.open(file_path, "rb") do |file|
         form_data = [
-          [ "purpose", purpose ],
-          [ "file", file, { filename: File.basename(file_path) } ]
+          ["purpose", purpose],
+          ["file", file, {filename: File.basename(file_path)}]
         ]
         request.set_form(form_data, "multipart/form-data")
 
@@ -53,7 +53,7 @@ module PromptEngine
 
         handle_response(response)
       end
-    rescue Errno::ENOENT => e
+    rescue Errno::ENOENT
       raise APIError, "File not found: #{file_path}"
     rescue => e
       raise APIError, "File upload failed: #{e.message}"
@@ -81,9 +81,9 @@ module PromptEngine
 
       response = http.request(request)
       handle_response(response)
-    rescue Net::ReadTimeout => e
+    rescue Net::ReadTimeout
       raise APIError, "Request timed out"
-    rescue Net::OpenTimeout => e
+    rescue Net::OpenTimeout
       raise APIError, "Connection timed out"
     rescue => e
       raise APIError, "Request failed: #{e.message}"
@@ -101,9 +101,9 @@ module PromptEngine
 
       response = http.request(request)
       handle_response(response)
-    rescue Net::ReadTimeout => e
+    rescue Net::ReadTimeout
       raise APIError, "Request timed out"
-    rescue Net::OpenTimeout => e
+    rescue Net::OpenTimeout
       raise APIError, "Connection timed out"
     rescue => e
       raise APIError, "Request failed: #{e.message}"

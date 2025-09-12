@@ -1,4 +1,4 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe "Test Case Import", type: :system do
   include PromptEngine::Engine.routes.url_helpers
@@ -22,7 +22,7 @@ RSpec.describe "Test Case Import", type: :system do
       Charlie,42,"Hello Charlie, you are 42 years old",
     CSV
 
-    csv_file = Tempfile.new([ 'test_cases', '.csv' ])
+    csv_file = Tempfile.new(["test_cases", ".csv"])
     csv_file.write(csv_content)
     csv_file.rewind
 
@@ -71,17 +71,17 @@ RSpec.describe "Test Case Import", type: :system do
   scenario "User imports test cases from JSON file" do
     json_content = [
       {
-        input_variables: { name: "David", age: "50" },
+        input_variables: {name: "David", age: "50"},
         expected_output: "Hello David, you are 50 years old",
         description: "Senior user test"
       },
       {
-        input_variables: { name: "Eve", age: "18" },
+        input_variables: {name: "Eve", age: "18"},
         expected_output: "Hello Eve, you are 18 years old"
       }
     ].to_json
 
-    json_file = Tempfile.new([ 'test_cases', '.json' ])
+    json_file = Tempfile.new(["test_cases", ".json"])
     json_file.write(json_content)
     json_file.rewind
 
@@ -113,7 +113,7 @@ RSpec.describe "Test Case Import", type: :system do
     end
 
     # Try to upload a text file
-    txt_file = Tempfile.new([ 'invalid', '.txt' ])
+    txt_file = Tempfile.new(["invalid", ".txt"])
     txt_file.write("This is not CSV or JSON")
     txt_file.rewind
 
@@ -128,7 +128,7 @@ RSpec.describe "Test Case Import", type: :system do
 
   scenario "User cancels import at preview stage" do
     csv_content = "name,age,expected_output\nTest,20,Output"
-    csv_file = Tempfile.new([ 'test', '.csv' ])
+    csv_file = Tempfile.new(["test", ".csv"])
     csv_file.write(csv_content)
     csv_file.rewind
 

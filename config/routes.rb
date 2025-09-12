@@ -14,15 +14,15 @@ PromptEngine::Engine.routes.draw do
       get :search
     end
 
-    resources :versions, only: [ :index, :show ] do
+    resources :versions, only: [:index, :show] do
       member do
         post :restore
         get :compare
       end
-      resources :playground_run_results, only: [ :index ]
+      resources :playground_run_results, only: [:index]
     end
 
-    resources :playground_run_results, only: [ :index ]
+    resources :playground_run_results, only: [:index]
 
     resources :eval_sets do
       member do
@@ -30,7 +30,7 @@ PromptEngine::Engine.routes.draw do
         get :compare
         get :metrics
       end
-      resources :test_cases, except: [ :index, :show ] do
+      resources :test_cases, except: [:index, :show] do
         collection do
           get :import
           post :import_preview
@@ -38,12 +38,12 @@ PromptEngine::Engine.routes.draw do
         end
       end
     end
-    resources :eval_runs, only: [ :show ]
+    resources :eval_runs, only: [:show]
   end
 
-  resources :playground_run_results, only: [ :index, :show ]
+  resources :playground_run_results, only: [:index, :show]
 
-  resource :settings, only: [ :edit, :update ]
+  resource :settings, only: [:edit, :update]
 
   # Evaluations index - shows all eval sets across all prompts
   get "evaluations", to: "evaluations#index", as: :evaluations
@@ -51,7 +51,7 @@ PromptEngine::Engine.routes.draw do
   # API endpoints for integration
   namespace :api do
     namespace :v1 do
-      resources :prompts, only: [ :index, :show ] do
+      resources :prompts, only: [:index, :show] do
         member do
           post :execute
         end
