@@ -1,19 +1,19 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
-require 'simplecov'
-SimpleCov.start 'rails' do
-  add_filter '/spec/'
-  add_filter '/config/'
-  add_filter '/vendor/'
-  add_filter '/db/'
+require "simplecov"
+SimpleCov.start "rails" do
+  add_filter "/spec/"
+  add_filter "/config/"
+  add_filter "/vendor/"
+  add_filter "/db/"
 
-  add_group 'Models', 'app/models'
-  add_group 'Controllers', 'app/controllers'
-  add_group 'Helpers', 'app/helpers'
-  add_group 'Services', 'app/services'
-  add_group 'Views', 'app/views'
+  add_group "Models", "app/models"
+  add_group "Controllers", "app/controllers"
+  add_group "Helpers", "app/helpers"
+  add_group "Services", "app/services"
+  add_group "Views", "app/views"
 
   # Engine-specific configuration
-  coverage_dir 'coverage'
+  coverage_dir "coverage"
   # TODO: Increase minimum coverage as we add more tests
   minimum_coverage 45
   # Enable branch coverage before using refuse_coverage_drop
