@@ -259,6 +259,14 @@ We welcome contributions! Here's how you can help:
    bundle exec rails server
    ```
 
+### Setting Up the Dummy App
+
+_You shouldn't need this but just in-case_
+
+```
+rails new dummy --skip-test  --skip-git --skip-devcontainer --skip-solid --skip-kamal --skip-brakeman --skip-rubocop --skip-thruster --skip-bootsnap --skip-docker
+```
+
 ### Making Changes
 
 1. Create a feature branch:

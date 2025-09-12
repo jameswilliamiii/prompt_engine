@@ -20,8 +20,7 @@ bundle exec rake setup                      # Complete setup for development and
 
 This setup task:
 - Removes existing migrations and databases
-- Installs engine migrations into dummy app
-- Creates and migrates both development and test databases
+- Creates and migrates both development and test databases  
 - Seeds development database with sample data
 
 ### Running the Development Server
@@ -36,12 +35,9 @@ Access the admin interface at `http://localhost:3000/prompt_engine`
 
 ```bash
 cd spec/dummy
-bundle exec rails prompt_engine:install:migrations  # REQUIRED: Install engine migrations first
 bundle exec rails db:create db:migrate db:seed      # Setup development database
 RAILS_ENV=test bundle exec rails db:create db:migrate  # Setup test database
 ```
-
-**Note**: Engine migrations are NOT automatically loaded. You must explicitly run `rails prompt_engine:install:migrations` before running `db:migrate`.
 
 ### Running Tests
 
@@ -72,7 +68,7 @@ bundle exec rubocop -a                      # Auto-correct offenses
 bundle exec rake setup                      # Setup dummy app for development
 bundle exec rake spec                       # Run all specs
 bundle exec rake prompt_engine:setup        # Alternative setup command
-bin/rails prompt_engine:install:migrations  # Install engine migrations in host app
+bin/rails generate prompt_engine:install     # Install engine (routes, assets, migrations)
 ```
 
 ## Architecture Overview
@@ -240,13 +236,12 @@ anthropic:
 # Gemfile
 gem 'prompt_engine'
 
-# config/routes.rb
-mount PromptEngine::Engine => "/prompt_engine"
+# Install the engine (handles routes, assets, migrations)
+bin/rails generate prompt_engine:install
 
-# IMPORTANT: Install migrations before running db:migrate
-# The engine does NOT automatically include migrations
-bin/rails prompt_engine:install:migrations
+# Run migrations and start server
 bin/rails db:migrate
+bin/rails server
 
 # In your application code
 PromptEngine.render(:prompt_name, variables: { user_name: "John" })

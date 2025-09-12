@@ -20,6 +20,7 @@ module PromptEngine
         content = File.read(generator_file)
         
         expect(content).to include("class InstallGenerator")
+        expect(content).to include("def install_migrations")
         expect(content).to include("def add_route_mount")
         expect(content).to include("def create_initializer")
         expect(content).to include("def add_javascript_registration")

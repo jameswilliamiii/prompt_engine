@@ -5,9 +5,15 @@ module PromptEngine
     class InstallGenerator < Rails::Generators::Base
       source_root File.expand_path("templates", __dir__)
 
+      def install_migrations
+        rails_command "prompt_engine:install:migrations"
+        say "✓ Installed PromptEngine migrations", :green
+      end
+
       def add_route_mount
         return if routes_already_mounted?
         route "mount PromptEngine::Engine => '/prompt_engine'"
+        say "✓ Added PromptEngine route mount", :green
       end
 
       def create_initializer
@@ -31,6 +37,8 @@ module PromptEngine
         elsif File.exist?("app/javascript/controllers/index.js")
           append_to_controllers_index
         end
+
+        say "✓ Configured Stimulus JavaScript integration", :green
       end
 
       def add_stylesheet
@@ -38,6 +46,7 @@ module PromptEngine
           unless stylesheet_already_required?
             append_to_file "app/assets/stylesheets/application.css",
               "\n *= require prompt_engine/application\n"
+            say "✓ Added PromptEngine stylesheets to application.css", :green
           end
         else
           say <<~MESSAGE, :yellow
@@ -50,11 +59,10 @@ module PromptEngine
       def display_post_install
         say "\n✅ PromptEngine has been successfully installed!", :green
         say "\nNext steps:", :bold
-        say "  1. Run: bin/rails prompt_engine:install:migrations"
-        say "  2. Run: bin/rails db:migrate"
-        say "  3. Configure AI provider API keys in Rails credentials"
-        say "  4. Restart your Rails server"
-        say "  5. Visit /prompt_engine to verify installation"
+        say "  1. Run: bin/rails db:migrate"
+        say "  2. Configure AI provider API keys in Rails credentials"
+        say "  3. Restart your Rails server"
+        say "  4. Visit /prompt_engine to verify installation"
       end
 
       private
