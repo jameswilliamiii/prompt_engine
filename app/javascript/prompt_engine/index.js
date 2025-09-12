@@ -1,7 +1,7 @@
 // PromptEngine Stimulus Controllers
-import PlaygroundController from "./controllers/playground_controller";
-import PromptFormController from "./controllers/prompt_form_controller";
-import VariableDetectorController from "./controllers/variable_detector_controller";
+import PlaygroundController from "prompt_engine/controllers/playground_controller";
+import PromptFormController from "prompt_engine/controllers/prompt_form_controller";
+import VariableDetectorController from "prompt_engine/controllers/variable_detector_controller";
 
 // Export registration function for host app
 export function registerControllers(application) {
