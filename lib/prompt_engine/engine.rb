@@ -23,13 +23,13 @@ module PromptEngine
 
     # Add JavaScript path to asset pipeline
     initializer "prompt_engine.asset_paths" do |app|
-      app.config.assets.paths << root.join("app/javascript/prompt_engine")
+      app.config.assets.paths << root.join("app/javascript")
     end
     
     # Support for Importmaps
     initializer "prompt_engine.importmap", before: "importmap" do |app|
       app.config.importmap.paths << root.join("config/importmap.rb")
-      app.config.importmap.cache_sweepers << root.join("app/javascript/prompt_engine")
+      app.config.importmap.cache_sweepers << root.join("app/javascript")
     end
 
 
