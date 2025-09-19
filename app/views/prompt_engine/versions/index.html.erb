@@ -14,9 +14,9 @@
 <div class="versions-timeline">
   <% if @versions.any? %>
     <% @versions.each_with_index do |version, index| %>
-      <div class="version-item <%= 'version-item--current' if index == 0 %>">
+      <div class="version-item <%= 'version-item--current' if version.active? %>">
         <div class="version-item__marker">
-          <div class="version-item__marker-dot"></div>
+          <div class="version-item__marker-dot <%= 'version-item__marker-dot--active' if version.active? %>"></div>
           <% if index < @versions.length - 1 %>
             <div class="version-item__marker-line"></div>
           <% end %>
@@ -28,8 +28,10 @@
               <div class="version-card__header-main">
                 <h3 class="version-card__title">
                   Version <%= version.version_number %>
-                  <% if index == 0 %>
-                    <span class="badge badge--primary">Current</span>
+                  <% if version.active? %>
+                    <span class="badge badge--success">Active</span>
+                  <% elsif index == 0 %>
+                    <span class="badge badge--primary">Latest</span>
                   <% end %>
                 </h3>
                 <p class="version-card__summary">
@@ -44,6 +46,12 @@
                       method: :post, 
                       class: "button button--small button--secondary",
                       data: { turbo_confirm: "Are you sure you want to restore this version?" } %>
+                <% end %>
+                <% unless version.active? %>
+                  <%= button_to "Make Active", activate_prompt_version_path(@prompt, version), 
+                      method: :post, 
+                      class: "button button--small button--primary",
+                      data: { turbo_confirm: "Make this version active?" } %>
                 <% end %>
               </div>
             </div>

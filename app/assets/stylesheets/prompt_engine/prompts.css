@@ -26,6 +26,12 @@
   color: var(--color-gray-900);
 }
 
+.detail-value__secondary {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  margin-top: var(--spacing-xs);
+}
+
 /* Prompt Content Display */
 .prompt-content,
 .code-example {

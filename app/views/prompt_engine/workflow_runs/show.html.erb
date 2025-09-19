@@ -6,24 +6,25 @@
       (<%= time_ago_in_words(@workflow_run.created_at) %> ago)
     </p>
   </div>
-  <div class="admin-header__actions">
-    <span class="badge badge--<%= @workflow_run.status == 'completed' ? 'success' : 'danger' %>">
+  <div class="btn-group">
+    <span class="table__badge table__badge--<%= @workflow_run.status == 'completed' ? 'success' : 'danger' %>">
       <%= @workflow_run.status.humanize %>
     </span>
   </div>
 </div>
 
-<% if @workflow_run.status == 'failed' %>
-  <div class="alert alert--danger">
-    <strong>Error:</strong> <%= @workflow_run.error_message %>
-  </div>
-<% end %>
+<div class="prompt-details">
+  <% if @workflow_run.status == 'failed' %>
+    <div class="alert alert--danger mb-lg">
+      <strong>Error:</strong> <%= @workflow_run.error_message %>
+    </div>
+  <% end %>
 
-<!-- Run Information -->
-<div class="card">
-  <div class="card__header">
-    <h3 class="card__title">Run Information</h3>
-  </div>
+  <!-- Run Information -->
+  <div class="card mb-lg">
+    <div class="card__header">
+      <h3 class="card__title">Run Information</h3>
+    </div>
   <div class="card__body">
     <div class="execution-summary">
       <div class="execution-summary__item">
@@ -39,7 +40,7 @@
       <div class="execution-summary__item">
         <span class="execution-summary__label">Status:</span>
         <span class="execution-summary__value">
-          <span class="badge badge--<%= @workflow_run.status == 'completed' ? 'success' : 'danger' %>">
+          <span class="table__badge table__badge--<%= @workflow_run.status == 'completed' ? 'success' : 'danger' %>">
             <%= @workflow_run.status.humanize %>
           </span>
         </span>
@@ -52,7 +53,7 @@
         <div class="form__static" id="title-display"><%= @workflow_run.title %></div>
         <button type="button" class="btn btn--small btn--neutral" id="edit-title-btn"
                 onclick="document.getElementById('edit-title-form').style.display = 'block'; document.getElementById('title-display').style.display = 'none'; this.style.display = 'none';">
-          Edit
+          Edit Title
         </button>
       </div>
       
@@ -95,7 +96,7 @@
   <% if @workflow_run.results['steps'].present? %>
     <div class="workflow-steps">
       <% @workflow_run.results['steps'].each_with_index do |step_result, index| %>
-        <div class="card workflow-step-card">
+        <div class="card mb-lg workflow-step-card">
           <div class="card__header workflow-step-header" data-toggle="collapse" data-target="#step-<%= index %>">
             <h3 class="card__title">
               Step <%= step_result['step'] %>: <%= step_result['prompt_slug'] %>
@@ -136,193 +137,31 @@
             </div>
           </div>
         </div>
-      <% end %>
-    </div>
-  <% end %>
-
-  <!-- Final Result -->
-  <% if @workflow_run.results['final_output'].present? %>
-    <div class="card final-result-card">
-      <div class="card__header">
-        <h3 class="card__title">Final Workflow Result</h3>
+        <% end %>
       </div>
-      <div class="card__body">
-        <div class="final-result">
-          <%= simple_format(@workflow_run.results['final_output']) %>
+    <% end %>
+
+    <!-- Final Result -->
+    <% if @workflow_run.results['final_output'].present? %>
+      <div class="card final-result-card">
+        <div class="card__header">
+          <h3 class="card__title">Final Workflow Result</h3>
+        </div>
+        <div class="card__body">
+          <div class="final-result">
+            <%= simple_format(@workflow_run.results['final_output']) %>
+          </div>
         </div>
       </div>
-    </div>
-  <% end %>
+    <% end %>
 <% end %>
-
-<div class="admin-actions">
-  <%= link_to "All Runs", workflow_workflow_runs_path(@workflow), class: "btn btn--neutral btn--medium" %>
-  <%= link_to "Back to Workflow", workflow_path(@workflow), class: "btn btn--neutral btn--medium" %>
-  <%= link_to "Test Again", playground_workflow_path(@workflow), class: "btn btn--primary btn--medium" %>
 </div>
 
-<style>
-.execution-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.execution-summary__item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.execution-summary__label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.execution-summary__value {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-/* Workflow Steps Spacing */
-.workflow-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin: 20px 0;
-}
-
-.workflow-step-card {
-  margin: 0;
-}
-
-.final-result-card {
-  margin-top: 24px;
-}
-
-/* Collapsible Headers */
-.workflow-step-header {
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: background-color 0.2s ease;
-}
-
-.workflow-step-header:hover {
-  background-color: var(--color-surface-light);
-}
-
-.collapse-toggle {
-  background: none;
-  border: none;
-  color: var(--color-text-muted);
-  font-size: 16px;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-}
-
-.collapse-toggle:hover {
-  background-color: var(--color-surface);
-  color: var(--color-text);
-}
-
-.collapse-icon {
-  transition: transform 0.2s ease;
-}
-
-.workflow-step-header.expanded .collapse-icon {
-  transform: rotate(180deg);
-}
-
-/* Collapsible Content */
-.workflow-step-content {
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-}
-
-.json-pre {
-  background: var(--color-surface);
-  padding: 12px;
-  border-radius: 6px;
-  overflow: auto;
-  font-size: 13px;
-}
-
-.workflow-step-content.collapse {
-  max-height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
-.workflow-step-content.collapse.show {
-  max-height: 1000px;
-  padding-top: 20px;
-  padding-bottom: 20px;
-}
-
-.execution-time {
-  font-size: 14px;
-  font-weight: normal;
-  color: var(--color-text-muted);
-}
-
-.step-result {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.step-result__section-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.step-result__content {
-  padding: 16px;
-  border-radius: 6px;
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-  font-size: 14px;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.step-result__content--input {
-  background: var(--color-surface-light);
-  border: 1px solid var(--color-border);
-}
-
-.step-result__content--output {
-  background: var(--color-surface);
-  border: 1px solid var(--color-primary-light);
-}
-
-.final-result {
-  padding: 20px;
-  background: var(--color-success-light);
-  border: 2px solid var(--color-success);
-  border-radius: 8px;
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-  font-size: 14px;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-</style>
-
-<script>
+<div class="form__actions mt-lg">
+  <%= link_to "Back to Workflow", workflow_path(@workflow), class: "btn btn--secondary btn--medium" %>
+  <%= link_to "All Runs", workflow_workflow_runs_path(@workflow), class: "btn btn--secondary btn--medium" %>
+  <%= link_to "Test Again", playground_workflow_path(@workflow), class: "btn btn--primary btn--medium" %>
+</div><script>
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize collapsible functionality
   const headers = document.querySelectorAll('.workflow-step-header');

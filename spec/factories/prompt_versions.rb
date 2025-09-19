@@ -11,5 +11,6 @@ FactoryBot.define do
   json_mode { false }
     created_by { "test_user" }
     change_description { "Test change" }
+    active { false }
   end
 end

@@ -160,6 +160,43 @@ module PromptEngine
       end
     end
 
+    describe 'activation' do
+      let(:prompt) { create(:prompt) }
+
+      it 'marks initial version active' do
+        expect(prompt.versions.first).to be_active
+      end
+
+      it 'activates new versions automatically and deactivates previous' do
+        v1 = prompt.current_version
+        prompt.update!(content: 'Second version')
+        v2 = prompt.current_version
+        expect(v2).to be_active
+        expect(v1.reload).not_to be_active
+      end
+
+      it 'allows activating an older version' do
+        prompt.update!(content: 'Second version')
+        prompt.update!(content: 'Third version')
+        v1 = prompt.version_at(1)
+        v3 = prompt.current_version
+        expect(v3.version_number).to eq(3)
+        # Activate v1
+        v1.activate!
+        expect(prompt.reload.current_version).to eq(v1)
+        expect(v1).to be_active
+        expect(v3.reload).not_to be_active
+      end
+
+      it 'ensures only one active via activate! method' do
+        prompt.update!(content: 'Second version')
+        v1 = prompt.version_at(1)
+        v2 = prompt.current_version
+        v1.activate!
+        expect([ v1.reload.active, v2.reload.active ].count(true)).to eq(1)
+      end
+    end
+
     describe '#restore!' do
       let(:prompt) do
         create(:prompt,
@@ -252,6 +289,7 @@ module PromptEngine
           model: 'gpt-4',
           temperature: 0.7,
           max_tokens: 1000,
+          json_mode: false,
           metadata: { 'foo' => 'bar' }
         })
       end

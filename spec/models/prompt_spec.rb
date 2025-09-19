@@ -157,6 +157,15 @@ RSpec.describe PromptEngine::Prompt, type: :model do
         expect(current.version_number).to eq(3)
         expect(current.content).to eq("Version 3")
       end
+
+      it "returns an older activated version instead of latest" do
+        prompt.update!(content: "Version 2")
+        v1 = prompt.version_at(1)
+        v2 = prompt.current_version
+        expect(v2.version_number).to eq(2)
+        v1.activate!
+        expect(prompt.reload.current_version).to eq(v1)
+      end
     end
 
     describe "#version_count" do

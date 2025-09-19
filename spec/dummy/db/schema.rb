@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_03_190000) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_18_174624) do
   create_table "prompt_engine_eval_results", force: :cascade do |t|
     t.integer "eval_run_id", null: false
     t.integer "test_case_id", null: false
@@ -109,6 +109,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_190000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "json_mode", default: false, null: false
+    t.boolean "active", default: false, null: false
+    t.index ["active"], name: "index_prompt_engine_prompt_versions_on_active"
     t.index ["json_mode"], name: "index_prompt_engine_prompt_versions_on_json_mode"
     t.index ["prompt_id", "version_number"], name: "index_prompt_versions_on_prompt_and_version", unique: true
     t.index ["prompt_id"], name: "index_prompt_engine_prompt_versions_on_prompt_id"

@@ -49,6 +49,11 @@
   background-color: var(--color-primary-50);
 }
 
+.version-item--current .version-item__marker-dot {
+  background-color: var(--color-success-600);
+  box-shadow: 0 0 0 1px var(--color-success-600);
+}
+
 /* Version Timeline Marker */
 .version-item__marker {
   position: relative;
@@ -66,6 +71,11 @@
   position: absolute;
   left: 14px;
   top: 8px;
+}
+
+.version-item__marker-dot--active {
+  background-color: var(--color-success-600);
+  box-shadow: 0 0 0 1px var(--color-success-600);
 }
 
 .version-item--current .version-item__marker-dot {
@@ -342,6 +352,11 @@
 .badge--primary {
   background-color: var(--color-primary-100);
   color: var(--color-primary-700);
+}
+
+.badge--success {
+  background-color: var(--color-success-100);
+  color: var(--color-success-700);
 }
 
 /* Responsive */

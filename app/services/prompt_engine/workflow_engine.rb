@@ -4,44 +4,83 @@ module PromptEngine
       @workflow = workflow
     end
 
-    def execute(initial_input: "", variables: {})
+  # Backward compatible: allow arbitrary variable keywords without explicit :variables hash
+  def execute(initial_input: "", **variables)
       original_input = initial_input
       previous_output = nil
       final_output = nil
 
       @workflow.steps.keys.sort.each_with_index do |step_key, index|
-        # Strict rebuild per step. If pass_original_input is false we only propagate previous output.
-        step_vars = if index == 0
+        # Strict rebuild per step of baseline variables
+        step_vars = if index.zero?
           variables.dup
         elsif @workflow.pass_original_input
           variables.dup
         else
-          {} # no original vars when disabled
+          {}
         end
 
-        step_vars[:input] = if index == 0
+        # Merge previous step structured output (parsed JSON / Hash) into variables so
+        # downstream prompts can reference keys directly (e.g. {{slug}})
+        if index > 0 && previous_output
+          parsed_prev = nil
+          if previous_output.is_a?(Hash)
+            parsed_prev = previous_output
+          elsif previous_output.is_a?(String)
+            begin
+              parsed_prev = JSON.parse(previous_output)
+            rescue JSON::ParserError
+              parsed_prev = nil
+            end
+          end
+          if parsed_prev.is_a?(Hash)
+            parsed_prev.each do |k, v|
+              # Don't clobber explicitly supplied vars
+              step_vars[k.to_sym] = v unless step_vars.key?(k.to_sym)
+            end
+          end
+          # Backward compatible convenience variables
+          step_vars[:previous_output] = previous_output
+          step_vars[:output] = previous_output.is_a?(Hash) ? previous_output.to_json : previous_output
+        end
+
+        # Determine the special :input variable for this step
+        step_vars[:input] = if index.zero?
           initial_input
         elsif @workflow.pass_original_input
           original_input
         else
-          previous_output
+          # fall back to raw previous output text or JSON string
+          previous_output.is_a?(Hash) ? previous_output.to_json : previous_output
         end
 
-        step_vars[:original_input] = original_input if index == 0 && @workflow.pass_original_input
+  # Only include original_input explicitly for first step when configured
+  step_vars[:original_input] = original_input if index.zero? && @workflow.pass_original_input
 
         prompt_slug = @workflow.steps[step_key]
-        rendered = PromptEngine.render(prompt_slug, **step_vars)
+  rendered = PromptEngine.render(prompt_slug, step_vars)
         final_output = rendered.content
-        previous_output = final_output
+
+        # Attempt to parse JSON so subsequent step merging can use Hash
+        if final_output.is_a?(String)
+          begin
+            previous_output = JSON.parse(final_output)
+          rescue JSON::ParserError
+            previous_output = final_output
+          end
+        else
+          previous_output = final_output
+        end
       end
 
       final_output
     end
 
-    def execute_with_steps(initial_input: "", variables: {}, provider: nil, api_key: nil, save_run: true)
+  # Backward compatible: capture arbitrary variable keywords
+  def execute_with_steps(initial_input: "", provider: nil, api_key: nil, save_run: true, **variables)
       original_input = initial_input
       previous_output = nil
-      results = { steps: [], total_execution_time: 0 }
+  results = { steps: [], total_execution_time: 0 }
       start_time = Time.current
       workflow_run = nil
 
@@ -57,7 +96,7 @@ module PromptEngine
       begin
         @workflow.steps.keys.sort.each_with_index do |step_key, index|
           # Strict per-step variable construction
-          step_vars = if index == 0
+          step_vars = if index.zero?
             variables.dup
           elsif @workflow.pass_original_input
             variables.dup
@@ -65,23 +104,48 @@ module PromptEngine
             {}
           end
 
-          step_input = if index == 0
+          # Merge previous structured output (Hash or parseable JSON) into variables
+          if index > 0 && previous_output
+            parsed_prev = if previous_output.is_a?(Hash)
+              previous_output
+            elsif previous_output.is_a?(String)
+              begin
+                JSON.parse(previous_output)
+              rescue JSON::ParserError
+                nil
+              end
+            end
+            if parsed_prev.is_a?(Hash)
+              parsed_prev.each do |k, v|
+                step_vars[k.to_sym] = v unless step_vars.key?(k.to_sym)
+              end
+            end
+            step_vars[:previous_output] = previous_output
+            step_vars[:output] = previous_output.is_a?(Hash) ? previous_output.to_json : previous_output
+          end
+
+          step_input = if index.zero?
             initial_input
           elsif @workflow.pass_original_input
             original_input
           else
-            previous_output
+            previous_output.is_a?(Hash) ? previous_output.to_json : previous_output
           end
 
           step_vars[:input] = step_input
-          step_vars[:original_input] = original_input if index == 0 && @workflow.pass_original_input
+          step_vars[:original_input] = original_input if index.zero? && @workflow.pass_original_input
 
           # Snapshot BEFORE execution (only what we want to expose)
           snapshot = if @workflow.pass_original_input
             allowed = variables.keys.map { |k| k.to_sym } + [ :input, :original_input ]
-            step_vars.select { |k, _| allowed.include?(k.to_sym) }
+            # Also include carried-forward keys from parsed previous output that are not sensitive
+            step_vars.select { |k, _| allowed.include?(k.to_sym) || (index > 0 && previous_output.is_a?(Hash) && previous_output.key?(k.to_s)) }
           else
-            { input: step_input }
+            base = { input: step_input }
+            if index > 0 && previous_output.is_a?(Hash)
+              base.merge!(previous_output)
+            end
+            base
           end
 
           prompt_slug = @workflow.steps[step_key]
@@ -115,7 +179,7 @@ module PromptEngine
               exec_time_ms = 0
             end
           else
-            rendered = PromptEngine.render(prompt_slug, **step_vars)
+            rendered = PromptEngine.render(prompt_slug, step_vars)
             output_content = rendered.content
             if rendered.respond_to?(:json_mode) && rendered.json_mode
               begin
@@ -136,10 +200,24 @@ module PromptEngine
             execution_time: exec_time_ms
           }
 
-          previous_output = output_content
-        end
+          # Legacy flat keys for backward compatibility (e.g., "greeting_output")
+          results["#{prompt_slug}_output"] = output_content
 
-        results[:final_output] = previous_output
+          # For chaining we keep raw output_content, but also a parsed Hash if possible
+          previous_output = if output_content.is_a?(String)
+            begin
+              JSON.parse(output_content)
+            rescue JSON::ParserError
+              output_content
+            end
+          else
+            output_content
+          end
+        end # each step
+
+  results[:final_output] = previous_output
+  # Legacy key expected by older specs
+  results["result"] = previous_output
         results[:total_execution_time] = (Time.current - start_time) * 1000
 
         if workflow_run

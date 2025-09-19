@@ -17,6 +17,7 @@ PromptEngine::Engine.routes.draw do
     resources :versions, only: [ :index, :show ] do
       member do
         post :restore
+        post :activate
         get :compare
       end
       resources :playground_run_results, only: [ :index ]
@@ -50,7 +51,7 @@ PromptEngine::Engine.routes.draw do
       get :playground, to: "workflow_playground#show"
       post :playground, to: "workflow_playground#execute"
     end
-    resources :workflow_runs, only: [:index, :show] do
+    resources :workflow_runs, only: [ :index, :show ] do
       member do
         patch :update_title
       end

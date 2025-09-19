@@ -43,8 +43,15 @@ module PromptEngine
     end
 
     def update
+      # Determine if the new version should be active
+      make_active = params[:commit] == "save_active"
+
+      # Set the activation preference before updating
+      @prompt.set_next_version_active(make_active)
+
       if @prompt.update(prompt_params)
-        redirect_to prompt_path(@prompt), notice: "Prompt was successfully updated."
+        action_message = make_active ? "updated and made active" : "updated (saved as inactive version)"
+        redirect_to prompt_path(@prompt), notice: "Prompt was successfully #{action_message}."
       else
         render :edit, status: :unprocessable_entity
       end

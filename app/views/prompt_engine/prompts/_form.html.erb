@@ -117,8 +117,16 @@
 
   <div class="form__actions">
     <%= link_to "Cancel", prompts_path, class: "btn btn--secondary btn--medium" %>
-    <%= form.submit prompt.new_record? ? "Create Prompt" : "Update Prompt", 
-        class: "btn btn--primary btn--medium" %>
+    <% if prompt.persisted? %>
+      <%= button_tag "Save New Version", 
+          name: "commit", value: "save_inactive",
+          class: "btn btn--secondary btn--medium" %>
+      <%= button_tag "Save & Make Active", 
+          name: "commit", value: "save_active",
+          class: "btn btn--primary btn--medium" %>
+    <% else %>
+      <%= form.submit "Create Prompt", class: "btn btn--primary btn--medium" %>
+    <% end %>
   </div>
 <% end %>
 

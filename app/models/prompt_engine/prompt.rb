@@ -5,6 +5,8 @@ module PromptEngine
     has_many :versions, -> { order(version_number: :desc) },
       class_name: "PromptEngine::PromptVersion",
       dependent: :destroy
+    has_one :active_version, -> { where(active: true).order(version_number: :desc) },
+      class_name: "PromptEngine::PromptVersion"
     has_many :parameters, -> { ordered },
       class_name: "PromptEngine::Parameter",
       dependent: :destroy
@@ -40,7 +42,7 @@ module PromptEngine
     OVERRIDE_KEYS = %i[model temperature max_tokens version].freeze
 
     def current_version
-      versions.first
+      active_version || versions.first
     end
 
     def version_count
@@ -54,6 +56,10 @@ module PromptEngine
 
     def version_at(version_number)
       versions.find_by(version_number: version_number)
+    end
+
+    def set_next_version_active(active = true)
+      @make_new_version_active = active
     end
 
     def versioned_attributes_changed?
@@ -215,7 +221,8 @@ module PromptEngine
         max_tokens: max_tokens,
   json_mode: json_mode,
         metadata: metadata,
-        change_description: "Initial version"
+        change_description: "Initial version",
+        active: true
       )
     end
 
@@ -223,15 +230,19 @@ module PromptEngine
       # Check saved_changes in the after_update callback
       return unless (saved_changes.keys & VERSIONED_ATTRIBUTES).any?
 
+      # Check if we should make this version active (default: true for backward compatibility)
+      make_active = @make_new_version_active.nil? ? true : @make_new_version_active
+
       versions.create!(
         content: content,
         system_message: system_message,
         model: model,
         temperature: temperature,
         max_tokens: max_tokens,
-  json_mode: json_mode,
+        json_mode: json_mode,
         metadata: metadata,
-        change_description: "Updated: #{(saved_changes.keys & VERSIONED_ATTRIBUTES).join(", ")}"
+        change_description: "Updated: #{(saved_changes.keys & VERSIONED_ATTRIBUTES).join(", ")}",
+        active: make_active
       )
     end
 

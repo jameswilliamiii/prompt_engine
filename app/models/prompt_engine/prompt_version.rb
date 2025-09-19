@@ -16,6 +16,7 @@ module PromptEngine
 
     scope :latest, -> { order(version_number: :desc) }
     scope :chronological, -> { order(created_at: :asc) }
+  scope :active, -> { where(active: true) }
 
     def restore!
       # Update the prompt attributes
@@ -43,10 +44,17 @@ module PromptEngine
         system_message: system_message,
         model: model,
         temperature: temperature,
-  max_tokens: max_tokens,
-  json_mode: json_mode,
+        max_tokens: max_tokens,
+        json_mode: json_mode,
         metadata: metadata
       }
+    end
+
+    def activate!
+      transaction do
+        prompt.versions.update_all(active: false)
+        update!(active: true)
+      end
     end
 
     private
@@ -68,6 +76,14 @@ module PromptEngine
           errors.add(attr, "cannot be changed after creation")
         end
       end
+    end
+
+    # Activation helpers
+    before_create :deactivate_existing_if_marked_active, if: :active?
+
+    def deactivate_existing_if_marked_active
+      return unless prompt_id
+      prompt.versions.update_all(active: false)
     end
   end
 end

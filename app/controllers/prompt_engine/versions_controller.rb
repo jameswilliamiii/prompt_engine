@@ -1,7 +1,7 @@
 module PromptEngine
   class VersionsController < ApplicationController
     before_action :set_prompt
-    before_action :set_version, only: [ :show, :restore ]
+    before_action :set_version, only: [ :show, :restore, :activate ]
     before_action :set_compare_versions, only: [ :compare ]
 
     def index
@@ -32,6 +32,13 @@ module PromptEngine
       redirect_to @prompt, notice: "Prompt restored to version #{@version.version_number}"
     rescue => e
       redirect_to prompt_versions_path(@prompt), alert: "Failed to restore version: #{e.message}"
+    end
+
+    def activate
+      @version.activate!
+      redirect_to prompt_versions_path(@prompt), notice: "Version #{@version.version_number} is now active"
+    rescue => e
+      redirect_to prompt_versions_path(@prompt), alert: "Failed to activate version: #{e.message}"
     end
 
     private

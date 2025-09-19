@@ -108,6 +108,27 @@
   color: white;
 }
 
+/* Ghost Button */
+.btn--ghost {
+  background-color: transparent;
+  color: var(--color-gray-500);
+  border-color: transparent;
+  padding: 0.25rem;
+  min-height: auto;
+}
+
+.btn--ghost:hover {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-700);
+  border-color: transparent;
+  text-decoration: none;
+}
+
+.btn--ghost:active {
+  background-color: var(--color-gray-200);
+  color: var(--color-gray-800);
+}
+
 /* Disabled State */
 .btn:disabled,
 .btn--disabled {
