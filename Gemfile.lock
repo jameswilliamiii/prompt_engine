@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    prompt_engine (1.0.3)
+    prompt_engine (1.0.4)
       bcrypt
       csv (~> 3.3)
       rails
