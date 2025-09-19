@@ -153,17 +153,18 @@
                   <div class="test-run-item__main">
                     <div class="test-run-item__header">
                       <h4 class="test-run-item__title">
-                        <%= link_to run.prompt_version.prompt.name, playground_run_result_path(run), class: "link" %>
+                        <%= link_to run.prompt_version.prompt.name, prompt_path(run.prompt_version.prompt), class: "link" %>
                       </h4>
-                      <span class="test-run-item__date text-muted">
-                        <%= time_ago_in_words(run.created_at) %> ago
-                      </span>
+                      <div class="test-run-item__actions">
+                        <%= link_to "View Results", playground_run_result_path(run), class: "btn btn--small btn--secondary" %>
+                      </div>
                     </div>
                     <div class="test-run-item__content">
                       <p class="test-run-item__model text-muted">
                         <%= run.model %> • 
                         <%= number_with_delimiter(run.token_count || 0) %> tokens • 
-                        <%= number_with_precision(run.execution_time * 1000, precision: 0) %>ms
+                        <%= number_with_precision(run.execution_time * 1000, precision: 0) %>ms •
+                        <%= time_ago_in_words(run.created_at) %> ago
                       </p>
                     </div>
                   </div>
