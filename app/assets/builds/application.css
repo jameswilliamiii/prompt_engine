@@ -844,7 +844,7 @@
   color: var(--color-gray-700);
 }
 
-.table__badge--active {
+.table__badge--enabled {
   background-color: #dcfce7;
   color: #166534;
 }
