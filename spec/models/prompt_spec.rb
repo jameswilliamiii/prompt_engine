@@ -10,10 +10,10 @@ RSpec.describe PromptEngine::Prompt, type: :model do
 
     it "validates uniqueness of name scoped to status" do
       # Create first prompt with required content
-      PromptEngine::Prompt.create!(name: "test", content: "Test content", status: "active")
+      PromptEngine::Prompt.create!(name: "test", content: "Test content", status: "enabled")
 
       # Same name with same status should be invalid
-      duplicate = PromptEngine::Prompt.new(name: "test", content: "Test content", status: "active")
+      duplicate = PromptEngine::Prompt.new(name: "test", content: "Test content", status: "enabled")
       expect(duplicate).not_to be_valid
       expect(duplicate.errors[:name]).to include("has already been taken")
 
@@ -37,7 +37,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
       expect { prompt.status = "invalid" }.to raise_error(ArgumentError)
 
       # Test that valid statuses work
-      %w[draft active archived].each do |valid_status|
+      %w[draft enabled archived].each do |valid_status|
         prompt.status = valid_status
         prompt.valid?
         expect(prompt.errors[:status]).to be_empty
@@ -272,7 +272,7 @@ RSpec.describe PromptEngine::Prompt, type: :model do
           model: "gpt-4",
           temperature: 0.7,
           max_tokens: 100,
-          status: "active"
+          status: "enabled"
         )
       end
 

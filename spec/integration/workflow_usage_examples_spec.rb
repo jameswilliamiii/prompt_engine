@@ -10,7 +10,7 @@ RSpec.describe "Workflow Usage Examples", type: :integration do
         name: "Customer Greeting",
         slug: "customer-greeting",
         content: "Hello {{customer_name}}! Thank you for contacting our support team. I understand you're having an issue with: {{issue}}",
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -19,7 +19,7 @@ RSpec.describe "Workflow Usage Examples", type: :integration do
         name: "Issue Analysis",
         slug: "issue-analysis",
         content: "Based on the customer interaction: {{output}} - Let me analyze this issue and provide a solution.",
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -28,7 +28,7 @@ RSpec.describe "Workflow Usage Examples", type: :integration do
         name: "Solution Provider",
         slug: "solution-provider",
         content: "Following the analysis: {{output}} - Here is a step-by-step solution to resolve this issue.",
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -112,7 +112,7 @@ RSpec.describe "Workflow Usage Examples", type: :integration do
         name: "Content Outline",
         slug: "content-outline",
         content: "Create an outline for a blog post about: {{topic}}",
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -121,7 +121,7 @@ RSpec.describe "Workflow Usage Examples", type: :integration do
         name: "Content Writer",
         slug: "content-writer",
         content: "Write a detailed blog post based on this outline: {{output}}",
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -130,7 +130,7 @@ RSpec.describe "Workflow Usage Examples", type: :integration do
         name: "Content Reviewer",
         slug: "content-reviewer",
         content: "Review and improve this blog post: {{output}}",
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -178,7 +178,7 @@ RSpec.describe "Workflow Usage Examples", type: :integration do
         name: "Valid Prompt",
         slug: "valid-prompt",
         content: "This is a valid prompt with {{input}}",
-        status: "active"
+        status: "enabled"
       )
     end
 

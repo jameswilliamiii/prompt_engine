@@ -10,7 +10,7 @@ RSpec.describe "Version loading behavior" do
         content: "Version 1: Hello {{name}}",
         model: "gpt-3.5-turbo",
         temperature: 0.5,
-        status: "active"
+        status: "enabled"
       )
 
       # Create version 2
@@ -35,7 +35,7 @@ RSpec.describe "Version loading behavior" do
       end
 
       it "respects status filter when no version specified" do
-        # The prompt is now draft, so this should fail with default active status
+        # The prompt is now draft, so this should fail with default enabled status
         expect {
           PromptEngine.render("versioned", {name: "Bob"})
         }.to raise_error(ActiveRecord::RecordNotFound)
@@ -69,25 +69,25 @@ RSpec.describe "Version loading behavior" do
       end
 
       it "ignores status filter when version is specified" do
-        # Even though we're asking for 'active' status, it should still load version 2
+        # Even though we're asking for 'enabled' status, it should still load version 2
         # because when version is specified, status filter is ignored
         result = PromptEngine.render("versioned",
           {name: "Frank"},
-          options: {version: 2, status: "active"})
+          options: {version: 2, status: "enabled"})
         expect(result.content).to eq("Version 2: Hi Frank")
         expect(result.version).to eq(2)
         expect(result.status).to eq("draft") # The actual status of version 2 is loaded.
       end
 
-      it "uses default active status when loading specific version without status override" do
+      it "uses default enabled status when loading specific version without status override" do
         # Load version 1, even though the prompt's current status is 'draft'
         result = PromptEngine.render("versioned",
           {name: "Grace"},
           options: {version: 1})
-        # When no status is specified in options, it uses the default 'active' status
+        # When no status is specified in options, it uses the default 'enabled' status
         # But right now on the rendered prompt, status is only relaying the option status not the
         # actual status.
-        # expect(result.status).to eq("active") # Default status from PromptEngine.render
+        # expect(result.status).to eq("enabled") # Default status from PromptEngine.render
       end
     end
 
@@ -127,7 +127,7 @@ RSpec.describe "Version loading behavior" do
           name: "Archived Prompt",
           slug: "archived-one",
           content: "V1: Archived {{text}}",
-          status: "active"
+          status: "enabled"
         )
 
         # Create v2
@@ -170,7 +170,7 @@ RSpec.describe "Version loading behavior" do
         name: "Test Accessors",
         slug: "test-accessors",
         content: "Test {{name}}",
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -185,7 +185,7 @@ RSpec.describe "Version loading behavior" do
 
       expect(result.version).to eq(1) # First version
       # Right now we're not returning the status of the actual rendered prompt.
-      # expect(result.status).to eq("active") # Default active status
+      # expect(result.status).to eq("enabled") # Default enabled status
       expect(result.model).to eq("claude-3")
       expect(result.temperature).to eq(0.3)
       expect(result.max_tokens).to eq(2000)
@@ -193,7 +193,7 @@ RSpec.describe "Version loading behavior" do
         model: "claude-3",
         temperature: 0.3,
         max_tokens: 2000
-        # status: "active"  # Default status is included in options
+        # status: "enabled"  # Default status is included in options
       })
     end
   end

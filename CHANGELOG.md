@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Modern, responsive UI design
   - Prompt playground for testing with real AI providers
   - Version comparison and history
-  - Status management (draft, active, archived)
+  - Status management (draft, enabled, archived)
 - AI Provider Integration
   - Support for OpenAI and Anthropic
   - Configurable model settings (temperature, max_tokens, etc.)

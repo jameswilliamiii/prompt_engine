@@ -25,7 +25,7 @@ RSpec.describe PromptEngine::EvaluationRunner, :live_api do
       model: "gpt-3.5-turbo",
       temperature: 0.0,
       max_tokens: 10,
-      status: "active")
+      status: "enabled")
   end
 
   let(:eval_set) do

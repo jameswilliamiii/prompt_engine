@@ -33,11 +33,26 @@
             <span class="table__badge table__badge--<%= @prompt.status %>">
               <%= @prompt.status %>
             </span>
-            <% if @prompt.status == 'active' && @prompt.active_version %>
-              <div class="detail-value__secondary">
-                Active Version: <%= link_to "v#{@prompt.active_version.version_number}", prompt_version_path(@prompt, @prompt.active_version), class: "table__link" %>
-              </div>
-            <% end %>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <label class="detail-label">Versions</label>
+          <div class="detail-value">
+            <div class="version-info">
+              <span class="version-count">
+                <%= pluralize(@prompt.version_count, 'version') %>
+              </span>
+              <% if @prompt.active_version %>
+                <div class="detail-value__secondary">
+                  Active: <%= link_to "v#{@prompt.active_version.version_number}", prompt_version_path(@prompt, @prompt.active_version), class: "table__link" %>
+                </div>
+              <% else %>
+                <div class="detail-value__secondary text-muted">
+                  No active version
+                </div>
+              <% end %>
+            </div>
           </div>
         </div>
 

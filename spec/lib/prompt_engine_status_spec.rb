@@ -7,7 +7,7 @@ RSpec.describe PromptEngine do
         name: "Active Greeting",
         slug: "greeting",
         content: "Hello {{name}}!",
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -65,8 +65,8 @@ RSpec.describe PromptEngine do
           expect(result.content).to eq("Archived: Hello World!")
         end
 
-        it "finds active prompts when status is explicitly specified" do
-          result = PromptEngine.render("greeting", { name: "World" }, options: { status: "active" })
+        it "finds enabled prompts when status is explicitly specified" do
+          result = PromptEngine.render("greeting", { name: "World" }, options: { status: "enabled" })
           expect(result.content).to eq("Hello World!")
         end
 
@@ -110,10 +110,10 @@ RSpec.describe PromptEngine do
     end
 
     describe ".find" do
-      it "defaults to active status" do
+      it "defaults to enabled status" do
         prompt = PromptEngine.find("greeting")
         expect(prompt).to eq(active_prompt)
-        expect(prompt.status).to eq("active")
+        expect(prompt.status).to eq("enabled")
       end
 
       it "finds prompts with specified status" do
@@ -129,10 +129,10 @@ RSpec.describe PromptEngine do
     end
 
     describe ".[]" do
-      it "always defaults to active status" do
+      it "always defaults to enabled status" do
         prompt = PromptEngine["greeting"]
         expect(prompt).to eq(active_prompt)
-        expect(prompt.status).to eq("active")
+        expect(prompt.status).to eq("enabled")
       end
 
       it "raises error for non-active prompts" do
@@ -144,7 +144,7 @@ RSpec.describe PromptEngine do
   end
 
   describe "backwards compatibility" do
-    let!(:prompt) { create(:prompt, slug: "test-prompt", content: "Test {{var}}", status: "active") }
+    let!(:prompt) { create(:prompt, slug: "test-prompt", content: "Test {{var}}", status: "enabled") }
 
     it "maintains existing behavior when no status is provided" do
       # Old usage should still work
@@ -159,8 +159,8 @@ RSpec.describe PromptEngine do
   end
 
   describe "flexible usage patterns" do
-    let!(:simple_prompt) { create(:prompt, slug: "simple", content: "Simple text", status: "active") }
-    let!(:var_prompt) { create(:prompt, slug: "with-vars", content: "Hello {{name}}", status: "active") }
+    let!(:simple_prompt) { create(:prompt, slug: "simple", content: "Simple text", status: "enabled") }
+    let!(:var_prompt) { create(:prompt, slug: "with-vars", content: "Hello {{name}}", status: "enabled") }
     let!(:draft_prompt) { create(:prompt, slug: "draft-one", content: "Draft content", status: "draft") }
     let!(:draft_with_var) { create(:prompt, slug: "draft-var", content: "Draft {{text}}", status: "draft") }
 

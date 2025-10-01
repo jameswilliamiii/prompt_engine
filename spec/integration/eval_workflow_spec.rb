@@ -7,7 +7,7 @@ module PromptEngine
         name: "summarizer",
         content: "Summarize this text in {{style}} style: {{text}}",
         system_message: "You are a helpful summarization assistant.",
-        status: "active"
+        status: "enabled"
       )
     end
 

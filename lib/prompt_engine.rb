@@ -9,7 +9,7 @@ module PromptEngine
     # @param slug [String] The slug of the prompt to render
     # @param variables [Hash] Variables to interpolate in the prompt (default: {})
     # @param options [Hash] Rendering options via keyword argument
-    # @option options [String] :status The status to filter by (defaults to 'active')
+    # @option options [String] :status The status to filter by (defaults to 'enabled')
     # @option options [String] :model Override the prompt's default model
     # @option options [Float] :temperature Override the prompt's default temperature
     # @option options [Integer] :max_tokens Override the prompt's default max_tokens
@@ -17,7 +17,7 @@ module PromptEngine
     def render(slug, variables = {}, options: {})
       # Set defaults for options
       options = {
-        status: "active"
+        status: "enabled"
       }.merge(options)
 
       # If version is specified, we need to find the prompt without status filter
@@ -44,8 +44,8 @@ module PromptEngine
 
     # Find a prompt by slug with optional status filter
     # @param slug [String] The slug of the prompt
-    # @param status [String] The status to filter by (defaults to 'active')
-    def find(slug, status: "active")
+    # @param status [String] The status to filter by (defaults to 'enabled')
+    def find(slug, status: "enabled")
       if status
         Prompt.where(slug: slug, status: status).first!
       else
@@ -54,7 +54,7 @@ module PromptEngine
       end
     end
 
-    # Alias for array-like access (defaults to active status)
+    # Alias for array-like access (defaults to enabled status)
     def [](slug)
       find(slug)
     end

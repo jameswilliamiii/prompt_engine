@@ -4,7 +4,7 @@ module PromptEngine
   RSpec.describe "Workflows API", type: :request do
     include Engine.routes.url_helpers
 
-    let!(:prompt) { create(:prompt, slug: "test-prompt", status: "active") }
+    let!(:prompt) { create(:prompt, slug: "test-prompt", status: "enabled") }
 
     describe "GET /workflows" do
       let!(:workflow) { create(:workflow, name: "test-workflow", steps: { "1" => "test-prompt" }) }

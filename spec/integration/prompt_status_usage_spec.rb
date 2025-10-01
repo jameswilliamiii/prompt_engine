@@ -8,7 +8,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
         name: "Welcome Email - Active",
         slug: "welcome-email",
         content: "Welcome {{user_name}}! Your account is now active.",
-        status: "active"
+        status: "enabled"
       )
 
       create(:prompt,
@@ -68,7 +68,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
         # Same admin can also test the active version
         active_result = PromptEngine.render("welcome-email",
           { user_name: "Admin" },
-          options: { status: "active" }
+          options: { status: "enabled" }
         )
         expect(active_result.content).to include("Admin")
       end
@@ -76,7 +76,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
   end
 
   describe "Migration path for existing code" do
-    let!(:prompt) { create(:prompt, slug: "notification", content: "Alert: {{message}}", status: "active") }
+    let!(:prompt) { create(:prompt, slug: "notification", content: "Alert: {{message}}", status: "enabled") }
 
     it "existing code continues to work without changes" do
       # Old code that doesn't know about status parameter
@@ -88,7 +88,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
       # New code that wants to be explicit
       result = PromptEngine.render("notification",
         { message: "System update" },
-        options: { status: "active" }
+        options: { status: "enabled" }
       )
       expect(result.content).to eq("Alert: System update")
     end
@@ -97,7 +97,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
   describe "Error handling" do
     it "provides clear error when prompt not found with status" do
       expect {
-        PromptEngine.render("non-existent", options: { status: "active" })
+        PromptEngine.render("non-existent", options: { status: "enabled" })
       }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
@@ -105,7 +105,7 @@ RSpec.describe "Using prompts with status filtering in Rails" do
       create(:prompt, slug: "test", content: "Test", status: "draft")
 
       expect {
-        PromptEngine.render("test", options: { status: "active" })
+        PromptEngine.render("test", options: { status: "enabled" })
       }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end

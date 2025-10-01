@@ -6,7 +6,7 @@ module PromptEngine
 
       # Statistics
       @total_prompts = Prompt.count
-      @prompt_engines = Prompt.active.count
+      @prompt_engines = Prompt.enabled.count
       @total_test_runs = PlaygroundRunResult.count
       @total_tokens_used = PlaygroundRunResult.sum(:token_count) || 0
 

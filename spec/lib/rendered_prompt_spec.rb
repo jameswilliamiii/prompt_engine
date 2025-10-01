@@ -10,7 +10,7 @@ module PromptEngine
         model: "gpt-4",
         temperature: 0.7,
         max_tokens: 1000,
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -55,7 +55,7 @@ module PromptEngine
 
       it "returns the prompt's status if not overridden" do
         prompt_without_status = described_class.new(prompt, rendered_data, { model: "gpt-4" })
-        expect(prompt_without_status.status).to eq("active")
+        expect(prompt_without_status.status).to eq("enabled")
       end
     end
 

@@ -177,11 +177,11 @@ rendered = PromptEngine.render("onboarding-email",
   options: { version: 3 }
 )
 
-# Render prompts with different statuses (defaults to 'active')
+# Render prompts with different statuses (defaults to 'enabled')
 # Useful for testing drafts or accessing archived prompts
 rendered = PromptEngine.render("new-feature",
   { feature_name: "AI Assistant" },
-  options: { status: "draft" }  # Can be 'draft', 'active', or 'archived'
+  options: { status: "draft" }  # Can be 'draft', 'enabled', or 'archived'
 )
 ```
 
@@ -204,7 +204,7 @@ Renders a prompt template with the given variables.
 - `slug` (String): The unique identifier for the prompt
 - `variables` (Hash): Variables to interpolate in the prompt (optional positional argument)
 - `options:` (Hash): Rendering options (optional keyword argument)
-  - `status`: The status to filter by (defaults to 'active')
+  - `status`: The status to filter by (defaults to 'enabled')
   - `model`: Override the default model
   - `temperature`: Override the default temperature
   - `max_tokens`: Override the default max tokens

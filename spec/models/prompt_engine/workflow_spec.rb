@@ -16,7 +16,7 @@ module PromptEngine
       end
 
       it "requires unique names" do
-        prompt = create(:prompt, slug: "test-prompt", status: "active")
+        prompt = create(:prompt, slug: "test-prompt", status: "enabled")
         Workflow.create!(name: "test-workflow", steps: { "1" => "test-prompt" })
         workflow = Workflow.new(name: "test-workflow", steps: { "1" => "other-prompt" })
         expect(workflow).to_not be_valid
@@ -30,15 +30,15 @@ module PromptEngine
       end
 
       it "is valid with existing prompt references" do
-        prompt = create(:prompt, slug: "existing-prompt", status: "active")
+        prompt = create(:prompt, slug: "existing-prompt", status: "enabled")
         workflow = Workflow.new(name: "test", steps: { "1" => "existing-prompt" })
         expect(workflow).to be_valid
       end
     end
 
     describe "#execute" do
-      let!(:prompt1) { create(:prompt, slug: "step-1", content: "First step: {{input}}", status: "active") }
-      let!(:prompt2) { create(:prompt, slug: "step-2", content: "Second step: {{output}}", status: "active") }
+      let!(:prompt1) { create(:prompt, slug: "step-1", content: "First step: {{input}}", status: "enabled") }
+      let!(:prompt2) { create(:prompt, slug: "step-2", content: "Second step: {{output}}", status: "enabled") }
       let(:workflow) do
         Workflow.create!(
           name: "test-workflow",
@@ -60,8 +60,8 @@ module PromptEngine
     end
 
     describe "#execute_with_steps" do
-      let!(:prompt1) { create(:prompt, slug: "greeting", content: "Hello {{name}}", status: "active") }
-      let!(:prompt2) { create(:prompt, slug: "analysis", content: "Analyze: {{output}}", status: "active") }
+      let!(:prompt1) { create(:prompt, slug: "greeting", content: "Hello {{name}}", status: "enabled") }
+      let!(:prompt2) { create(:prompt, slug: "analysis", content: "Analyze: {{output}}", status: "enabled") }
       let(:workflow) do
         Workflow.create!(
           name: "customer-support",

@@ -84,7 +84,7 @@ bin/rails prompt_engine:install:migrations  # Install engine migrations in host 
 - Central model containing prompt templates with `{{variable}}` syntax
 - Has many versions (auto-versioned on content/system_message changes)
 - Has many parameters (auto-detected from variables)
-- Status enum: draft, active, archived
+- Status enum: draft, enabled, archived
 - Key method: `render(variables: {})` for template rendering
 
 **PromptEngine::PromptVersion**

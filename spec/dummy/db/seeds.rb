@@ -13,7 +13,7 @@ prompt1.system_message = "You are a helpful customer support agent. Be professio
 prompt1.model = "gpt-4"
 prompt1.temperature = 0.7
 prompt1.max_tokens = 500
-prompt1.status = "active"
+prompt1.status = "enabled"
 prompt1.save!
 
 prompt2 = PromptEngine::Prompt.new
@@ -23,7 +23,7 @@ prompt2.content = "Write an engaging product description for: {{product_name}}. 
 prompt2.model = "gpt-3.5-turbo"
 prompt2.temperature = 0.8
 prompt2.max_tokens = 300
-prompt2.status = "active"
+prompt2.status = "enabled"
 prompt2.save!
 
 prompt3 = PromptEngine::Prompt.new

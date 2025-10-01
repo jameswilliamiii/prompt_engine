@@ -39,7 +39,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
         model: "gpt-4",
         temperature: 0.7,
         max_tokens: 500,
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -51,7 +51,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
         model: "gpt-3.5-turbo",
         temperature: 0.3,
         max_tokens: 300,
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -115,7 +115,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
       simple_prompt = PromptEngine::Prompt.create!(
         name: "simple-greeting",
         content: "Hello! How can I help you today?",
-        status: "active"
+        status: "enabled"
       )
 
       result = PromptEngine.render("simple-greeting")
@@ -171,7 +171,7 @@ RSpec.describe "Using prompts in Rails models", type: :integration do
         name: "article-summary",
         content: "Summarize this article titled '{{title}}': {{content}}",
         system_message: "You are a content summarizer.",
-        status: "active"
+        status: "enabled"
       )
     end
 

@@ -24,11 +24,11 @@ module PromptEngine
 
     enum :status, {
       draft: "draft",
-      active: "active",
+      enabled: "enabled",
       archived: "archived"
     }, default: "draft"
 
-    scope :active, -> { where(status: "active") }
+    scope :enabled, -> { where(status: "enabled") }
     scope :by_name, -> { order(:name) }
 
     before_validation :generate_slug_from_name, on: :create

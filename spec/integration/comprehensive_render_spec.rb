@@ -10,7 +10,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
         content: "Write an email about this topic",
         model: "gpt-3.5-turbo",
         temperature: 0.7,
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -21,7 +21,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
         content: "Help {{customer_name}} with {{issue}}",
         model: "gpt-4",
         temperature: 0.3,
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -30,7 +30,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
         name: "Onboarding Email",
         slug: "onboarding-email",
         content: "Welcome {{user_name}} to our service!",
-        status: "active"
+        status: "enabled"
       )
       # Create a second version
       prompt.update!(content: "Hi {{user_name}}, welcome aboard!")
@@ -142,8 +142,8 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
         expect(rendered.content).to eq("Introducing AI Assistant - built for you!")
       end
 
-      it "defaults to active status when not specified" do
-        # This should fail because new-feature is draft, not active
+      it "defaults to enabled status when not specified" do
+        # This should fail because new-feature is draft, not enabled
         expect {
           PromptEngine.render("new-feature",
             { feature_name: "AI Assistant" }
@@ -151,10 +151,10 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
         }.to raise_error(ActiveRecord::RecordNotFound)
       end
 
-      it "can explicitly request active status" do
+      it "can explicitly request enabled status" do
         rendered = PromptEngine.render("customer-support",
           { customer_name: "Dave", issue: "Billing" },
-          options: { status: "active" }
+          options: { status: "enabled" }
         )
 
         expect(rendered.content).to eq("Help Dave with Billing")
@@ -193,7 +193,7 @@ RSpec.describe "Comprehensive PromptEngine.render usage patterns", type: :integr
           name: "Multi Variable",
           slug: "multi-var",
           content: '{{greeting}} {{name}}, your order #{{order_id}} is {{status}}',
-          status: "active"
+          status: "enabled"
         )
 
         rendered = PromptEngine.render("multi-var",

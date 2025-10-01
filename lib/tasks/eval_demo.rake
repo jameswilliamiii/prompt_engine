@@ -12,7 +12,7 @@ namespace :prompt_engine do
       p.model = "gpt-3.5-turbo"
       p.temperature = 0.0
       p.max_tokens = 10
-      p.status = "active"
+      p.status = "enabled"
     end
     puts "✓ Created prompt: #{prompt.name}"
 

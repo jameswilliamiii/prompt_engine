@@ -9,7 +9,7 @@ module PromptEngine
         name: "Active Test Prompt",
         slug: "test-prompt",
         content: "Active: {{message}}",
-        status: "active"
+        status: "enabled"
       ).tap(&:sync_parameters!)
     end
 

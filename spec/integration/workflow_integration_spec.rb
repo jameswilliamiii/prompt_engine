@@ -7,7 +7,7 @@ RSpec.describe "Workflow Integration", type: :integration do
         name: "greeting",
         slug: "greeting",
         content: "Hello {{name}}! Welcome to our service.",
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -16,7 +16,7 @@ RSpec.describe "Workflow Integration", type: :integration do
         name: "analysis",
         slug: "analysis",
         content: "Analysis result: {{output}}",
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -45,7 +45,7 @@ RSpec.describe "Workflow Integration", type: :integration do
         name: "greeting",
         slug: "greeting",
         content: "Hello {{name}}!",
-        status: "active"
+        status: "enabled"
       )
     end
 
@@ -54,7 +54,7 @@ RSpec.describe "Workflow Integration", type: :integration do
         name: "analysis",
         slug: "analysis",
         content: "Analyze: {{output}}",
-        status: "active"
+        status: "enabled"
       )
     end
 

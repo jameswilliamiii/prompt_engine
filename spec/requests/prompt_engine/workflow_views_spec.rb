@@ -4,7 +4,7 @@ module PromptEngine
   RSpec.describe "Workflow Views", type: :request do
     include Engine.routes.url_helpers
 
-    let!(:prompt) { create(:prompt, slug: "test-prompt", status: "active") }
+    let!(:prompt) { create(:prompt, slug: "test-prompt", status: "enabled") }
 
     describe "GET /workflows" do
       it "renders the workflows index page" do

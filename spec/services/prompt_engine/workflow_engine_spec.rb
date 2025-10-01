@@ -2,8 +2,8 @@ require 'rails_helper'
 
 module PromptEngine
   RSpec.describe WorkflowEngine, type: :service do
-  let!(:prompt1) { create(:prompt, slug: "greeting", content: "Hello {{name}}", status: "active") }
-  let!(:prompt2) { create(:prompt, slug: "analysis", content: "Analyze: {{output}}", status: "active") }
+  let!(:prompt1) { create(:prompt, slug: "greeting", content: "Hello {{name}}", status: "enabled") }
+  let!(:prompt2) { create(:prompt, slug: "analysis", content: "Analyze: {{output}}", status: "enabled") }
     let(:workflow) do
       create(:workflow,
         name: "test-workflow",

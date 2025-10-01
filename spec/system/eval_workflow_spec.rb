@@ -11,7 +11,7 @@ RSpec.describe "Evaluation Workflow", type: :system do
       system_message: "You are a sentiment analysis assistant. Respond with only one word: positive, negative, or neutral.",
       model: "gpt-3.5-turbo",
       temperature: 0.0,  # Low temperature for consistent results
-      status: "active")
+      status: "enabled")
   end
 
   before do

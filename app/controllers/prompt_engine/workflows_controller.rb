@@ -21,11 +21,11 @@ module PromptEngine
 
     def new
       @workflow = Workflow.new
-      @available_prompts = PromptEngine::Prompt.active.order(:name)
+      @available_prompts = PromptEngine::Prompt.enabled.order(:name)
     end
 
     def edit
-      @available_prompts = PromptEngine::Prompt.active.order(:name)
+      @available_prompts = PromptEngine::Prompt.enabled.order(:name)
     end
 
     def create
@@ -36,7 +36,7 @@ module PromptEngine
           format.html { redirect_to @workflow, notice: "Workflow was successfully created." }
           format.json { render json: @workflow, status: :created }
         else
-          @available_prompts = PromptEngine::Prompt.active.order(:name)
+          @available_prompts = PromptEngine::Prompt.enabled.order(:name)
           format.html { render :new, status: :unprocessable_entity }
           format.json { render json: { errors: @workflow.errors }, status: :unprocessable_entity }
         end
@@ -49,7 +49,7 @@ module PromptEngine
           format.html { redirect_to @workflow, notice: "Workflow was successfully updated." }
           format.json { render json: @workflow }
         else
-          @available_prompts = PromptEngine::Prompt.active.order(:name)
+          @available_prompts = PromptEngine::Prompt.enabled.order(:name)
           format.html { render :edit, status: :unprocessable_entity }
           format.json { render json: { errors: @workflow.errors }, status: :unprocessable_entity }
         end

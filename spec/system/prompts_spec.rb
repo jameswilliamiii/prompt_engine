@@ -18,7 +18,7 @@ RSpec.describe "Prompts management", type: :system do
       fill_in "Slug", with: "customer-support-bot"
       fill_in "Prompt Content", with: "You are a helpful customer support assistant. Respond to customer inquiries professionally."
       fill_in "System Message", with: "Always be polite and professional."
-      select "Active", from: "Status"
+      select "Enabled", from: "Status"
       fill_in "Temperature", with: "0.7"
       fill_in "Max Tokens", with: "1000"
 
@@ -27,7 +27,7 @@ RSpec.describe "Prompts management", type: :system do
       expect(page).to have_content("Prompt was successfully created.")
       expect(page).to have_content("Customer Support Bot")
       expect(page).to have_content("You are a helpful customer support assistant")
-      expect(page).to have_content("active")
+      expect(page).to have_content("enabled")
     end
 
     it "shows validation errors for invalid data" do
@@ -56,7 +56,7 @@ RSpec.describe "Prompts management", type: :system do
       fill_in "Name", with: "Updated Customer Bot"
       fill_in "Slug", with: "updated-customer-bot"
       fill_in "Prompt Content", with: "Updated content for the bot"
-      select "Active", from: "Status"
+      select "Enabled", from: "Status"
       fill_in "Temperature", with: "0.8"
 
       click_button "Update Prompt"
@@ -64,7 +64,7 @@ RSpec.describe "Prompts management", type: :system do
       expect(page).to have_content("Prompt was successfully updated.")
       expect(page).to have_content("Updated Customer Bot")
       expect(page).to have_content("Updated content for the bot")
-      expect(page).to have_content("active")
+      expect(page).to have_content("enabled")
     end
 
     it "shows validation errors when updating with invalid data" do
@@ -197,23 +197,23 @@ RSpec.describe "Prompts management", type: :system do
 
   describe "Table interactions" do
     let!(:draft_prompt) { create(:prompt, name: "Draft Prompt", status: "draft") }
-    let!(:prompt_engine) { create(:prompt, name: "Active Prompt", status: "active") }
+    let!(:prompt_engine) { create(:prompt, name: "Enabled Prompt", status: "enabled") }
     let!(:archived_prompt) { create(:prompt, name: "Archived Prompt", status: "archived") }
 
     it "displays all prompts with their status badges" do
       visit "/prompt_engine/prompts"
 
       expect(page).to have_css(".table__badge--draft", text: "draft")
-      expect(page).to have_css(".table__badge--active", text: "active")
+      expect(page).to have_css(".table__badge--enabled", text: "enabled")
       expect(page).to have_css(".table__badge--archived", text: "archived")
     end
 
     it "shows prompt details in the table" do
       visit "/prompt_engine/prompts"
 
-      within("tr", text: "Active Prompt") do
-        expect(page).to have_content("Active Prompt")
-        expect(page).to have_css(".table__badge--active", text: "active")
+      within("tr", text: "Enabled Prompt") do
+        expect(page).to have_content("Enabled Prompt")
+        expect(page).to have_css(".table__badge--enabled", text: "enabled")
         expect(page).to have_link("Edit")
         expect(page).to have_button("Delete")
       end
