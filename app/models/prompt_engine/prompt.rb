@@ -38,7 +38,7 @@ module PromptEngine
     after_update :sync_parameters!, if: :saved_change_to_content?
     before_save :clean_orphaned_parameters
 
-  VERSIONED_ATTRIBUTES = %w[content system_message model temperature max_tokens json_mode metadata].freeze
+  VERSIONED_ATTRIBUTES = %w[content system_message model temperature max_tokens json_mode metadata tools].freeze
     OVERRIDE_KEYS = %i[model temperature max_tokens version].freeze
 
     def current_version
@@ -205,6 +205,56 @@ module PromptEngine
       PromptEngine::RenderedPrompt.new(self, rendered_data, overrides)
     end
 
+    # Tool management methods
+    def available_tools
+      @available_tools ||= PromptEngine::ToolDiscoveryService.discover_tools
+    end
+
+    def tool_info(tool_class_name)
+      available_tools.find { |tool| tool[:name] == tool_class_name }
+    end
+
+    def selected_tools
+      return [] if tools.blank?
+      tools.map { |tool_name| tool_info(tool_name) }.compact
+    end
+
+    def add_tool(tool_class_name)
+      return false unless available_tools.any? { |tool| tool[:name] == tool_class_name }
+      
+      current_tools = tools || []
+      return false if current_tools.include?(tool_class_name)
+      
+      self.tools = current_tools + [tool_class_name]
+      true
+    end
+
+    def remove_tool(tool_class_name)
+      current_tools = tools || []
+      return false unless current_tools.include?(tool_class_name)
+      
+      self.tools = current_tools - [tool_class_name]
+      true
+    end
+
+    def has_tool?(tool_class_name)
+      (tools || []).include?(tool_class_name)
+    end
+
+    # Handle tools parameter from form (JSON string)
+    def tools=(value)
+      if value.is_a?(String)
+        begin
+          parsed_tools = JSON.parse(value)
+          super(parsed_tools.is_a?(Array) ? parsed_tools : [])
+        rescue JSON::ParserError
+          super([])
+        end
+      else
+        super(value)
+      end
+    end
+
     # Class method for finding by slug
     def self.find_by_slug!(slug)
       find_by!(slug: slug)
@@ -219,8 +269,9 @@ module PromptEngine
         model: model,
         temperature: temperature,
         max_tokens: max_tokens,
-  json_mode: json_mode,
+        json_mode: json_mode,
         metadata: metadata,
+        tools: tools || [],
         change_description: "Initial version",
         active: true
       )
@@ -241,6 +292,7 @@ module PromptEngine
         max_tokens: max_tokens,
         json_mode: json_mode,
         metadata: metadata,
+        tools: tools || [],
         change_description: "Updated: #{(saved_changes.keys & VERSIONED_ATTRIBUTES).join(", ")}",
         active: make_active
       )

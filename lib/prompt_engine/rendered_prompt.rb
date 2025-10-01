@@ -55,7 +55,14 @@ module PromptEngine
     def messages
       msgs = []
       msgs << { role: "system", content: system_message } if system_message.present?
-      msgs << { role: "user", content: content }
+      
+      # Ensure JSON instruction is present when json_mode is enabled
+      user_content = content
+      if json_mode && !user_content.downcase.include?('json')
+        user_content = "#{user_content}\n\nPlease respond with valid JSON format."
+      end
+      
+      msgs << { role: "user", content: user_content }
       msgs
     end
 

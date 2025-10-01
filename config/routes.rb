@@ -14,6 +14,13 @@ PromptEngine::Engine.routes.draw do
       get :search
     end
 
+    # Tool management routes
+    resources :tools, only: [ :index, :create, :destroy ] do
+      collection do
+        get :available
+      end
+    end
+
     resources :versions, only: [ :index, :show ] do
       member do
         post :restore
@@ -60,6 +67,9 @@ PromptEngine::Engine.routes.draw do
 
   # Evaluations index - shows all eval sets across all prompts
   get "evaluations", to: "evaluations#index", as: :evaluations
+
+  # Tool discovery for forms
+  get "tools/discover", to: "tools#discover", as: :discover_tools
 
   # API endpoints for integration
   namespace :api do

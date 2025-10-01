@@ -34,6 +34,7 @@ prompt3.model = "claude-3-haiku"
 prompt3.temperature = 0.9
 prompt3.max_tokens = 150
 prompt3.status = "draft"
+prompt3.tools = ["WeatherTool"]
 prompt3.save!
 
 puts "Created #{PromptEngine::Prompt.count} sample prompts!"

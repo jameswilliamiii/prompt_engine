@@ -32,6 +32,7 @@ PromptEngine is currently being worked on actively to prepare for a proper initi
 - 📝 **Version Control**: Automatic versioning with one-click rollback
 - 🔍 **Variable Detection**: Auto-detects `{{variables}}` and creates typed parameters
 - 🧪 **Playground**: Test prompts with real AI providers before deploying
+- 🔧 **Tool Integration**: Add RubyLLM tools to prompts for enhanced functionality
 - 🔐 **Secure**: Encrypted API key storage using Rails encryption
 - 🚀 **Modern API**: Object-oriented design with direct LLM integration
 

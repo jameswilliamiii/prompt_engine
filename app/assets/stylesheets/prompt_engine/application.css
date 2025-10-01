@@ -17,6 +17,7 @@
  *= require prompt_engine/comparison
  *= require prompt_engine/evaluations
  *= require prompt_engine/workflows
+ *= require prompt_engine/tools
  *= require prompt_engine/utilities
  *= require prompt_engine/overrides
  *= require prompt_engine/components/_test_runs

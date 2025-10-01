@@ -1,0 +1,242 @@
+/* Tool Management Styles */
+
+.tools-section {
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  padding: 1rem;
+  background: var(--color-gray-50);
+}
+
+.tools-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.tools-header .form__help {
+  margin: 0;
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.selected-tools {
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.no-tools {
+  color: var(--color-gray-400);
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+  background: white;
+  border: 2px dashed var(--color-gray-200);
+  border-radius: 4px;
+}
+
+.tool-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 6px;
+  padding: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.tool-item:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.tool-info {
+  flex: 1;
+}
+
+.tool-info strong {
+  display: block;
+  color: var(--color-gray-900);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.tool-description {
+  color: var(--color-gray-600);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.tool-methods {
+  margin-top: 0.25rem;
+}
+
+.tool-methods small {
+  color: var(--color-gray-500);
+  font-size: 0.7rem;
+  font-style: italic;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+}
+
+.modal__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal__content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.modal__header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.modal__close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--color-gray-400);
+  cursor: pointer;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.modal__close:hover {
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
+}
+
+.modal__body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.tool-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tool-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 6px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.tool-option:hover {
+  border-color: var(--color-primary);
+  background: white;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.tool-option__info {
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.tool-option__info strong {
+  display: block;
+  color: var(--color-gray-900);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.tool-option__description {
+  color: var(--color-gray-600);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  margin: 0 0 0.5rem 0;
+}
+
+.tool-option__methods {
+  color: var(--color-gray-500);
+  font-size: 0.7rem;
+}
+
+.tool-option__methods small {
+  font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .tools-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .tools-header .form__help {
+    margin-right: 0;
+  }
+  
+  .modal__content {
+    margin: 0.5rem;
+    max-height: calc(100vh - 1rem);
+  }
+  
+  .modal__header,
+  .modal__body {
+    padding: 1rem;
+  }
+  
+  .tool-option {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .tool-option__info {
+    margin-right: 0;
+  }
+}

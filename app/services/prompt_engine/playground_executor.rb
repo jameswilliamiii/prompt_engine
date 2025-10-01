@@ -36,6 +36,14 @@ module PromptEngine
       # Replace parameters in prompt content (excluding files)
       parser = ParameterParser.new(prompt.content)
       processed_content = parser.replace_parameters(parameters.except(:files, "files"))
+      
+      # Ensure JSON instruction is present when json_mode is enabled
+      if prompt.respond_to?(:json_mode) && prompt.json_mode
+        # Check if the content already mentions JSON
+        unless processed_content.downcase.include?('json')
+          processed_content = "#{processed_content}\n\nPlease respond with valid JSON format."
+        end
+      end
 
       # Configure RubyLLM with the appropriate API key
       configure_ruby_llm
@@ -64,6 +72,14 @@ module PromptEngine
       # Apply system message if present
       if prompt.system_message.present?
         chat = chat.with_instructions(prompt.system_message)
+      end
+
+      # Apply tools if present
+      if prompt.respond_to?(:tools) && prompt.tools.present?
+        selected_tools = load_selected_tools(prompt.tools)
+        selected_tools.each do |tool_class|
+          chat = chat.with_tool(tool_class)
+        end
       end
 
       # Attach files if provided - try different approaches based on RubyLLM version
@@ -250,6 +266,27 @@ module PromptEngine
           config.openai_api_key = api_key.strip
         end
       end
+    end
+
+    def load_selected_tools(tool_class_names)
+      return [] unless tool_class_names.is_a?(Array)
+      
+      tool_class_names.map do |tool_name|
+        # Try to constantize the tool class name
+        begin
+          tool_class = tool_name.constantize
+          # Validate that it's a proper tool
+          if PromptEngine::ToolDiscoveryService.valid_tool?(tool_class)
+            tool_class
+          else
+            Rails.logger.warn("Invalid tool class: #{tool_name}") if defined?(Rails)
+            nil
+          end
+        rescue NameError => e
+          Rails.logger.warn("Tool class not found: #{tool_name} - #{e.message}") if defined?(Rails)
+          nil
+        end
+      end.compact
     end
 
     def handle_error(error)

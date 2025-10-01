@@ -88,11 +88,18 @@ module PromptEngine
     describe "DELETE /workflows/:id" do
       let!(:workflow) { create(:workflow, name: "delete-workflow", steps: { "1" => "test-prompt" }) }
 
-      it "deletes the workflow" do
+      it "deletes the workflow and redirects to index" do
         expect {
           delete workflow_path(workflow)
         }.to change(Workflow, :count).by(-1)
 
+        expect(response).to have_http_status(:found)
+        expect(response).to redirect_to(workflows_path)
+      end
+
+      it "returns JSON format when requested" do
+        delete workflow_path(workflow), headers: { 'Accept' => 'application/json' }
+        
         expect(response).to have_http_status(:no_content)
       end
     end

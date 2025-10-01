@@ -115,6 +115,41 @@
     <div class="form__help">When enabled, responses are requested in valid JSON format using the model's structured response mode.</div>
   </div>
 
+  <div class="form__group">
+    <label class="form__label">Tools</label>
+    <div class="tools-section">
+      <div class="tools-header">
+        <p class="form__help">Select RubyLLM tools to make available to this prompt during execution.</p>
+        <button type="button" class="btn btn--secondary btn--small" id="add-tool-btn">
+          Add Tool
+        </button>
+      </div>
+      
+      <div id="selected-tools" class="selected-tools">
+        <% if prompt.selected_tools.any? %>
+          <% prompt.selected_tools.each do |tool| %>
+            <div class="tool-item" data-tool-name="<%= tool[:name] %>">
+              <div class="tool-info">
+                <strong><%= tool[:name] %></strong>
+                <% if tool[:description].present? %>
+                  <span class="tool-description"><%= tool[:description] %></span>
+                <% end %>
+              </div>
+              <button type="button" class="btn btn--danger btn--small remove-tool-btn" data-tool-name="<%= tool[:name] %>">
+                Remove
+              </button>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="no-tools">No tools selected</div>
+        <% end %>
+      </div>
+      
+      <!-- Hidden field to store selected tools -->
+      <%= form.hidden_field :tools, value: (prompt.tools || []).to_json, id: "tools-hidden-field" %>
+    </div>
+  </div>
+
   <div class="form__actions">
     <%= link_to "Cancel", prompts_path, class: "btn btn--secondary btn--medium" %>
     <% if prompt.persisted? %>
@@ -267,6 +302,181 @@ document.addEventListener('DOMContentLoaded', function() {
     contentField.addEventListener('input', detectVariables);
     // Detect variables on page load
     detectVariables();
+  }
+
+  // Tool management functionality
+  const addToolBtn = document.getElementById('add-tool-btn');
+  const selectedToolsContainer = document.getElementById('selected-tools');
+  const toolsHiddenField = document.getElementById('tools-hidden-field');
+  
+  // Store available tools for selection
+  let availableTools = [];
+
+  if (addToolBtn && selectedToolsContainer && toolsHiddenField) {
+    addToolBtn.addEventListener('click', function() {
+      loadAvailableTools();
+    });
+
+    // Handle tool removal
+    selectedToolsContainer.addEventListener('click', function(e) {
+      if (e.target.classList.contains('remove-tool-btn')) {
+        const toolName = e.target.getAttribute('data-tool-name');
+        removeTool(toolName);
+      }
+    });
+  }
+
+  function loadAvailableTools() {
+    // For new prompts, we need to discover tools differently
+    // We'll use a simple approach: try to load tools from a discovery endpoint
+    fetch('/prompt_engine/tools/discover')
+      .then(response => response.json())
+      .then(data => {
+        if (data.tools && data.tools.length > 0) {
+          availableTools = data.tools;
+          showToolModal(data.tools);
+        } else {
+          alert('No tools available. Make sure you have RubyLLM::Tool classes in your application.');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching tools:', error);
+        // Fallback: show a simple modal with common tool names
+        showToolModal([]);
+      });
+  }
+
+  function showToolModal(tools) {
+    // Create modal HTML
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+      <div class="modal__overlay">
+        <div class="modal__content">
+          <div class="modal__header">
+            <h3>Select Tools</h3>
+            <button type="button" class="modal__close">&times;</button>
+          </div>
+          <div class="modal__body">
+            <div class="tool-list">
+              ${tools.map(tool => `
+                <div class="tool-option" data-tool-name="${tool.name}">
+                  <div class="tool-option__info">
+                    <strong>${tool.name}</strong>
+                    <p class="tool-option__description">${tool.description || 'No description available'}</p>
+                    ${tool.methods && tool.methods.length > 0 ? `
+                      <div class="tool-option__methods">
+                        <small>Methods: ${tool.methods.join(', ')}</small>
+                      </div>
+                    ` : ''}
+                  </div>
+                  <button type="button" class="btn btn--primary btn--small add-tool-option-btn">
+                    Add
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Handle modal close
+    modal.querySelector('.modal__close').addEventListener('click', () => {
+      document.body.removeChild(modal);
+    });
+
+    modal.querySelector('.modal__overlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        document.body.removeChild(modal);
+      }
+    });
+
+    // Handle tool selection
+    modal.addEventListener('click', function(e) {
+      if (e.target.classList.contains('add-tool-option-btn')) {
+        const toolOption = e.target.closest('.tool-option');
+        const toolName = toolOption.getAttribute('data-tool-name');
+        addTool(toolName);
+        document.body.removeChild(modal);
+      }
+    });
+  }
+
+  function addTool(toolName) {
+    // Get current tools from hidden field
+    let currentTools = [];
+    try {
+      currentTools = JSON.parse(toolsHiddenField.value || '[]');
+    } catch (e) {
+      currentTools = [];
+    }
+    
+    // Add tool if not already present
+    if (!currentTools.includes(toolName)) {
+      currentTools.push(toolName);
+      toolsHiddenField.value = JSON.stringify(currentTools);
+      addToolToUI(toolName);
+    }
+  }
+
+  function removeTool(toolName) {
+    if (confirm(`Are you sure you want to remove the tool "${toolName}"?`)) {
+      // Get current tools from hidden field
+      let currentTools = [];
+      try {
+        currentTools = JSON.parse(toolsHiddenField.value || '[]');
+      } catch (e) {
+        currentTools = [];
+      }
+      
+      // Remove tool
+      currentTools = currentTools.filter(tool => tool !== toolName);
+      toolsHiddenField.value = JSON.stringify(currentTools);
+      removeToolFromUI(toolName);
+    }
+  }
+
+  function addToolToUI(toolName) {
+    const noToolsDiv = selectedToolsContainer.querySelector('.no-tools');
+    if (noToolsDiv) {
+      noToolsDiv.remove();
+    }
+
+    // Find tool info from available tools
+    const toolInfo = availableTools.find(tool => tool.name === toolName);
+
+    const toolItem = document.createElement('div');
+    toolItem.className = 'tool-item';
+    toolItem.setAttribute('data-tool-name', toolName);
+    toolItem.innerHTML = `
+      <div class="tool-info">
+        <strong>${toolName}</strong>
+        ${toolInfo && toolInfo.description ? `<span class="tool-description">${toolInfo.description}</span>` : ''}
+      </div>
+      <button type="button" class="btn btn--danger btn--small remove-tool-btn" data-tool-name="${toolName}">
+        Remove
+      </button>
+    `;
+
+    selectedToolsContainer.appendChild(toolItem);
+  }
+
+  function removeToolFromUI(toolName) {
+    const toolItem = selectedToolsContainer.querySelector(`[data-tool-name="${toolName}"]`);
+    if (toolItem) {
+      toolItem.remove();
+    }
+
+    // Show "no tools" message if no tools left
+    if (selectedToolsContainer.children.length === 0) {
+      const noToolsDiv = document.createElement('div');
+      noToolsDiv.className = 'no-tools';
+      noToolsDiv.textContent = 'No tools selected';
+      selectedToolsContainer.appendChild(noToolsDiv);
+    }
   }
 });
 </script>

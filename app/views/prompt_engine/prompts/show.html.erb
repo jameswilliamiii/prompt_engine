@@ -103,6 +103,33 @@
     </div>
   <% end %>
 
+  <% if @prompt.selected_tools.any? %>
+    <div class="card mb-lg">
+      <div class="card__header">
+        <h3 class="card__title">Tools</h3>
+      </div>
+      <div class="card__body">
+        <div class="selected-tools">
+          <% @prompt.selected_tools.each do |tool| %>
+            <div class="tool-item">
+              <div class="tool-info">
+                <strong><%= tool[:name] %></strong>
+                <% if tool[:description].present? %>
+                  <span class="tool-description"><%= tool[:description] %></span>
+                <% end %>
+                <% if tool[:methods] && tool[:methods].any? %>
+                  <div class="tool-methods">
+                    <small class="text-muted">Methods: <%= tool[:methods].join(', ') %></small>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <div class="card mb-lg">
     <div class="card__header">
       <h3 class="card__title">Usage Example</h3>

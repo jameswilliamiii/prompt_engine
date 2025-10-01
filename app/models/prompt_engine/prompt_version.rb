@@ -46,7 +46,8 @@ module PromptEngine
         temperature: temperature,
         max_tokens: max_tokens,
         json_mode: json_mode,
-        metadata: metadata
+        metadata: metadata,
+        tools: tools || []
       }
     end
 

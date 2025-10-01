@@ -29,6 +29,11 @@
   margin: 0;
 }
 
+/* Override H3 margin-bottom for card titles */
+h3.card__title {
+  margin-bottom: 0;
+}
+
 .card__actions {
   flex-shrink: 0;
   margin-left: var(--spacing-md);

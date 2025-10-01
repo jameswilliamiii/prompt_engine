@@ -52,6 +52,47 @@ module PromptEngine
         expect(response.body).to include(prompt.name)
         expect(response.body).to include(prompt.description)
       end
+
+      context "when prompt has tools" do
+        let(:prompt_with_tools) { create(:prompt, tools: ["WeatherTool", "ExampleTool"]) }
+
+        before do
+          # Mock the tool discovery service to return tool info
+          allow_any_instance_of(PromptEngine::Prompt).to receive(:selected_tools).and_return([
+            {
+              name: "WeatherTool",
+              description: "Gets current weather for a location",
+              methods: ["execute"]
+            },
+            {
+              name: "ExampleTool", 
+              description: "An example tool for testing",
+              methods: ["execute", "validate"]
+            }
+          ])
+        end
+
+        it "displays the tools section" do
+          get prompt_engine.prompt_path(prompt_with_tools)
+          expect(response.body).to include("Tools")
+          expect(response.body).to include("WeatherTool")
+          expect(response.body).to include("Gets current weather for a location")
+          expect(response.body).to include("ExampleTool")
+          expect(response.body).to include("An example tool for testing")
+        end
+
+        it "displays tool methods when available" do
+          get prompt_engine.prompt_path(prompt_with_tools)
+          expect(response.body).to include("Methods: execute, validate")
+        end
+      end
+
+      context "when prompt has no tools" do
+        it "does not display the tools section" do
+          get prompt_engine.prompt_path(prompt)
+          expect(response.body).not_to include("Tools")
+        end
+      end
     end
 
     describe "GET /prompt_engine/prompts/new" do
@@ -67,6 +108,16 @@ module PromptEngine
     end
 
     describe "POST /prompt_engine/prompts" do
+      context "with tools" do
+        it "creates a prompt with tools" do
+          post prompt_engine.prompts_path, params: {
+            prompt: valid_attributes.merge(tools: '["WeatherTool", "ExampleTool"]')
+          }
+          
+          expect(response).to redirect_to(prompt_engine.prompt_path(PromptEngine::Prompt.last))
+          expect(PromptEngine::Prompt.last.tools).to eq(["WeatherTool", "ExampleTool"])
+        end
+      end
       context "with valid params" do
         it "creates a new Prompt" do
           expect {
@@ -149,6 +200,16 @@ module PromptEngine
           patch prompt_engine.prompt_path(prompt), params: { prompt: new_attributes }
           follow_redirect!
           expect(response.body).to include("Prompt was successfully updated.")
+        end
+      end
+
+      context "with tools" do
+        it "updates tools via form" do
+          patch prompt_engine.prompt_path(prompt), params: { 
+            prompt: { tools: '["WeatherTool", "ExampleTool"]' }
+          }
+          prompt.reload
+          expect(prompt.tools).to eq(["WeatherTool", "ExampleTool"])
         end
       end
 
