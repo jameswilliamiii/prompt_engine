@@ -20,7 +20,7 @@
           <nav class="admin-sidebar__nav">
             <ul class="admin-nav">
               <li class="admin-nav__item admin-nav__item--back">
-                <%= link_to "← Back to Admin", main_app.admin_root_path, class: "admin-nav__link admin-nav__link--back" %>
+                <%= link_to PromptEngine.config.back_label, PromptEngine.config.back_path || main_app.root_path, class: "admin-nav__link admin-nav__link--back" %>
               </li>
             </ul>
 

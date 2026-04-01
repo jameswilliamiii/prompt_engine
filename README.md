@@ -4,17 +4,7 @@ A powerful Rails engine for managing AI prompts with version control, A/B testin
 integration. PromptEngine provides a centralized admin interface where teams can create, version,
 test, and optimize their AI prompts without deploying code changes.
 
-[![Made with ❤️ by Avi.nyc](https://img.shields.io/badge/Made%20with%20%E2%9D%A4%EF%B8%8F%20by-Avi.nyc-ff69b4)](https://avi.nyc)
-[![Sponsored by Innovent Capital](https://img.shields.io/badge/Sponsored%20by-Innovent%20Capital-blue)](https://innoventcapital.com)
-
-## WARNING - IN ACTIVE DEVELOPMENT
-
-PromptEngine is currently being worked on actively to prepare for a proper initial version release. You can use it by including the gem sourced from the main branch of this repo however **as we make changes, we will not ensure backward compatibility.** Use at your own risk for now, but a final version should be ready in the next week.
-
-## Documentation and Demo
-
-- 🚀 [Live Demo App](https://prompt-engine-demo.avi.nyc)
-- 📖 [Documentation](https://prompt-engine-docs.avi.nyc/)
+> This is a fork of [aviflombaum/prompt_engine](https://github.com/aviflombaum/prompt_engine) by Avi Flombaum.
 
 ## Why PromptEngine?
 
@@ -310,10 +300,6 @@ PromptEngine follows Rails engine conventions with a modular architecture:
 - [ ] Logging and Observability of Prompt Usage
 - [ ] Cost tracking and optimization
 
-## Sponsors
-
-- [Innovent Capital](https://innoventcapital.com) - _Pioneering AI innovation in financial services_
-
 ## License
 
 The gem is available as open source under the terms of the
@@ -321,12 +307,6 @@ The gem is available as open source under the terms of the
 
 ## Support
 
-- 🚀 [Live Demo App](https://prompt-engine-demo.avi.nyc)
-- 📖 [Documentation](https://prompt-engine-docs.avi.nyc/)
-- 🐛 [Issue Tracker](https://github.com/aviflombaum/prompt_engine/issues)
-- 💬 [Discussions](https://github.com/aviflombaum/prompt_engine/discussions)
-- 📧 [Email Support](mailto:ruby@avi.nyc)
+- 🐛 [Issue Tracker](https://github.com/jameswilliamiii/prompt_engine/issues)
+- 💬 [Discussions](https://github.com/jameswilliamiii/prompt_engine/discussions)
 
----
-
-Built with ❤️ by [Avi.nyc](https://avi.nyc)

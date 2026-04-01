@@ -21,7 +21,7 @@ module PromptEngine
 
         it "prefills the API key based on selected provider" do
           # Create prompts with different models to test prefilling
-          anthropic_prompt = create(:prompt, name: "Anthropic Prompt", content: "Hello {{name}}", model: "claude-3-5-sonnet")
+          anthropic_prompt = create(:prompt, name: "Anthropic Prompt", content: "Hello {{name}}", model: "claude-sonnet-4-6")
           openai_prompt = create(:prompt, name: "OpenAI Prompt", content: "Hello {{name}}", model: "gpt-4o")
 
           # Test Anthropic prompt
@@ -42,7 +42,8 @@ module PromptEngine
         end
 
         it "includes link to change settings" do
-          visit playground_prompt_path(prompt)
+          prompt_with_model = create(:prompt, name: "Model Prompt", content: "Hello {{name}}", model: "claude-sonnet-4-6")
+          visit playground_prompt_path(prompt_with_model)
 
           expect(page).to have_link("Change in settings", href: edit_settings_path)
         end
@@ -99,7 +100,7 @@ module PromptEngine
 
       it "uses the saved API key for execution" do
         # Create a prompt with anthropic model so it prefills the API key
-        anthropic_prompt = create(:prompt, name: "Claude Prompt", content: "Hello {{name}}", model: "claude-3-5-sonnet")
+        anthropic_prompt = create(:prompt, name: "Claude Prompt", content: "Hello {{name}}", model: "claude-sonnet-4-6")
 
         visit playground_prompt_path(anthropic_prompt)
 
@@ -110,7 +111,7 @@ module PromptEngine
           response: "Hello World!",
           execution_time: 1.5,
           token_count: 10,
-          model: "claude-3-5-sonnet-20241022",
+          model: "claude-sonnet-4-6-20241022",
           provider: "anthropic"
         })
 

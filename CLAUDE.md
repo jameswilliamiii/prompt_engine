@@ -1,3 +1,51 @@
+# Fork Status & Key Context
+
+This gem is a fork of [aviflombaum/prompt_engine](https://github.com/aviflombaum/prompt_engine) by Avi Flombaum, maintained at [jameswilliamiii/prompt_engine](https://github.com/jameswilliamiii/prompt_engine).
+
+**Current version:** 1.1.0
+
+## Eval System
+
+The evaluation system (EvalSet, EvalRun, EvalResult, TestCase models; eval_sets, eval_runs, test_cases, evaluations controllers and routes) is fully built but intentionally hidden from the navigation. The nav link in `app/views/layouts/prompt_engine/admin.html.erb` is commented out with ERB/HTML comments. Routes remain live at `/prompt_engine/evaluations`. This feature was excluded from 1.1.0 and is a candidate for a future release. Do not remove the eval code without a deliberate decision.
+
+## Configurable Model Catalog
+
+`PromptEngine::Configuration` is defined in `lib/prompt_engine.rb`. Host apps configure the model list via:
+
+```ruby
+PromptEngine.configure do |config|
+  config.models = {
+    "gpt-4o" => { provider: "openai", label: "GPT-4o" },
+    "claude-sonnet-4-6" => { provider: "anthropic", label: "Claude Sonnet 4.6" }
+  }
+end
+```
+
+`PlaygroundExecutor` derives provider from this catalog (not a hardcoded map). The prompt form model select also renders from this catalog. Defaults are defined in `Configuration#initialize`.
+
+## Back Link Configuration
+
+`PromptEngine::Configuration` exposes two attributes for the sidebar back link:
+- `back_path` — destination URL; defaults to `nil` (falls back to `main_app.root_path`)
+- `back_label` — link text; defaults to `"← Back"`
+
+Configure via `PromptEngine.configure { |c| c.back_path = "/dashboard"; c.back_label = "← Dashboard" }`.
+
+## Settings & API Keys
+
+`PromptEngine::Setting` stores API keys per provider (openai, anthropic). `PlaygroundExecutor` reads from settings first, falling back to Rails credentials. Keys are managed via the Settings UI at `/prompt_engine/settings`.
+
+## Authentication
+
+No built-in auth UI. Host apps configure authentication via:
+- Route constraints (Devise `authenticate` block)
+- Rack middleware (`Rack::Auth::Basic`)
+- ActiveSupport hooks (`ActiveSupport.on_load(:prompt_engine_application_controller)`)
+
+Authentication is on by default. Must be explicitly disabled for development environments. See README for examples.
+
+---
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this

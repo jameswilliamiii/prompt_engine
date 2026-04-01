@@ -59,7 +59,7 @@ module PromptEngine
     describe "POST /prompt_engine/prompts/:id/playground" do
       let(:valid_params) do
         {
-          provider: "anthropic",
+          model: "claude-sonnet-4-6",
           api_key: "test-api-key",
           parameters: {
             topic: "Ruby on Rails",
@@ -105,7 +105,7 @@ module PromptEngine
           result = PlaygroundRunResult.last
           expect(result.prompt_version).to eq(prompt.current_version)
           expect(result.provider).to eq("anthropic")
-          expect(result.model).to eq("claude-3-7")
+          expect(result.model).to eq("claude-sonnet-4-6")
           expect(result.rendered_prompt).to eq("Tell me about Ruby on Rails in technical style")
           expect(result.response).to eq("This is a test response about Ruby on Rails")
           expect(result.execution_time).to be >= 0
@@ -152,7 +152,7 @@ module PromptEngine
       context "with OpenAI provider" do
         let(:openai_params) do
           {
-            provider: "openai",
+            model: "gpt-4o",
             api_key: "test-openai-key",
             parameters: { topic: "Python", style: "casual" }
           }
@@ -167,19 +167,19 @@ module PromptEngine
       end
 
       context "with missing required parameters" do
-        it "handles missing provider" do
+        it "handles missing model" do
           post playground_prompt_path(prompt), params: {
             api_key: "test-key",
             parameters: { topic: "Rails" }
           }
 
           expect(response).to be_successful
-          expect(response.body).to include("Provider is required")
+          expect(response.body).to include("Model is required")
         end
 
         it "handles missing API key" do
           post playground_prompt_path(prompt), params: {
-            provider: "anthropic",
+            model: "claude-sonnet-4-6",
             parameters: { topic: "Rails" }
           }
 
@@ -187,15 +187,15 @@ module PromptEngine
           expect(response.body).to include("API key is required")
         end
 
-        it "handles invalid provider" do
+        it "handles unknown model" do
           post playground_prompt_path(prompt), params: {
-            provider: "invalid_provider",
+            model: "invalid_model",
             api_key: "test-key",
             parameters: { topic: "Rails" }
           }
 
           expect(response).to be_successful
-          expect(response.body).to include("Invalid provider")
+          expect(response.body).to include("Unknown model: invalid_model")
         end
       end
 
@@ -240,7 +240,7 @@ module PromptEngine
       context "with empty parameters" do
         it "handles nil parameters gracefully" do
           post playground_prompt_path(prompt), params: {
-            provider: "anthropic",
+            model: "claude-sonnet-4-6",
             api_key: "test-key",
             parameters: nil
           }
@@ -250,7 +250,7 @@ module PromptEngine
 
         it "handles empty parameters hash" do
           post playground_prompt_path(prompt), params: {
-            provider: "anthropic",
+            model: "claude-sonnet-4-6",
             api_key: "test-key",
             parameters: {}
           }
@@ -264,7 +264,7 @@ module PromptEngine
 
         it "executes successfully without parameters" do
           post playground_prompt_path(simple_prompt), params: {
-            provider: "anthropic",
+            model: "claude-sonnet-4-6",
             api_key: "test-key"
           }
 

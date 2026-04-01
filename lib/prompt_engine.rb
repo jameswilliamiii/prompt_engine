@@ -8,8 +8,12 @@ module PromptEngine
     # Maps model identifier => { provider: "openai"|"anthropic", label: "Display Name" }
     # Defaults cover common models but host apps should override via PromptEngine.configure.
     attr_accessor :models
+    attr_accessor :back_path
+    attr_accessor :back_label
 
     def initialize
+      @back_path = nil
+      @back_label = "← Back"
       @models = {
         "gpt-4.1"                   => { provider: "openai",    label: "GPT-4.1" },
         "gpt-4.1-mini"              => { provider: "openai",    label: "GPT-4.1 Mini" },

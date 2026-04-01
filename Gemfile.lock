@@ -1,12 +1,11 @@
 PATH
   remote: .
   specs:
-    prompt_engine (1.0.0)
+    prompt_engine (1.1.0)
       bcrypt
       csv (~> 3.3)
       rails
       ruby_llm
-      sqlite3
 
 GEM
   remote: https://rubygems.org/

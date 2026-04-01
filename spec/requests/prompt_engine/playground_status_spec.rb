@@ -60,7 +60,7 @@ module PromptEngine
 
       it "executes draft prompts in playground" do
         post playground_prompt_path(draft_prompt), params: {
-          provider: "openai",
+          model: "gpt-4o",
           api_key: "test-key",
           parameters: { message: "Hello" }
         }
@@ -72,7 +72,7 @@ module PromptEngine
 
       it "executes active prompts in playground" do
         post playground_prompt_path(active_prompt), params: {
-          provider: "openai",
+          model: "gpt-4o",
           api_key: "test-key",
           parameters: { message: "World" }
         }

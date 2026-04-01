@@ -21,7 +21,7 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
     it "initializes with required attributes" do
       executor = described_class.new(
         prompt: prompt,
-        provider: "openai",
+        model: "gpt-4o",
         api_key: "test-key",
         parameters: valid_parameters
       )
@@ -35,7 +35,7 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
     it "initializes with nil parameters as empty hash" do
       executor = described_class.new(
         prompt: prompt,
-        provider: "openai",
+        model: "gpt-4o",
         api_key: "test-key",
         parameters: nil
       )
@@ -48,7 +48,7 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
     let(:executor) do
       described_class.new(
         prompt: prompt,
-        provider: "openai",
+        model: "gpt-4o",
         api_key: "test-api-key",
         parameters: valid_parameters
       )
@@ -145,7 +145,7 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
       let(:executor) do
         described_class.new(
           prompt: prompt,
-          provider: "anthropic",
+          model: "claude-sonnet-4-6",
           api_key: "anthropic-key",
           parameters: valid_parameters
         )
@@ -178,27 +178,27 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
       it "uses Claude model" do
         result = executor.execute
 
-        expect(result[:model]).to eq("claude-3-7")
+        expect(result[:model]).to eq("claude-sonnet-4-6")
         expect(result[:provider]).to eq("anthropic")
       end
     end
 
     context "with validation errors" do
-      it "raises error when provider is blank" do
+      it "raises error when model is blank" do
         executor = described_class.new(
           prompt: prompt,
-          provider: "",
+          model: "",
           api_key: "test-key",
           parameters: valid_parameters
         )
 
-        expect { executor.execute }.to raise_error(ArgumentError, "Provider is required")
+        expect { executor.execute }.to raise_error(ArgumentError, "Model is required")
       end
 
       it "raises error when API key is blank" do
         executor = described_class.new(
           prompt: prompt,
-          provider: "openai",
+          model: "gpt-4o",
           api_key: "",
           parameters: valid_parameters
         )
@@ -206,15 +206,15 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
         expect { executor.execute }.to raise_error(ArgumentError, "API key is required")
       end
 
-      it "raises error for invalid provider" do
+      it "raises error for unknown model" do
         executor = described_class.new(
           prompt: prompt,
-          provider: "invalid-provider",
+          model: "invalid-model",
           api_key: "test-key",
           parameters: valid_parameters
         )
 
-        expect { executor.execute }.to raise_error(ArgumentError, "Invalid provider")
+        expect { executor.execute }.to raise_error(ArgumentError, "Unknown model: invalid-model")
       end
     end
 
@@ -285,7 +285,7 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
       let(:executor) do
         described_class.new(
           prompt: minimal_prompt,
-          provider: "openai",
+          model: "gpt-4o",
           api_key: "test-key",
           parameters: {}
         )
@@ -310,15 +310,6 @@ RSpec.describe PromptEngine::PlaygroundExecutor, type: :service do
 
         executor.execute
       end
-    end
-  end
-
-  describe "MODELS constant" do
-    it "contains supported providers and their models" do
-      expect(described_class::MODELS).to eq({
-        "anthropic" => "claude-3-7",
-        "openai" => "gpt-4o"
-      })
     end
   end
 end
