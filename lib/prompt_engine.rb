@@ -4,7 +4,32 @@ require "prompt_engine/rendered_prompt"
 require "prompt_engine/errors"
 
 module PromptEngine
+  class Configuration
+    # Maps model identifier => { provider: "openai"|"anthropic", label: "Display Name" }
+    # Defaults cover common models but host apps should override via PromptEngine.configure.
+    attr_accessor :models
+
+    def initialize
+      @models = {
+        "gpt-4.1"                   => { provider: "openai",    label: "GPT-4.1" },
+        "gpt-4.1-mini"              => { provider: "openai",    label: "GPT-4.1 Mini" },
+        "gpt-4o"                    => { provider: "openai",    label: "GPT-4o" },
+        "claude-opus-4-6"           => { provider: "anthropic", label: "Claude Opus 4.6" },
+        "claude-sonnet-4-6"         => { provider: "anthropic", label: "Claude Sonnet 4.6" },
+        "claude-haiku-4-5-20251001" => { provider: "anthropic", label: "Claude Haiku 4.5" }
+      }
+    end
+  end
+
   class << self
+    def configure
+      yield config
+    end
+
+    def config
+      @config ||= Configuration.new
+    end
+
     # Render a prompt by slug with variables and options
     # @param slug [String] The slug of the prompt to render
     # @param variables [Hash] Variables to interpolate in the prompt (default: {})

@@ -1,17 +1,13 @@
 module PromptEngine
   class PlaygroundExecutor
-    attr_reader :prompt, :provider, :api_key, :parameters
+    attr_reader :prompt, :model, :provider, :api_key, :parameters
 
-    MODELS = {
-      "anthropic" => "claude-3-7",
-      "openai" => "gpt-4o"
-    }.freeze
-
-    def initialize(prompt:, provider:, api_key:, parameters: {})
+    def initialize(prompt:, model:, api_key:, parameters: {})
       @prompt = prompt
-      @provider = provider
+      @model = model
       @api_key = api_key
       @parameters = parameters || {}
+      @provider = PromptEngine.config.models.dig(model, :provider)
     end
 
     def execute
@@ -19,33 +15,25 @@ module PromptEngine
 
       start_time = Time.current
 
-      # Replace parameters in prompt content
       parser = ParameterParser.new(prompt.content)
       processed_content = parser.replace_parameters(parameters)
 
-      # Configure RubyLLM with the appropriate API key
       configure_ruby_llm
 
-      # Create chat instance with the model
-      chat = RubyLLM.chat(model: MODELS[provider])
+      chat = RubyLLM.chat(model: model)
 
-      # Apply temperature if specified
       if prompt.temperature.present?
         chat = chat.with_temperature(prompt.temperature)
       end
 
-      # Apply system message if present
       if prompt.system_message.present?
         chat = chat.with_instructions(prompt.system_message)
       end
 
-      # Execute the prompt
-      # Note: max_tokens may need to be passed differently depending on RubyLLM version
       response = chat.ask(processed_content)
 
       execution_time = (Time.current - start_time).round(3)
 
-      # Handle response based on its structure
       response_content = if response.respond_to?(:content)
         response.content
       elsif response.is_a?(String)
@@ -54,18 +42,17 @@ module PromptEngine
         response.to_s
       end
 
-      # Try to get token count if available
       token_count = if response.respond_to?(:input_tokens) && response.respond_to?(:output_tokens)
         (response.input_tokens || 0) + (response.output_tokens || 0)
       else
-        0 # Default if token information isn't available
+        0
       end
 
       {
         response: response_content,
         execution_time: execution_time,
         token_count: token_count,
-        model: MODELS[provider],
+        model: model,
         provider: provider
       }
     rescue => e
@@ -75,9 +62,9 @@ module PromptEngine
     private
 
     def validate_inputs!
-      raise ArgumentError, "Provider is required" if provider.blank?
+      raise ArgumentError, "Model is required" if model.blank?
       raise ArgumentError, "API key is required" if api_key.blank?
-      raise ArgumentError, "Invalid provider" unless MODELS.key?(provider)
+      raise ArgumentError, "Unknown model: #{model}" if provider.nil?
     end
 
     def configure_ruby_llm
@@ -94,10 +81,8 @@ module PromptEngine
     end
 
     def handle_error(error)
-      # Re-raise ArgumentError as-is for validation errors
       raise error if error.is_a?(ArgumentError)
 
-      # Check for specific error types first
       case error
       when Net::HTTPUnauthorized
         raise "Invalid API key"
@@ -106,7 +91,6 @@ module PromptEngine
       when Net::HTTPError
         raise "Network error. Please check your connection and try again."
       else
-        # Then check error message patterns
         error_message = error.message.to_s
         case error_message
         when /unauthorized/i

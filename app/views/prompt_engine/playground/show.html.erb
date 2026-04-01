@@ -12,59 +12,48 @@
   <div class="card__body">
     <%= form_with url: playground_prompt_path(@prompt), method: :post, local: true, html: { class: "form" } do |form| %>
       <div class="form__group">
-        <%= form.label :provider, "AI Provider", class: "form__label form__label--required" %>
-        <% 
-          # Determine default provider based on prompt's model
-          default_provider = case @prompt.model
-                           when /claude/i, /anthropic/i
-                             "anthropic"
-                           when /gpt/i, /openai/i
-                             "openai"
-                           else
-                             nil
-                           end
+        <%= form.label :model, "AI Model", class: "form__label form__label--required" %>
+        <%
+          models = PromptEngine.config.models
+          default_model = @prompt.model.presence || models.keys.first
+          default_provider = models.dig(default_model, :provider)
         %>
-        <%= form.select :provider,
-            options_for_select([
-              ["Anthropic (claude-3-5-sonnet-20241022)", "anthropic"],
-              ["OpenAI (gpt-4o)", "openai"]
-            ], default_provider),
-            { prompt: "Select a provider" },
-            class: "form__select", required: true %>
-        <div class="form__help">
-          <% if @prompt.model.present? %>
-            Prompt is configured for <%= @prompt.model %>
-          <% else %>
-            Select which AI provider to test with
-          <% end %>
-        </div>
+        <%= form.select :model,
+            options_for_select(
+              models.map { |id, cfg| [cfg[:label], id] },
+              default_model
+            ),
+            { prompt: "Select a model" },
+            class: "form__select",
+            required: true,
+            data: {
+              providers: models.transform_values { |cfg| cfg[:provider] }.to_json
+            } %>
+        <% if @prompt.model.present? %>
+          <div class="form__help">Prompt is configured for <%= @prompt.model %></div>
+        <% end %>
       </div>
 
       <div class="form__group">
         <%= form.label :api_key, "API Key", class: "form__label form__label--required" %>
-        <% 
-          # Get the appropriate API key based on selected provider
-          default_api_key = nil
-          api_key_configured = false
-          
-          if default_provider == "anthropic" && @settings.anthropic_configured?
-            default_api_key = @settings.anthropic_api_key
-            api_key_configured = true
-          elsif default_provider == "openai" && @settings.openai_configured?
-            default_api_key = @settings.openai_api_key
-            api_key_configured = true
-          end
+        <%
+          api_key_configured = (default_provider == "anthropic" && @settings.anthropic_configured?) ||
+                               (default_provider == "openai"    && @settings.openai_configured?)
+          default_api_key = case default_provider
+                            when "anthropic" then @settings.anthropic_api_key
+                            when "openai"    then @settings.openai_api_key
+                            end
         %>
-        <%= form.password_field :api_key, 
-            class: "form__input", 
+        <%= form.password_field :api_key,
+            class: "form__input",
             required: true,
             value: default_api_key,
             placeholder: api_key_configured ? "Using saved API key" : "Enter your API key",
-            data: { 
+            data: {
               anthropic_key: @settings.anthropic_api_key,
               openai_key: @settings.openai_api_key
             } %>
-        <div class="form__help">
+        <div class="form__help" id="api-key-help">
           <% if api_key_configured %>
             Using saved API key from settings. <%= link_to "Change in settings", edit_settings_path, class: "link" %>
           <% else %>
@@ -76,11 +65,11 @@
       <% if @parameters.any? %>
         <h3 class="form__section-title">Prompt Parameters</h3>
         <div class="form__help mb-md">Fill in the values for each parameter:</div>
-        
+
         <% @parameters.each do |parameter_name| %>
           <div class="form__group">
             <%= form.label "parameters[#{parameter_name}]", parameter_name.humanize.titleize, class: "form__label" %>
-            <%= form.text_area "parameters[#{parameter_name}]", 
+            <%= form.text_area "parameters[#{parameter_name}]",
                 class: "form__textarea",
                 rows: 3,
                 placeholder: "Enter value for #{parameter_name}" %>
@@ -97,31 +86,32 @@
 </div>
 
 <script>
-  // Update API key when provider changes
   document.addEventListener('DOMContentLoaded', function() {
-    const providerSelect = document.getElementById('provider');
+    const modelSelect = document.getElementById('model');
     const apiKeyField = document.getElementById('api_key');
-    const helpText = apiKeyField.parentElement.querySelector('.form__help');
-    
-    if (providerSelect && apiKeyField) {
+    const helpText = document.getElementById('api-key-help');
+
+    if (modelSelect && apiKeyField) {
       const anthropicKey = apiKeyField.dataset.anthropicKey;
       const openaiKey = apiKeyField.dataset.openaiKey;
-      
-      providerSelect.addEventListener('change', function() {
-        const selectedProvider = this.value;
-        
-        if (selectedProvider === 'anthropic' && anthropicKey) {
+      const providers = JSON.parse(modelSelect.dataset.providers || '{}');
+      const settingsUrl = '<%= edit_settings_path %>';
+
+      modelSelect.addEventListener('change', function() {
+        const provider = providers[this.value];
+
+        if (provider === 'anthropic' && anthropicKey) {
           apiKeyField.value = anthropicKey;
           apiKeyField.placeholder = 'Using saved API key';
-          helpText.innerHTML = 'Using saved API key from settings. <a href="<%= edit_settings_path %>" class="link">Change in settings</a>';
-        } else if (selectedProvider === 'openai' && openaiKey) {
+          helpText.innerHTML = 'Using saved API key from settings. <a href="' + settingsUrl + '" class="link">Change in settings</a>';
+        } else if (provider === 'openai' && openaiKey) {
           apiKeyField.value = openaiKey;
           apiKeyField.placeholder = 'Using saved API key';
-          helpText.innerHTML = 'Using saved API key from settings. <a href="<%= edit_settings_path %>" class="link">Change in settings</a>';
+          helpText.innerHTML = 'Using saved API key from settings. <a href="' + settingsUrl + '" class="link">Change in settings</a>';
         } else {
           apiKeyField.value = '';
           apiKeyField.placeholder = 'Enter your API key';
-          helpText.innerHTML = 'Your API key will not be stored. <a href="<%= edit_settings_path %>" class="link">Save in settings</a>';
+          helpText.innerHTML = 'Your API key will not be stored. <a href="' + settingsUrl + '" class="link">Save in settings</a>';
         }
       });
     }
