@@ -71,6 +71,69 @@ module PromptEngine
           expect(prompt.parameters.pluck(:name)).to contain_exactly("first_name", "last_name")
         end
       end
+
+      context "when editing a saved prompt with existing parameters" do
+        let(:prompt) { create(:prompt, content: "{{email}} and {{user_name}}") }
+
+        before { prompt.reload }
+
+        it "updates without validation errors when parameters are submitted with their ids" do
+          email_param = prompt.parameters.find_by(name: "email")
+          user_name_param = prompt.parameters.find_by(name: "user_name")
+
+          patch "/prompt_engine/prompts/#{prompt.id}", params: {
+            prompt: {
+              content: prompt.content,
+              parameters_attributes: {
+                "0" => { id: email_param.id, name: "email", parameter_type: "string", required: "1" },
+                "1" => { id: user_name_param.id, name: "user_name", parameter_type: "string", required: "1" }
+              }
+            }
+          }
+
+          expect(response).to redirect_to(prompt_engine.prompt_path(prompt))
+        end
+
+        it "does not raise uniqueness errors when variables appear in different order than DB storage" do
+          email_param = prompt.parameters.find_by(name: "email")
+          user_name_param = prompt.parameters.find_by(name: "user_name")
+
+          # Simulate the bug: JS detects in content order (user_name, email),
+          # but parameters_attributes indices match that content order with correct ids
+          patch "/prompt_engine/prompts/#{prompt.id}", params: {
+            prompt: {
+              content: "{{user_name}} and {{email}}",
+              parameters_attributes: {
+                "0" => { id: user_name_param.id, name: "user_name", parameter_type: "string", required: "1" },
+                "1" => { id: email_param.id, name: "email", parameter_type: "string", required: "1" }
+              }
+            }
+          }
+
+          expect(response).to redirect_to(prompt_engine.prompt_path(prompt))
+        end
+
+        it "updates non-content fields without raising parameter validation errors" do
+          email_param = prompt.parameters.find_by(name: "email")
+          user_name_param = prompt.parameters.find_by(name: "user_name")
+
+          patch "/prompt_engine/prompts/#{prompt.id}", params: {
+            prompt: {
+              description: "Updated description",
+              temperature: 0.9,
+              parameters_attributes: {
+                "0" => { id: email_param.id, name: "email", parameter_type: "string", required: "1" },
+                "1" => { id: user_name_param.id, name: "user_name", parameter_type: "string", required: "1" }
+              }
+            }
+          }
+
+          expect(response).to redirect_to(prompt_engine.prompt_path(prompt))
+          prompt.reload
+          expect(prompt.description).to eq("Updated description")
+          expect(prompt.temperature).to eq(0.9)
+        end
+      end
     end
   end
 end
