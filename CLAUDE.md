@@ -2,7 +2,7 @@
 
 This gem is a fork of [aviflombaum/prompt_engine](https://github.com/aviflombaum/prompt_engine) by Avi Flombaum, maintained at [jameswilliamiii/prompt_engine](https://github.com/jameswilliamiii/prompt_engine).
 
-**Current version:** 1.1.0
+**Current version:** 1.1.1
 
 ## Eval System
 
