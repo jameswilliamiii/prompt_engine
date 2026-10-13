@@ -12,11 +12,16 @@ module PromptEngine
       class_name: "PromptEngine::EvalSet",
       dependent: :destroy
 
+    EFFORTS = %w[low medium high xhigh max].freeze
+
     attr_accessor :change_summary
 
     validates :name, presence: true, uniqueness: { scope: :status }
     validates :content, presence: true
     validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9-]+\z/ }
+    validates :effort, inclusion: { in: EFFORTS }, allow_nil: true
+
+    normalizes :effort, with: ->(value) { value.presence }
 
     accepts_nested_attributes_for :parameters, allow_destroy: true
 
@@ -36,8 +41,8 @@ module PromptEngine
     after_update :sync_parameters!, if: :saved_change_to_content?
     before_save :clean_orphaned_parameters
 
-    VERSIONED_ATTRIBUTES = %w[content system_message model temperature max_tokens metadata].freeze
-    OVERRIDE_KEYS = %i[model temperature max_tokens version].freeze
+    VERSIONED_ATTRIBUTES = %w[content system_message model temperature max_tokens effort metadata].freeze
+    OVERRIDE_KEYS = %i[model temperature max_tokens effort version].freeze
 
     def current_version
       versions.first
@@ -130,6 +135,7 @@ module PromptEngine
         model: model,
         temperature: temperature,
         max_tokens: max_tokens,
+        effort: effort,
         parameters_used: casted_params
       }
     end
@@ -154,10 +160,10 @@ module PromptEngine
     end
 
     # New render method that returns RenderedPrompt
-    def render(**options)
-      # Separate variables from overrides
+    # Pass variables: to keep a template variable named like an override key (effort, model) a variable.
+    def render(variables: nil, **options)
       overrides = options.slice(*OVERRIDE_KEYS)
-      variables = options.except(*OVERRIDE_KEYS)
+      variables ||= options.except(*OVERRIDE_KEYS)
 
       # Handle version specification
       if overrides[:version]
@@ -192,6 +198,7 @@ module PromptEngine
         model: version.model,
         temperature: version.temperature,
         max_tokens: version.max_tokens,
+        effort: version.effort,
         parameters_used: variables,
         version_number: version.version_number
       }
@@ -213,6 +220,7 @@ module PromptEngine
         model: model,
         temperature: temperature,
         max_tokens: max_tokens,
+        effort: effort,
         metadata: metadata,
         change_description: "Initial version"
       )
@@ -228,6 +236,7 @@ module PromptEngine
         model: model,
         temperature: temperature,
         max_tokens: max_tokens,
+        effort: effort,
         metadata: metadata,
         change_description: "Updated: #{(saved_changes.keys & VERSIONED_ATTRIBUTES).join(", ")}"
       )

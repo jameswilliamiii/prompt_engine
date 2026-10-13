@@ -36,7 +36,15 @@ module PromptEngine
     end
 
     def temperature
+      return unless PromptEngine.config.supports_temperature?(model)
+
       @overrides[:temperature] || @rendered_data[:temperature]
+    end
+
+    def effort
+      return unless PromptEngine.config.supports_effort?(model)
+
+      @overrides[:effort] || @rendered_data[:effort]
     end
 
     def max_tokens
@@ -58,10 +66,10 @@ module PromptEngine
     # For OpenAI gem compatibility
     def to_openai_params(**additional_options)
       base_params = {
-        model: model || "gpt-4",
+        model: model,
         messages: messages,
         temperature: temperature,
-        max_tokens: max_tokens
+        max_tokens_key => max_tokens
       }.compact
 
       # Merge with additional options (tools, functions, response_format, etc.)
@@ -72,24 +80,36 @@ module PromptEngine
     def to_ruby_llm_params(**additional_options)
       base_params = {
         messages: messages,
-        model: model || "gpt-4",
+        model: model,
         temperature: temperature,
-        max_tokens: max_tokens
+        max_tokens_key => max_tokens,
+        output_config: effort && { effort: effort }
       }.compact
 
       # Merge with additional options
       base_params.merge(additional_options)
     end
 
+    # Builds a RubyLLM chat with the system message and settings applied, ready for #ask.
+    # client is the RubyLLM module or a RubyLLM::Context.
+    def to_ruby_llm_chat(client = nil, **additional_options)
+      require "ruby_llm"
+
+      chat = new_ruby_llm_chat(client || RubyLLM)
+      chat = chat.with_instructions(system_message) if system_message.present?
+      # with_temperature, not params, so ruby_llm can adjust it for models with fixed temperatures.
+      chat = chat.with_temperature(temperature) unless temperature.nil?
+      chat.with_params(**to_ruby_llm_params(**additional_options).except(:messages, :model, :temperature))
+    end
+
     # Automatic client detection and execution
     def execute_with(client, **options)
-      case client.class.name
-      when /OpenAI/
-        params = to_openai_params(**options)
-        client.chat(parameters: params)
-      when /RubyLLM/, /Anthropic/
-        params = to_ruby_llm_params(**options)
-        client.chat(**params)
+      if ruby_llm_client?(client)
+        to_ruby_llm_chat(client, **options).ask(content)
+      elsif defined?(RubyLLM::Provider) && client.is_a?(RubyLLM::Provider)
+        raise ArgumentError, "Pass RubyLLM or a RubyLLM::Context, not a ruby_llm provider"
+      elsif client.class.name.to_s.include?("OpenAI")
+        client.chat(parameters: to_openai_params(**options))
       else
         raise ArgumentError, "Unknown client type: #{client.class.name}"
       end
@@ -125,6 +145,7 @@ module PromptEngine
         model: model,
         temperature: temperature,
         max_tokens: max_tokens,
+        effort: effort,
         messages: messages,
         options: options,
         status: status,
@@ -138,6 +159,27 @@ module PromptEngine
       param_info = parameter_names.any? ? " parameters=#{parameter_names}" : ""
       override_info = overrides.any? ? " overrides=#{overrides.keys}" : ""
       "#<PromptEngine::RenderedPrompt prompt=#{prompt.slug}#{version_info}#{param_info}#{override_info}>"
+    end
+
+    private
+
+    # OpenAI's chat API takes max_completion_tokens; its reasoning models reject max_tokens.
+    def max_tokens_key
+      PromptEngine.config.provider_for(model) == "openai" ? :max_completion_tokens : :max_tokens
+    end
+
+    def ruby_llm_client?(client)
+      client.class.name == "RubyLLM::Context" || (client.is_a?(Module) && client.name == "RubyLLM")
+    end
+
+    # ruby_llm only knows the models in its registry, so a newer one needs its provider named.
+    def new_ruby_llm_chat(client)
+      provider = PromptEngine.config.provider_for(model)
+      client.chat(model: model, provider: provider)
+    rescue RubyLLM::ModelNotFoundError
+      raise unless provider
+
+      client.chat(model: model, provider: provider, assume_model_exists: true)
     end
   end
 end

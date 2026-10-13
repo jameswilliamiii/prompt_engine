@@ -212,6 +212,7 @@ module PromptEngine
     end
 
     describe "POST /prompt_engine/prompts/:prompt_id/eval_sets/:id/run" do
+      let(:prompt) { create(:prompt, model: "gpt-4.1") }
       let(:prompt_version) { create(:prompt_version, prompt: prompt) }
 
       before do
@@ -243,6 +244,21 @@ module PromptEngine
         post prompt_engine.run_prompt_eval_set_path(prompt, eval_set)
         eval_run = EvalRun.last
         expect(response).to redirect_to(prompt_engine.prompt_eval_run_path(prompt, eval_run))
+      end
+
+      [ "claude-sonnet-5-5", "mystery-model", nil ].each do |model|
+        context "when the prompt's model is #{model.inspect}" do
+          before { prompt.update!(model: model) }
+
+          it "redirects with an explanation and creates no run" do
+            expect {
+              post prompt_engine.run_prompt_eval_set_path(prompt, eval_set)
+            }.not_to change(EvalRun, :count)
+
+            expect(response).to redirect_to(prompt_engine.prompt_eval_set_path(prompt, eval_set))
+            expect(flash[:alert]).to include("need an OpenAI model")
+          end
+        end
       end
 
       context "when evaluation fails" do

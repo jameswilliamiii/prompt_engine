@@ -38,24 +38,13 @@ module PromptEngine
 
     describe "POST execute in playground" do
       before do
-        # Mock RubyLLM
-        allow_any_instance_of(PlaygroundExecutor).to receive(:require).with("ruby_llm")
-
-        ruby_llm_mock = double("RubyLLM")
-        stub_const("RubyLLM", ruby_llm_mock)
-        config_mock = double("Config")
-        allow(config_mock).to receive(:anthropic_api_key=)
-        allow(config_mock).to receive(:openai_api_key=)
-        allow(ruby_llm_mock).to receive(:configure).and_yield(config_mock)
-
-        # Mock the chat response
-        chat_mock = double("Chat")
-        response_mock = double("Response", content: "Test response", input_tokens: 5, output_tokens: 5)
-
-        allow(ruby_llm_mock).to receive(:chat).and_return(chat_mock)
-        allow(chat_mock).to receive(:with_temperature).and_return(chat_mock)
-        allow(chat_mock).to receive(:with_instructions).and_return(chat_mock)
-        allow(chat_mock).to receive(:ask).and_return(response_mock)
+        openai_body = {
+          id: "chatcmpl-1", object: "chat.completion", model: "gpt-4o",
+          choices: [ { index: 0, message: { role: "assistant", content: "Test response" }, finish_reason: "stop" } ],
+          usage: { prompt_tokens: 5, completion_tokens: 5, total_tokens: 10 }
+        }
+        stub_request(:post, "https://api.openai.com/v1/chat/completions")
+          .to_return(status: 200, body: openai_body.to_json, headers: { "Content-Type" => "application/json" })
       end
 
       it "executes draft prompts in playground" do

@@ -198,6 +198,16 @@ module PromptEngine
         expect(prompt.max_tokens).to eq(500)
       end
 
+      it "restores the version's effort" do
+        prompt.update!(model: "claude-opus-5-5", effort: "high")
+        high_version = prompt.versions.order(version_number: :desc).first
+        prompt.update!(effort: "low")
+
+        post prompt_engine.restore_prompt_version_path(prompt, high_version)
+
+        expect(prompt.reload.effort).to eq("high")
+      end
+
       it "redirects to the prompt with success notice" do
         post prompt_engine.restore_prompt_version_path(prompt, version_2)
 

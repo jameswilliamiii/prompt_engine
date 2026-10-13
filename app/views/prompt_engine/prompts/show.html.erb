@@ -48,12 +48,17 @@
 
         <div class="detail-item">
           <label class="detail-label">Temperature</label>
-          <div class="detail-value"><%= @prompt.temperature || "Default" %></div>
+          <div class="detail-value"><%= setting_label(@prompt, :temperature) %></div>
         </div>
 
         <div class="detail-item">
           <label class="detail-label">Max Tokens</label>
           <div class="detail-value"><%= @prompt.max_tokens || "Default" %></div>
+        </div>
+
+        <div class="detail-item">
+          <label class="detail-label">Effort</label>
+          <div class="detail-value"><%= setting_label(@prompt, :effort) %></div>
         </div>
 
         <div class="detail-item">
@@ -105,40 +110,26 @@
     <div class="card__body">
       <p class="text-muted mb-md">Use this prompt in your Rails application:</p>
       <pre class="code-example"><code class="language-ruby"># In your controller or model
-rendered = PromptEngine.render("<%= @prompt.slug %>"<% 
-  if @prompt.parameters.any?
-    @prompt.parameters.ordered.each_with_index do |param, index| %>,
-  <%= param.name %>: <%= param.example_value.presence || "\"value#{index + 1}\"" %><% end 
-  else %> # No variables needed<% end %>)
+rendered = PromptEngine.render("<%= @prompt.slug %>"<%= usage_variables %>)
 
 # Access the rendered values
 rendered.content         # => "Rendered prompt content"
 rendered.system_message  # => "<%= @prompt.system_message.present? ? @prompt.system_message.truncate(30) : "System message" %>"
-rendered.model          # => "<%= @prompt.model || "gpt-4" %>"
-rendered.temperature    # => <%= @prompt.temperature || "0.7" %>
-rendered.max_tokens     # => <%= @prompt.max_tokens || "1000" %>
+rendered.model          # => <%= @prompt.model.inspect %>
+rendered.temperature    # => <%= sent_setting(@prompt, :temperature).inspect %>
+rendered.max_tokens     # => <%= @prompt.max_tokens.inspect %>
+rendered.effort         # => <%= sent_setting(@prompt, :effort).inspect %>
 
-# Direct integration with OpenAI
-client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
-response = rendered.execute_with(client)
+# Run it with RubyLLM
+response = rendered.execute_with(RubyLLM)
 
-# Or use explicit parameters
-response = client.chat(parameters: rendered.to_openai_params)
-
-# With additional options (tools, functions, etc.)
-response = rendered.execute_with(client,
-  tools: [...],
-  response_format: { type: "json_object" }
-)
+# Or build the chat yourself, for tools or a schema
+chat = rendered.to_ruby_llm_chat
+response = chat.with_schema(MySchema).ask(rendered.content)
 
 # Override model settings at runtime
-rendered = PromptEngine.render("<%= @prompt.slug %>"<% 
-  if @prompt.parameters.any?
-    @prompt.parameters.ordered.each_with_index do |param, index| %>,
-  <%= param.name %>: <%= param.example_value.presence || "\"value#{index + 1}\"" %><% end 
-  end %>,
-  model: "gpt-4-turbo",
-  temperature: 0.9
+rendered = PromptEngine.render("<%= @prompt.slug %>"<%= usage_variables(blank: ", {}") %>,
+  options: { model: "claude-sonnet-5-5", effort: "low" }
 )</code></pre>
     </div>
   </div>

@@ -45,6 +45,12 @@ module PromptEngine
     end
 
     def run
+      unless PromptEngine.config.provider_for(@prompt.model) == "openai"
+        redirect_to prompt_eval_set_path(@prompt, @eval_set),
+          alert: "Evaluations run on OpenAI's Evals API, so they need an OpenAI model. This prompt uses #{@prompt.model.presence || "no model"}."
+        return
+      end
+
       # Check if API key is available
       unless api_key_configured?
         redirect_to prompt_eval_set_path(@prompt, @eval_set),

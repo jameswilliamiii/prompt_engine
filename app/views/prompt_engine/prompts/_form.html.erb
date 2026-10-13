@@ -61,18 +61,27 @@
       <%= form.label :model, "AI Model", class: "form__label" %>
       <%= form.select :model,
           options_for_select(
-            PromptEngine.config.models.map { |id, cfg| [cfg[:label], id] },
+            model_options_for(prompt.model),
             prompt.model
           ),
           { include_blank: "Select a model" },
-          class: "form__select" %>
+          class: "form__select", id: "prompt_model" %>
     </div>
 
-    <div class="form__group">
+    <div class="form__group" id="temperature-group" <%= "hidden" unless PromptEngine.config.supports_temperature?(prompt.model) %>>
       <%= form.label :temperature, class: "form__label" %>
-      <%= form.number_field :temperature, class: "form__input", 
-          step: 0.1, min: 0, max: 2, placeholder: "0.7" %>
-      <div class="form__help">0-2 (default: 0.7)</div>
+      <%= form.number_field :temperature, class: "form__input",
+          step: 0.1, min: 0, max: 2 %>
+      <div class="form__help">0-2</div>
+    </div>
+
+    <div class="form__group" id="effort-group" <%= "hidden" unless PromptEngine.config.supports_effort?(prompt.model) %>>
+      <%= form.label :effort, class: "form__label" %>
+      <%= form.select :effort,
+          options_for_select(PromptEngine::Prompt::EFFORTS.map { |e| [e.humanize, e] }, prompt.effort),
+          { include_blank: "Default" },
+          class: "form__select" %>
+      <div class="form__help">How much the model thinks before answering</div>
     </div>
 
     <div class="form__group">
@@ -105,6 +114,23 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  const modelField = document.getElementById('prompt_model');
+  if (modelField) {
+    const toggleGroup = function(id, visible, clearWhenHidden) {
+      const group = document.getElementById(id);
+      group.hidden = !visible;
+      if (!visible && clearWhenHidden) group.querySelectorAll('input, select').forEach(field => field.value = '');
+    };
+    const syncModelSettings = function(clearWhenHidden) {
+      const option = modelField.selectedOptions[0];
+      toggleGroup('temperature-group', option?.dataset.supportsTemperature !== 'false', clearWhenHidden);
+      toggleGroup('effort-group', option?.dataset.supportsEffort === 'true', clearWhenHidden);
+    };
+    // Clearing on load too would erase a stored value the next time anyone saves the prompt.
+    modelField.addEventListener('change', () => syncModelSettings(true));
+    syncModelSettings(false);
+  }
+
   const contentField = document.querySelector('[data-action="input->variable-detector#detectVariables"]');
   const parametersSection = document.getElementById('parameters-section');
   const parametersList = document.getElementById('parameters-list');

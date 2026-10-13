@@ -21,13 +21,7 @@ module PromptEngine
 
     def restore
       ActiveRecord::Base.transaction do
-        @prompt.update!(
-          content: @version.content,
-          system_message: @version.system_message,
-          model: @version.model,
-          temperature: @version.temperature,
-          max_tokens: @version.max_tokens
-        )
+        @prompt.update!(@version.to_prompt_attributes.except(:metadata))
       end
       redirect_to @prompt, notice: "Prompt restored to version #{@version.version_number}"
     rescue => e
@@ -81,6 +75,11 @@ module PromptEngine
           old: version_a.max_tokens,
           new: version_b.max_tokens,
           changed: version_a.max_tokens != version_b.max_tokens
+        },
+        effort: {
+          old: version_a.effort,
+          new: version_b.effort,
+          changed: version_a.effort != version_b.effort
         }
       }
     end

@@ -66,6 +66,13 @@
             <div class="detail-value"><%= @playground_run_result.max_tokens %></div>
           </div>
         <% end %>
+
+        <% if @playground_run_result.effort.present? %>
+          <div class="detail-item">
+            <label class="detail-label">Effort</label>
+            <div class="detail-value"><%= @playground_run_result.effort %></div>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>

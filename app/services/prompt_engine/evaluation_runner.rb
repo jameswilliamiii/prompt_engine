@@ -114,7 +114,7 @@ module PromptEngine
         name: "Run at #{Time.current}",
         data_source: {
           type: "completions",
-          model: @prompt_version.model || "gpt-4",
+          model: @prompt_version.model,
           input_messages: {
             type: "template",
             template: messages_template

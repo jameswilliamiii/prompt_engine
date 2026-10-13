@@ -567,4 +567,65 @@ RSpec.describe PromptEngine::Prompt, type: :model do
       end
     end
   end
+
+  describe "effort" do
+    let(:prompt) { create(:prompt, model: "claude-opus-5-5", effort: "high") }
+
+    before do
+      allow(PromptEngine.config).to receive(:models).and_return(
+        "claude-opus-5-5" => { provider: "anthropic", label: "Claude Opus 5.5", supports_temperature: false, supports_effort: true }
+      )
+    end
+
+    it "rejects a value outside the effort levels" do
+      prompt.effort = "extreme"
+
+      expect(prompt).not_to be_valid
+      expect(prompt.errors[:effort]).to be_present
+    end
+
+    it "stores a blank selection as nil" do
+      prompt.update!(effort: "")
+
+      expect(prompt.reload.effort).to be_nil
+    end
+
+    it "creates a version that carries the new effort" do
+      expect { prompt.update!(effort: "low") }.to change { prompt.versions.count }.by(1)
+      expect(prompt.current_version.effort).to eq("low")
+    end
+
+    it "renders with the stored effort" do
+      expect(prompt.render(topic: "ruby").effort).to eq("high")
+    end
+
+    it "renders an older version with that version's effort" do
+      prompt.update!(effort: "low")
+
+      expect(prompt.render(topic: "ruby", version: 1).effort).to eq("high")
+    end
+
+    it "treats an effort variable passed to PromptEngine.render as a variable" do
+      variable_prompt = create(:prompt, model: "claude-opus-5-5", content: "Use {{effort}} effort", status: "active")
+
+      rendered = PromptEngine.render(variable_prompt.slug, { effort: "great" }, options: { effort: "low" })
+
+      expect(rendered.content).to eq("Use great effort")
+      expect(rendered.effort).to eq("low")
+    end
+
+    it "keeps a stored effort the model doesn't take, without rendering it" do
+      prompt.update!(model: "gpt-4.1")
+
+      expect(prompt.reload.effort).to eq("high")
+      expect(prompt.render(topic: "ruby").effort).to be_nil
+    end
+
+    it "restores a version's effort" do
+      prompt.update!(effort: "low")
+      prompt.restore_version!(1)
+
+      expect(prompt.reload.effort).to eq("high")
+    end
+  end
 end

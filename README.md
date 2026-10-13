@@ -50,6 +50,17 @@ $ rails prompt_engine:seed  # Optional: adds sample prompts
 
 **Note**: PromptEngine migrations are NOT automatically loaded. You must explicitly run `rails prompt_engine:install:migrations` before running `rails db:migrate`.
 
+### Upgrading
+
+After you bump the gem, run the upgrade generator. It copies any migrations your app doesn't have yet:
+
+```bash
+bin/rails generate prompt_engine:upgrade
+bin/rails db:migrate
+```
+
+[UPGRADING.md](UPGRADING.md) lists the changes for each version.
+
 ## Mount the Engine
 
 In your `config/routes.rb`:
@@ -139,25 +150,27 @@ rendered = PromptEngine.render("customer-support",
 # Access rendered content
 rendered.content         # => "Hello John, I understand you're having trouble..."
 rendered.system_message  # => "You are a helpful customer support agent..."
-rendered.model          # => "gpt-4"
-rendered.temperature    # => 0.7
+rendered.model          # => "claude-sonnet-5-5"
+rendered.effort         # => "medium"
 
 # Access parameter values - see docs/VARIABLE_ACCESS.md for details
 rendered.parameters      # => {"customer_name" => "John", "issue" => "Can't login..."}
 rendered.parameter(:customer_name)  # => "John"
 
-# Direct integration with OpenAI
-client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
-response = rendered.execute_with(client)
+# Run it with RubyLLM
+response = rendered.execute_with(RubyLLM)
 
-# Or with Anthropic
-client = Anthropic::Client.new(access_token: ENV["ANTHROPIC_API_KEY"])
+# Or build the chat yourself, for tools or a schema
+response = rendered.to_ruby_llm_chat.with_schema(MySchema).ask(rendered.content)
+
+# Or with the OpenAI gem
+client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
 response = rendered.execute_with(client)
 
 # Override model settings at runtime
 rendered = PromptEngine.render("email-writer",
   { subject: "Welcome to our platform" },
-  options: { model: "gpt-4-turbo", temperature: 0.9 }
+  options: { model: "claude-opus-5-5", effort: "high" }
 )
 
 # Load a specific version
@@ -197,6 +210,7 @@ Renders a prompt template with the given variables.
   - `model`: Override the default model
   - `temperature`: Override the default temperature
   - `max_tokens`: Override the default max tokens
+  - `effort`: Override the default effort
   - `version`: Load a specific version number
 
 **Returns:** `PromptEngine::RenderedPrompt` instance
@@ -208,9 +222,28 @@ Renders a prompt template with the given variables.
 - `model`: The AI model to use
 - `temperature`: The temperature setting
 - `max_tokens`: The max tokens setting
+- `effort`: The effort setting, or nil for a model without `supports_effort: true`
 - `to_openai_params`: Convert to OpenAI API format
-- `to_ruby_llm_params`: Convert to RubyLLM/Anthropic format
-- `execute_with(client)`: Execute with an LLM client
+- `to_ruby_llm_params`: Convert to a params hash. Drop `:messages` and `:model` before passing it to `RubyLLM::Chat#with_params`
+- `to_ruby_llm_chat(client = RubyLLM)`: Build a RubyLLM chat with the system message and settings applied
+- `execute_with(client)`: Run the prompt with `RubyLLM`, a `RubyLLM::Context` or an OpenAI client
+
+`temperature` is nil for a model flagged `supports_temperature: false`.
+
+### Model catalog
+
+PromptEngine recognizes current Claude and GPT models by name, including their provider and whether they take temperature and effort. List the models the admin UI offers:
+
+```ruby
+PromptEngine.configure do |config|
+  config.models = {
+    "claude-opus-5-5" => { label: "Claude Opus 5.5" },
+    "gpt-5.5" => { label: "GPT-5.5" }
+  }
+end
+```
+
+`config.models` can also be a callable that builds the list from ruby_llm's registry, so new models appear after a registry refresh. See [Adding a new model](UPGRADING.md#adding-a-new-model) for that and for overriding what a name implies.
 
 ## Contributing
 

@@ -52,6 +52,22 @@ module PromptEngine
         expect(response.body).to include(prompt.name)
         expect(response.body).to include(prompt.description)
       end
+
+      it "marks a stored setting the model doesn't take" do
+        prompt.update!(model: "claude-opus-5-5", temperature: 0.7)
+
+        get prompt_engine.prompt_path(prompt)
+
+        expect(response.body).to include("0.7 (not sent to this model)")
+        expect(response.body).to include("rendered.temperature    # => nil")
+      end
+
+      it "shows a usage example that passes variables as a hash" do
+        get prompt_engine.prompt_path(prompt)
+
+        code = CGI.unescapeHTML(response.body[/Usage Example.*?<code[^>]*>(.*?)<\/code>/m, 1])
+        expect(code).to include("PromptEngine.render(\"#{prompt.slug}\", {\n  topic: \"value1\"\n})")
+      end
     end
 
     describe "GET /prompt_engine/prompts/new" do
@@ -108,6 +124,26 @@ module PromptEngine
     describe "GET /prompt_engine/prompts/:id/edit" do
       let(:prompt) { create(:prompt) }
 
+      it "describes an unlisted model's capabilities from its family" do
+        prompt.update!(model: "claude-opus-5")
+
+        get prompt_engine.edit_prompt_path(prompt)
+
+        option = Nokogiri::HTML(response.body).at_css('option[value="claude-opus-5"]')
+        expect(option["data-supports-temperature"]).to eq("false")
+        expect(option["data-supports-effort"]).to eq("true")
+      end
+
+      it "keeps a model missing from the catalog selected" do
+        prompt.update!(model: "gpt-4-unlisted")
+
+        get prompt_engine.edit_prompt_path(prompt)
+
+        option = Nokogiri::HTML(response.body).at_css('option[value="gpt-4-unlisted"]')
+        expect(option["selected"]).to eq("selected")
+        expect(option.text).to eq("gpt-4-unlisted (not configured)")
+      end
+
       it "returns a success response" do
         get prompt_engine.edit_prompt_path(prompt)
         expect(response).to be_successful
@@ -138,6 +174,12 @@ module PromptEngine
           expect(prompt.name).to eq("Updated Prompt Name")
           expect(prompt.description).to eq("Updated description")
           expect(prompt.temperature).to eq(0.9)
+        end
+
+        it "saves effort" do
+          patch prompt_engine.prompt_path(prompt), params: { prompt: { model: "claude-opus-5-5", effort: "high" } }
+
+          expect(prompt.reload.effort).to eq("high")
         end
 
         it "redirects to the prompt" do
