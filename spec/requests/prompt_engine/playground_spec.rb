@@ -59,7 +59,7 @@ module PromptEngine
     describe "POST /prompt_engine/prompts/:id/playground" do
       let(:valid_params) do
         {
-          model: "claude-sonnet-4-6",
+          model: "claude-sonnet-5-5",
           api_key: "test-api-key",
           parameters: {
             topic: "Ruby on Rails",
@@ -69,25 +69,21 @@ module PromptEngine
       end
 
       before do
-        # Mock RubyLLM to avoid actual API calls
-        allow_any_instance_of(PlaygroundExecutor).to receive(:require).with("ruby_llm")
+        anthropic_body = {
+          id: "msg_1", type: "message", role: "assistant", model: "claude-sonnet-5-5",
+          content: [ { type: "text", text: "This is a test response about Ruby on Rails" } ],
+          stop_reason: "end_turn", usage: { input_tokens: 50, output_tokens: 100 }
+        }
+        stub_request(:post, "https://api.anthropic.com/v1/messages")
+          .to_return(status: 200, body: anthropic_body.to_json, headers: { "Content-Type" => "application/json" })
 
-        # Mock the RubyLLM configuration
-        ruby_llm_mock = double("RubyLLM")
-        stub_const("RubyLLM", ruby_llm_mock)
-        config_mock = double("Config")
-        allow(config_mock).to receive(:anthropic_api_key=)
-        allow(config_mock).to receive(:openai_api_key=)
-        allow(ruby_llm_mock).to receive(:configure).and_yield(config_mock)
-
-        # Mock the chat response
-        chat_mock = double("Chat")
-        response_mock = double("Response", content: "This is a test response about Ruby on Rails", input_tokens: 50, output_tokens: 100)
-
-        allow(ruby_llm_mock).to receive(:chat).and_return(chat_mock)
-        allow(chat_mock).to receive(:with_temperature).and_return(chat_mock)
-        allow(chat_mock).to receive(:with_instructions).and_return(chat_mock)
-        allow(chat_mock).to receive(:ask).and_return(response_mock)
+        openai_body = {
+          id: "chatcmpl-1", object: "chat.completion", model: "gpt-4o",
+          choices: [ { index: 0, message: { role: "assistant", content: "This is a test response" }, finish_reason: "stop" } ],
+          usage: { prompt_tokens: 50, completion_tokens: 100, total_tokens: 150 }
+        }
+        stub_request(:post, "https://api.openai.com/v1/chat/completions")
+          .to_return(status: 200, body: openai_body.to_json, headers: { "Content-Type" => "application/json" })
       end
 
       context "with valid parameters" do
@@ -105,12 +101,22 @@ module PromptEngine
           result = PlaygroundRunResult.last
           expect(result.prompt_version).to eq(prompt.current_version)
           expect(result.provider).to eq("anthropic")
-          expect(result.model).to eq("claude-sonnet-4-6")
+          expect(result.model).to eq("claude-sonnet-5-5")
           expect(result.rendered_prompt).to eq("Tell me about Ruby on Rails in technical style")
           expect(result.response).to eq("This is a test response about Ruby on Rails")
           expect(result.execution_time).to be >= 0
           expect(result.token_count).to eq(150)
           expect(result.parameters).to eq({ "topic" => "Ruby on Rails", "style" => "technical" })
+        end
+
+        it "records the settings sent to the chosen model" do
+          prompt.update!(model: "claude-sonnet-5-5", effort: "high")
+
+          post playground_prompt_path(prompt), params: valid_params.merge(model: "gpt-4o")
+          expect(PlaygroundRunResult.last.effort).to be_nil
+
+          post playground_prompt_path(prompt), params: valid_params
+          expect(PlaygroundRunResult.last.effort).to eq("high")
         end
 
         it "renders the result view" do
@@ -179,7 +185,7 @@ module PromptEngine
 
         it "handles missing API key" do
           post playground_prompt_path(prompt), params: {
-            model: "claude-sonnet-4-6",
+            model: "claude-sonnet-5-5",
             parameters: { topic: "Rails" }
           }
 
@@ -240,7 +246,7 @@ module PromptEngine
       context "with empty parameters" do
         it "handles nil parameters gracefully" do
           post playground_prompt_path(prompt), params: {
-            model: "claude-sonnet-4-6",
+            model: "claude-sonnet-5-5",
             api_key: "test-key",
             parameters: nil
           }
@@ -250,7 +256,7 @@ module PromptEngine
 
         it "handles empty parameters hash" do
           post playground_prompt_path(prompt), params: {
-            model: "claude-sonnet-4-6",
+            model: "claude-sonnet-5-5",
             api_key: "test-key",
             parameters: {}
           }
@@ -264,7 +270,7 @@ module PromptEngine
 
         it "executes successfully without parameters" do
           post playground_prompt_path(simple_prompt), params: {
-            model: "claude-sonnet-4-6",
+            model: "claude-sonnet-5-5",
             api_key: "test-key"
           }
 
@@ -277,37 +283,6 @@ module PromptEngine
           # In request specs, we check the response status
           post playground_prompt_path(id: 999999), params: valid_params
           expect(response).to have_http_status(:not_found)
-        end
-      end
-
-      context "with different response structures" do
-        it "handles string response" do
-          chat_mock = double("Chat")
-          allow(RubyLLM).to receive(:chat).and_return(chat_mock)
-          allow(chat_mock).to receive(:with_temperature).and_return(chat_mock)
-          allow(chat_mock).to receive(:with_instructions).and_return(chat_mock)
-          allow(chat_mock).to receive(:ask).and_return("Simple string response")
-
-          post playground_prompt_path(prompt), params: valid_params
-
-          expect(response).to be_successful
-          expect(response.body).to include("Simple string response")
-        end
-
-        it "handles object without content method" do
-          chat_mock = double("Chat")
-          response_obj = double("Response")
-          allow(response_obj).to receive(:to_s).and_return("Object response")
-
-          allow(RubyLLM).to receive(:chat).and_return(chat_mock)
-          allow(chat_mock).to receive(:with_temperature).and_return(chat_mock)
-          allow(chat_mock).to receive(:with_instructions).and_return(chat_mock)
-          allow(chat_mock).to receive(:ask).and_return(response_obj)
-
-          post playground_prompt_path(prompt), params: valid_params
-
-          expect(response).to be_successful
-          expect(response.body).to include("Object response")
         end
       end
     end

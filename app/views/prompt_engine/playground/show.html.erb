@@ -15,19 +15,20 @@
         <%= form.label :model, "AI Model", class: "form__label form__label--required" %>
         <%
           models = PromptEngine.config.models
+          providers = models.to_h { |id, entry| [ id, PromptEngine.config.model_settings(id, entry)[:provider] ] }
           default_model = @prompt.model.presence || models.keys.first
-          default_provider = models.dig(default_model, :provider)
+          default_provider = PromptEngine.config.provider_for(default_model)
         %>
         <%= form.select :model,
             options_for_select(
-              models.map { |id, cfg| [cfg[:label], id] },
+              models.map { |id, entry| [ entry[:label] || id, id ] },
               default_model
             ),
             { prompt: "Select a model" },
             class: "form__select",
             required: true,
             data: {
-              providers: models.transform_values { |cfg| cfg[:provider] }.to_json
+              providers: providers.to_json
             } %>
         <% if @prompt.model.present? %>
           <div class="form__help">Prompt is configured for <%= @prompt.model %></div>

@@ -1,15 +1,15 @@
 namespace :prompt_engine do
   desc "Demo the evaluation workflow"
   task eval_demo: :environment do
-    puts "\n=== ActivePrompt Evaluation Demo ==="
+    puts "\n=== PromptEngine Evaluation Demo ==="
     puts "This demo will walk through the complete evaluation workflow\n\n"
 
     # Step 1: Create or find a prompt
-    prompt = ActivePrompt::Prompt.find_or_create_by(name: "demo_summarizer") do |p|
+    prompt = PromptEngine::Prompt.find_or_create_by(name: "demo_summarizer") do |p|
       p.description = "Demo prompt for testing evaluations"
       p.content = "Summarize this in one word: {{text}}"
       p.system_message = "You are a concise summarizer. Always respond with exactly one word."
-      p.model = "gpt-3.5-turbo"
+      p.model = "gpt-4.1-mini"
       p.temperature = 0.0
       p.max_tokens = 10
       p.status = "active"
@@ -90,9 +90,9 @@ namespace :prompt_engine do
         # Note: The actual OpenAI Evals API may not be available
         # This will fall back to mock if not available
         begin
-          ActivePrompt::EvaluationRunner.new(eval_run).execute
+          PromptEngine::EvaluationRunner.new(eval_run).execute
           puts "✓ Evaluation submitted to OpenAI"
-        rescue ActivePrompt::OpenAIEvalsClient::NotFoundError => e
+        rescue PromptEngine::OpenAiEvalsClient::NotFoundError => e
           puts "⚠️  OpenAI Evals API not available on this account"
           puts "   Using mock evaluation instead"
 
@@ -138,7 +138,7 @@ namespace :prompt_engine do
 
   desc "Clean up eval demo data"
   task clean_eval_demo: :environment do
-    prompt = ActivePrompt::Prompt.find_by(name: "demo_summarizer")
+    prompt = PromptEngine::Prompt.find_by(name: "demo_summarizer")
     if prompt
       prompt.destroy
       puts "✓ Cleaned up demo data"

@@ -15,11 +15,11 @@ Gem::Specification.new do |spec|
   spec.metadata["changelog_uri"] = "https://github.com/jameswilliamiii/prompt_engine/blob/main/CHANGELOG.md"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
+    Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md", "CHANGELOG.md", "UPGRADING.md"]
   end
 
   spec.add_dependency "rails"
-  spec.add_dependency "ruby_llm"
+  spec.add_dependency "ruby_llm", "~> 1.16"
   spec.add_dependency "bcrypt"
   spec.add_dependency "csv", "~> 3.3"
 

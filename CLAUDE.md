@@ -2,7 +2,7 @@
 
 This gem is a fork of [aviflombaum/prompt_engine](https://github.com/aviflombaum/prompt_engine) by Avi Flombaum, maintained at [jameswilliamiii/prompt_engine](https://github.com/jameswilliamiii/prompt_engine).
 
-**Current version:** 1.1.1
+**Current version:** 1.2.0
 
 ## Eval System
 
@@ -15,13 +15,19 @@ The evaluation system (EvalSet, EvalRun, EvalResult, TestCase models; eval_sets,
 ```ruby
 PromptEngine.configure do |config|
   config.models = {
-    "gpt-4o" => { provider: "openai", label: "GPT-4o" },
-    "claude-sonnet-4-6" => { provider: "anthropic", label: "Claude Sonnet 4.6" }
+    "gpt-4o" => { label: "GPT-4o" },
+    "claude-sonnet-5-5" => { label: "Claude Sonnet 5.5" }
   }
 end
 ```
 
-`PlaygroundExecutor` derives provider from this catalog (not a hardcoded map). The prompt form model select also renders from this catalog. Defaults are defined in `Configuration#initialize`.
+`PlaygroundExecutor` derives provider through `provider_for` (catalog entry, else model family). The prompt form model select renders from `models`. Defaults are defined in `Configuration#initialize`.
+
+`Configuration#model_settings` merges the first matching `model_families` rule (defaults in `DEFAULT_MODEL_FAMILIES`) with the catalog entry, so models resolve by name without an entry. Read provider and capabilities through `provider_for`, `supports_temperature?` and `supports_effort?`, never `models.dig`. `models` may be a callable. Each entry can also carry `supports_temperature: false` and `supports_effort: true`. `RenderedPrompt#temperature` and `#effort` return nil when the model doesn't support them, so every request path (params, `to_ruby_llm_chat`, the playground) applies the flags through one check. A stored value the model doesn't accept is kept, never cleared by the model layer; only switching the model in the form clears it.
+
+## Upgrades
+
+A release that adds a migration needs an `UPGRADING.md` section and a CHANGELOG entry. Host apps run `bin/rails generate prompt_engine:upgrade`, which copies new migrations and points at `UPGRADING.md`.
 
 ## Back Link Configuration
 
@@ -133,7 +139,7 @@ bin/rails prompt_engine:install:migrations  # Install engine migrations in host 
 - Has many versions (auto-versioned on content/system_message changes)
 - Has many parameters (auto-detected from variables)
 - Status enum: draft, active, archived
-- Key method: `render(variables: {})` for template rendering
+- Key method: `render(variables: {})` for template rendering; override keys (`model`, `effort`, ...) go in separate keywords
 
 **PromptEngine::PromptVersion**
 
@@ -232,7 +238,7 @@ The engine is designed to be mounted in Rails applications:
 mount PromptEngine::Engine => "/prompt_engine"
 
 # Usage in application
-PromptEngine.render(:prompt_name, variables: { user_name: "John" })
+PromptEngine.render(:prompt_name, { user_name: "John" })
 ```
 
 ## File Structure
@@ -286,7 +292,7 @@ bin/rails prompt_engine:install:migrations
 bin/rails db:migrate
 
 # In your application code
-PromptEngine.render(:prompt_name, variables: { user_name: "John" })
+PromptEngine.render(:prompt_name, { user_name: "John" })
 ```
 
 ## Current Status

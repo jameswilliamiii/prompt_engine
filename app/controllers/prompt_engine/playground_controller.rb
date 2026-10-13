@@ -37,8 +37,9 @@ module PromptEngine
           response: @response,
           execution_time: @execution_time,
           token_count: @token_count,
-          temperature: @prompt.temperature,
-          max_tokens: @prompt.max_tokens
+          temperature: result[:temperature],
+          max_tokens: result[:max_tokens],
+          effort: result[:effort]
         )
       rescue => e
         @error = e.message

@@ -239,6 +239,7 @@ module PromptEngine
           model: 'gpt-4',
           temperature: 0.7,
           max_tokens: 1000,
+          effort: 'high',
           metadata: { 'foo' => 'bar' }
         )
       end
@@ -252,6 +253,7 @@ module PromptEngine
           model: 'gpt-4',
           temperature: 0.7,
           max_tokens: 1000,
+          effort: 'high',
           metadata: { 'foo' => 'bar' }
         })
       end

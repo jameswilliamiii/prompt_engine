@@ -56,6 +56,14 @@ RSpec.describe "PromptEngine::EvalSets Comparison", type: :request do
         expect(response.body).to include("v#{prompt_version2.version_number}")
       end
 
+      it "compares effort between the two versions" do
+        prompt_version2.update_column(:effort, "high")
+
+        get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [ run1.id, run2.id ])
+
+        expect(response.body).to match(%r{<dt>Effort</dt>\s*<dd class="text-warning">\s*high})
+      end
+
       it "shows summary statistics" do
         get compare_prompt_eval_set_path(prompt, eval_set, run_ids: [ run1.id, run2.id ])
 

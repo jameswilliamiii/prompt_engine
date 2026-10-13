@@ -172,6 +172,9 @@
           
           <dt>Max Tokens</dt>
           <dd><%= @run1.prompt_version.max_tokens || "Default" %></dd>
+
+          <dt>Effort</dt>
+          <dd><%= @run1.prompt_version.effort || "Default" %></dd>
         </dl>
       </div>
       
@@ -192,6 +195,11 @@
           <dt>Max Tokens</dt>
           <dd class="<%= @run1.prompt_version.max_tokens != @run2.prompt_version.max_tokens ? 'text-warning' : '' %>">
             <%= @run2.prompt_version.max_tokens || "Default" %>
+          </dd>
+
+          <dt>Effort</dt>
+          <dd class="<%= @run1.prompt_version.effort != @run2.prompt_version.effort ? 'text-warning' : '' %>">
+            <%= @run2.prompt_version.effort || "Default" %>
           </dd>
         </dl>
       </div>

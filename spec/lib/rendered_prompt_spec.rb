@@ -261,7 +261,7 @@ module PromptEngine
               { role: "user", content: "Test prompt" }
             ],
             temperature: 0.7,
-            max_tokens: 1000
+            max_completion_tokens: 1000
           })
         end
 
@@ -285,11 +285,11 @@ module PromptEngine
           }
         end
 
-        it "defaults to gpt-4 when model is nil" do
+        it "leaves the model out when it is nil" do
           prompt_no_model = described_class.new(prompt, rendered_data_no_model)
           params = prompt_no_model.to_openai_params
 
-          expect(params[:model]).to eq("gpt-4")
+          expect(params).not_to have_key(:model)
         end
       end
 
@@ -334,7 +334,7 @@ module PromptEngine
             model: "gpt-4",
             messages: anything,
             temperature: 0.7,
-            max_tokens: 1000,
+            max_completion_tokens: 1000,
             tools: [ { type: "function", function: { name: "test" } } ],
             stream: true,
             response_format: { type: "json_object" }
@@ -386,7 +386,7 @@ module PromptEngine
               { role: "user", content: "Test prompt" }
             ],
             temperature: 0.3,
-            max_tokens: 2000
+            max_completion_tokens: 2000
           })
         end
       end
@@ -448,11 +448,11 @@ module PromptEngine
           }
         end
 
-        it "defaults to gpt-4 when model is nil" do
+        it "leaves the model out when it is nil" do
           prompt_no_model = described_class.new(prompt, rendered_data_no_model)
           params = prompt_no_model.to_ruby_llm_params
 
-          expect(params[:model]).to eq("gpt-4")
+          expect(params).not_to have_key(:model)
         end
       end
 
@@ -581,12 +581,71 @@ module PromptEngine
       end
     end
 
+    describe "model capabilities" do
+      let(:models) do
+        {
+          "gpt-4o" => { provider: "openai", label: "GPT-4o" },
+          "claude-opus-5-5" => { provider: "anthropic", label: "Claude Opus 5.5", supports_temperature: false, supports_effort: true }
+        }
+      end
+      let(:data) do
+        { content: "Test prompt", system_message: "System", temperature: 0.7, max_tokens: 1000, effort: "high", parameters_used: {} }
+      end
+
+      before { allow(PromptEngine.config).to receive(:models).and_return(models) }
+
+      context "with a model that takes effort and rejects temperature" do
+        let(:rendered_prompt) { described_class.new(prompt, data.merge(model: "claude-opus-5-5")) }
+
+        it "sends effort as output_config and leaves temperature out" do
+          params = rendered_prompt.to_ruby_llm_params
+
+          expect(params).to include(output_config: { effort: "high" }, max_tokens: 1000)
+          expect(params).not_to have_key(:temperature)
+        end
+
+        it "leaves an overridden temperature out too" do
+          rendered = described_class.new(prompt, data.merge(model: "claude-opus-5-5"), { temperature: 0.2 })
+
+          expect(rendered.to_ruby_llm_params).not_to have_key(:temperature)
+        end
+
+        it "uses an overridden effort" do
+          rendered = described_class.new(prompt, data.merge(model: "claude-opus-5-5"), { effort: "low" })
+
+          expect(rendered.to_ruby_llm_params[:output_config]).to eq(effort: "low")
+        end
+      end
+
+      context "with a model that takes temperature but not effort" do
+        let(:rendered_prompt) { described_class.new(prompt, data.merge(model: "gpt-4o")) }
+
+        it "sends temperature and leaves effort out" do
+          params = rendered_prompt.to_ruby_llm_params
+
+          expect(params).to include(temperature: 0.7)
+          expect(params).not_to have_key(:output_config)
+        end
+      end
+
+      context "with a model outside the catalog" do
+        let(:rendered_prompt) { described_class.new(prompt, data.merge(model: "some-model")) }
+
+        it "sends temperature and leaves effort out" do
+          params = rendered_prompt.to_ruby_llm_params
+
+          expect(params).to include(temperature: 0.7)
+          expect(params).not_to have_key(:output_config)
+        end
+      end
+    end
+
     describe "#execute_with" do
       let(:test_rendered_data) do
         {
           content: "Test prompt",
           system_message: "Test system",
-          model: "gpt-4",
+          model: "gpt-4o",
           temperature: 0.7,
           max_tokens: 1000,
           parameters_used: {},
@@ -604,13 +663,13 @@ module PromptEngine
 
         it "detects OpenAI client and calls chat with parameters key" do
           expected_params = {
-            model: "gpt-4",
+            model: "gpt-4o",
             messages: [
               { role: "system", content: "Test system" },
               { role: "user", content: "Test prompt" }
             ],
             temperature: 0.7,
-            max_tokens: 1000
+            max_completion_tokens: 1000
           }
 
           expect(openai_client).to receive(:chat).with(parameters: expected_params)
@@ -624,151 +683,68 @@ module PromptEngine
 
           rendered_prompt.execute_with(openai_client, stream: true, tools: [ "test" ])
         end
-
-        it "works with different OpenAI client class names" do
-          [ "OpenAI", "MyOpenAIWrapper", "CustomOpenAIClient" ].each do |class_name|
-            client_class = double("Class", name: class_name)
-            client = double(class_name, class: client_class)
-
-            expect(client).to receive(:chat).with(parameters: anything)
-            rendered_prompt.execute_with(client)
-          end
-        end
       end
 
-      context "with Anthropic client" do
-        let(:anthropic_client) do
-          client_class = double("Class", name: "Anthropic::Client")
-          double("Anthropic::Client", class: client_class)
+      context "with RubyLLM" do
+        let(:models) do
+          { "claude-opus-5-5" => { provider: "anthropic", label: "Claude Opus 5.5", supports_temperature: false, supports_effort: true } }
         end
+        let(:test_rendered_data) do
+          { content: "Test prompt", system_message: "Test system", model: "claude-opus-5-5", temperature: 0.7, max_tokens: 1000, effort: "high", parameters_used: {} }
+        end
+        let(:context) { RubyLLM.context { |config| config.anthropic_api_key = "test-key" } }
 
-        it "detects Anthropic client and calls chat with splatted parameters" do
-          expected_params = {
-            messages: [
-              { role: "system", content: "Test system" },
-              { role: "user", content: "Test prompt" }
-            ],
-            model: "gpt-4",
-            temperature: 0.7,
-            max_tokens: 1000
+        before do
+          allow(PromptEngine.config).to receive(:models).and_return(models)
+          body = {
+            id: "msg_1", type: "message", role: "assistant", model: "claude-opus-5-5",
+            content: [ { type: "text", text: "Hello" } ], stop_reason: "end_turn",
+            usage: { input_tokens: 3, output_tokens: 1 }
           }
-
-          expect(anthropic_client).to receive(:chat).with(**expected_params)
-          rendered_prompt.execute_with(anthropic_client)
+          stub_request(:post, "https://api.anthropic.com/v1/messages")
+            .to_return(status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" })
         end
 
-        it "passes additional options to Anthropic parameters" do
-          expect(anthropic_client).to receive(:chat).with(
-            hash_including(stop_sequences: [ "\\n" ], metadata: { user: "test" })
-          )
-
-          rendered_prompt.execute_with(anthropic_client, stop_sequences: [ "\\n" ], metadata: { user: "test" })
+        it "asks a model outside ruby_llm's registry and returns the message" do
+          expect(rendered_prompt.execute_with(context).content).to eq("Hello")
         end
 
-        it "works with different Anthropic client class names" do
-          [ "Anthropic", "AnthropicAPI", "MyAnthropicWrapper" ].each do |class_name|
-            client_class = double("Class", name: class_name)
-            client = double(class_name, class: client_class)
+        it "sends the system message, settings and content" do
+          rendered_prompt.execute_with(context)
 
-            expect(client).to receive(:chat).with(anything)
-            rendered_prompt.execute_with(client)
-          end
-        end
-      end
-
-      context "with RubyLLM client" do
-        let(:ruby_llm_client) do
-          client_class = double("Class", name: "RubyLLM::Provider")
-          double("RubyLLM::Provider", class: client_class)
-        end
-
-        it "detects RubyLLM client and calls chat with splatted parameters" do
-          expected_params = {
-            messages: [
-              { role: "system", content: "Test system" },
-              { role: "user", content: "Test prompt" }
-            ],
-            model: "gpt-4",
-            temperature: 0.7,
-            max_tokens: 1000
+          expect(WebMock).to have_requested(:post, "https://api.anthropic.com/v1/messages").with { |request|
+            body = JSON.parse(request.body)
+            body["system"].to_s.include?("Test system") &&
+              body["max_tokens"] == 1000 &&
+              body["output_config"] == { "effort" => "high" } &&
+              !body.key?("temperature") &&
+              body["messages"].last["content"].to_s.include?("Test prompt")
           }
-
-          expect(ruby_llm_client).to receive(:chat).with(**expected_params)
-          rendered_prompt.execute_with(ruby_llm_client)
         end
 
-        it "passes additional options to RubyLLM parameters" do
-          expect(ruby_llm_client).to receive(:chat).with(
-            hash_including(provider_options: { api_key: "test" })
-          )
+        it "rejects a ruby_llm provider object" do
+          provider = RubyLLM::Providers::OpenAI.new(RubyLLM.context { |config| config.openai_api_key = "test-key" }.config)
 
-          rendered_prompt.execute_with(ruby_llm_client, provider_options: { api_key: "test" })
+          expect { rendered_prompt.execute_with(provider) }
+            .to raise_error(ArgumentError, "Pass RubyLLM or a RubyLLM::Context, not a ruby_llm provider")
         end
 
-        it "works with different RubyLLM client class names" do
-          [ "RubyLLM", "RubyLLMClient", "MyRubyLLMProvider" ].each do |class_name|
-            client_class = double("Class", name: class_name)
-            client = double(class_name, class: client_class)
+        it "accepts the RubyLLM module itself" do
+          allow(RubyLLM.config).to receive(:anthropic_api_key).and_return("test-key")
 
-            expect(client).to receive(:chat).with(anything)
-            rendered_prompt.execute_with(client)
-          end
+          expect(rendered_prompt.execute_with(RubyLLM).content).to eq("Hello")
         end
       end
 
       context "with unknown client" do
-        let(:unknown_client) do
-          client_class = double("Class", name: "RandomAPI::Client")
-          double("RandomAPI::Client", class: client_class)
-        end
-
-        it "raises ArgumentError for unrecognized client type" do
-          expect {
-            rendered_prompt.execute_with(unknown_client)
-          }.to raise_error(ArgumentError, "Unknown client type: RandomAPI::Client")
-        end
-
-        it "includes the class name in the error message" do
-          [ "SomeOtherClient", "UnknownProvider", "CustomLLM" ].each do |class_name|
-            client_class = double("Class", name: class_name)
-            client = double(class_name, class: client_class)
+        it "raises ArgumentError for an unrecognized client, Anthropic's SDK included" do
+          [ "RandomAPI::Client", "Anthropic::Client" ].each do |class_name|
+            client = double(class_name, class: double("Class", name: class_name))
 
             expect {
               rendered_prompt.execute_with(client)
             }.to raise_error(ArgumentError, "Unknown client type: #{class_name}")
           end
-        end
-      end
-
-      context "integration with parameter methods" do
-        it "calls to_openai_params for OpenAI clients" do
-          client_class = double("Class", name: "OpenAI::Client")
-          client = double("OpenAI::Client", class: client_class)
-
-          expect(rendered_prompt).to receive(:to_openai_params).with(test: true).and_call_original
-          expect(client).to receive(:chat).with(parameters: anything)
-
-          rendered_prompt.execute_with(client, test: true)
-        end
-
-        it "calls to_ruby_llm_params for RubyLLM clients" do
-          client_class = double("Class", name: "RubyLLM::Provider")
-          client = double("RubyLLM::Provider", class: client_class)
-
-          expect(rendered_prompt).to receive(:to_ruby_llm_params).with(test: true).and_call_original
-          expect(client).to receive(:chat).with(anything)
-
-          rendered_prompt.execute_with(client, test: true)
-        end
-
-        it "calls to_ruby_llm_params for Anthropic clients" do
-          client_class = double("Class", name: "Anthropic::Client")
-          client = double("Anthropic::Client", class: client_class)
-
-          expect(rendered_prompt).to receive(:to_ruby_llm_params).with(test: true).and_call_original
-          expect(client).to receive(:chat).with(anything)
-
-          rendered_prompt.execute_with(client, test: true)
         end
       end
     end

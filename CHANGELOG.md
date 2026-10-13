@@ -5,6 +5,37 @@ All notable changes to PromptEngine will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-10-12
+
+### Added
+- Effort setting on prompts, versioned like temperature and settable per render with `options: { effort: }`. Sent as Anthropic's `output_config: { effort: }` to models flagged `supports_effort: true`.
+- Model families: PromptEngine resolves a model's provider, `supports_temperature` and `supports_effort` from its name (`DEFAULT_MODEL_FAMILIES`, overridable with `config.model_families`), so newly released Claude and GPT models work without a config change. Catalog entries override the family settings key by key.
+- `config.models` accepts a callable, so the model list can come from ruby_llm's registry.
+- `supports_temperature` and `supports_effort` flags on model catalog entries. The prompt form shows each field only for models that accept it, and clears a field when you switch to a model that doesn't. The prompt page marks a stored setting the model doesn't use.
+- `RenderedPrompt#to_ruby_llm_chat`, which returns a ready RubyLLM chat with the system message and settings applied.
+- `bin/rails generate prompt_engine:upgrade`, which copies new migrations and lists the steps for the version. See `UPGRADING.md`.
+
+### Changed
+- Requires `ruby_llm ~> 1.16`.
+- Default model catalog lists Claude Opus 5.5, Sonnet 5.5 and Haiku 5.5 in place of the 4.x models, with labels only; families supply the rest.
+- `execute_with` takes the `RubyLLM` module or a `RubyLLM::Context` and returns the reply. It no longer accepts Anthropic SDK clients.
+- `to_ruby_llm_params` and `to_openai_params` leave out `model` when a prompt has none, instead of sending `"gpt-4"`.
+- `to_openai_params` and `to_ruby_llm_params` send `max_completion_tokens` instead of `max_tokens` for models whose catalog provider is `"openai"`.
+- `PromptEngine.render` passes variables and options separately, so a template variable named like an option still renders as a variable.
+- Evaluations start only for a prompt whose model resolves to provider `"openai"`. The runner no longer falls back to `"gpt-4"`.
+- ruby_llm loads when first used rather than when PromptEngine loads.
+
+### Fixed
+- The playground sends the prompt's `max_tokens`, and reaches models newer than ruby_llm's bundled registry.
+- The playground records the settings it actually sent with each run.
+- Editing a prompt whose model isn't in the catalog keeps that model instead of blanking it.
+- The playground sets API keys on a scoped RubyLLM context instead of replacing the host app's global keys.
+- The playground reports a refusal or a `max_tokens` cutoff instead of saving an empty response as a success.
+- The playground shows the provider's error message for a rejected request, and recognizes ruby_llm's authentication, rate limit and overload errors.
+- Restoring a version from the versions page restores its effort, and run comparisons show effort.
+- The usage example on the prompt page passes variables as a hash, so it runs as written.
+- The `prompt_engine:eval_demo` task referenced classes from the gem's old name.
+
 ## [1.1.0] - 2026-04-01
 
 ### Added
